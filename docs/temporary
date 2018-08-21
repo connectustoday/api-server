@@ -1,0 +1,250 @@
+ 
+ConnectUS Backend Infrastructure Overview
+
+NodeJS Runtime environment w/ express for API routing.
+
+Similar to an experiment I wrote @ https://gitlab.dolphinbox.net/seshpenguin/socialhub
+
+This document is subject to change.
+
+High level overview
+Basically: we use ExpressJS, a web framework for node is the basis for the backend api. We will follow the fairly new metaphor of a “thin” backend, meaning that the frontend will be responsible for doing the majority of the rendering work (i.e compared to traditional websites that render the contents of the page into its final form on the server, then send the result to the client). This means our frontend, written in React, will be responsible for rendering the page, and the backend will expose API endpoints that the frontend retrieves the information it needs from the server.
+
+Like many new web-based applications, each client instance will be given a unique session id or token. The token is then used at each request to the API endpoints to authenticate and identify the client attempting to access it. This also means the backend server is “stateless”. The backend doesn’t need to have a stored concept of a user object, for example. Each request is uniquely identified by this token. When a user logs out, the token is discarded and a new token is generated for the next logon.
+
+Since each requests are independent of any single backend API server, we can have multiple instances of the backend running behind a load balancer, allowing for linear scalability.
+
+
+Server Technical Details
+
+The server will run GNU/Linux (preferably a enterprise-grade distro such as Red Hat Enterprise Linux, Ubuntu Server, etc). 
+
+The main database will be a MariaDB/MySQL server. The rationale here is that MariaDB is a long standing, reliable/trusted and proven database solution, with a plethora of features at our disposable. 
+A Redis server will be used to cache common database requests, as Redis is an extremely fast in-memory key-value database. This will work by caching common or slow database queries to Redis, and periodically sync the cache with MariaDB. This effectively makes Redis a “frontend” to MariaDB. Redis will also store the temporary authentication tokens.
+
+The server will be written in NodeJS, and will use the Express web framework. The frontend will not be served by the backend server, however. It will simply be served by a fast static web server (such as NGINX), and upon page load on the client, will facilitate HTTP requests to the backend API server. The API Server will expose a list of API endpoints, each accepting a JSON request, and then replying to the frontend with a JSON result. This allows the frontend to request the data it needs from the backend, and then render the result on the clients browser.
+
+In terms of scalability, we have some flexibility pertaining to the deployment of the server. A simple approach is to run each instance as a systemd unit on the host machine. Whilst this is easy to setup, it is harder to maintain as we scale up the infrastructure (specifically, updating, and debugging). Another option then is to run each API server as a docker container. While this adds some overhead per each server instance, it makes scability easier and more manageable.
+
+The server could possibly be GPLv3 licensed, with the API open and documented. This would have have many benefits (https://www.gnu.org/philosophy/free-sw.en.html).
+
+
+API Details
+
+https://en.wikipedia.org/wiki/Representational_state_transfer
+
+The server will be written as a stateless RESTful server. Essentially, the server will expose a number of API “endpoints”, essentially URLs/routes with specific functions (authenticating a user, for example, “api.connectus.com/v1/auth/logon”). The frontend accesses these API endpoints through standard HTTP requests (GET, POST, PUT, DELETE), as standard RESTful API calls. Data is sent between the frontend and backend using JSON, the standard object notation for JavaScript. Any major changes (breaking) that are to be made to the API should be placed under a new API version (“/v2/” instead, for example), and the changes can be merged to the frontend at will (since the old API will remain consistent). 
+
+Backend entities can be represented in standard RESTful object notation (i.e /v1/entity/user) and the object can be manipulated by the request. For example, to query a user for it’s details, a GET request passing the entity ID would return the user as a JSON object.
+
+Endpoints can be functions, too. For example, an endpoint for registering a user will act more like a function. The frontend will call an the, for example, “/v1/auth/register” endpoint with a PUT request, passing the required details as a JSON object, and the server will respond with some result (user has been registered, not registered, why, etc) as a JSON object.
+
+Essentially, the backend is a separated, portable unit from the frontend. The frontend can be designed independently of the backend, and simply hook into and query the API as need be. 
+
+API Security
+Because of the stateless nature of RESTful API, each request (that requires it) to the API will need an associated authentication token. Authentication tokens are given during login, and revoked during logouts. The token then, represents that users logged-in state for each API call. The tokens are stored in Redis along with the users ID. 
+
+Tokens should also be subject to a certain number of security checks. For example, tokens should be restricted to a certain IP or geographical region.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ConnectUS Web Application Design Overview
+
+This document is an overview as to how the backend will function and represent data. As it is an overview, it does not document specific code-related details (names, APIs).
+
+Schemas (Objects)
+Entity
+A superschema of users and organizations. It represents any sort of registered entity on the site. They share the same pool of IDs and similar behaviour. 
+
+Data Point
+Description
+ID
+The unique ID of the Entity
+Username/Handle (@)
+ The username for the entity; can be identified by @ (ex. @bayviewss)
+Email
+The entity’s email; used for sign-in and notifications
+Password Hash
+The hash for the entity’s password
+OAuth Token
+The api token for OAuth (Google, Facebook sign-in)
+Email Verified
+Whether or not the entity has verified their email (and activated their account).
+Last Login Unix Timestamp
+Last login time; stored as a Unix timestamp
+Notifications List
+Stores the list of Notifications that the entity has.
+
+User (derived from Entity)
+Schema representing registered users on the site. It inherits the fields from Entity.
+
+Data Point
+Description
+Personal Information
+Any specific user-defined information about themselves. This includes their biography, extracurriculars, education, profile picture, place of residence, a quote, certifications, and etc.
+Organization Affiliations 
+Affiliations with other organizations. Note: this conflicts with the experiences; may be removed
+Real Name
+The real name (and full) name of the user. Option to disable it being shown in options.
+Connected People
+List of connected users (ID) that are “friends” with this user. 
+Interests
+List of tags, organizations, and people the user is interested in.
+Experiences
+List of Experiences that a user has.
+Options
+Personal user settings
+Visibility of Full Name (Friends, Global, None, etc.)
+Send Notifications to Email
+Blocked Users (their IDs)
+
+Organization (derived from Entity)
+
+Data Point
+Description
+Organization Information
+Specific details of the organization
+Mission
+Quote
+Address
+Organization Address
+Logo
+Etc.
+
+Interests
+List of tags that an organization is interested in.
+Verified?
+Whether or not the organization has been verified.
+Opportunities
+List of Opportunity IDs that the organization has created
+Options
+Organization settings
+Is non-profit?
+
+
+
+
+
+
+
+Post
+
+Data Point
+Description
+Entity ID
+ID of the Entity that created it.
+Content
+Content of the post. Use markdown?
+Attached Media
+Images/videos/news articles that are attached to the post, and displayed separately.
+Timestamp
+Unix timestamp of when the post was created.
+Tags
+Tags that the post is categorized under.
+
+
+
+Opportunity
+An opportunity object represents an opportunity that an organization has for people to sign up for. This can be for an event (Canada Day), or simply a shift for a job (food bank). Organizations can choose whether or not they want to use the built-in mechanism for signing up users. They will have a choice to allow users to either sign up for a shift directly on the site, or to let the organization know which users have expressed their interest for the position. 
+
+
+Data Point
+Description
+Organization ID
+ID of the Organization that created it.
+Opportunity ID
+ID of the Opportunity
+Name
+Name of the Opportunity
+Description
+Description of the Opportunity
+Location (Optional)
+Location of the Opportunity
+Signups Enabled?
+Whether or not the website will handle signups for each shift, or if it will simply only display interested users.
+# of People Requested (Optional)
+The amount of people needed for the opportunity; only enabled if signups are done on the site.
+Tags
+Categories that this opportunity falls under (ex. #foodbank, #richmondhill)
+Shift Times (Optional)
+Shift times of the opportunity, if the signups for it are done on the website.
+Interested Users (Optional)
+The IDs of the users that have confirmed their interest for the opportunity. If signups are enabled, it will also show their interest for whatever shift they chose. This is only accessible to organization.
+Webhook (Maybe?)
+When a user registers, perhaps allow other applications to access the information.
+User Validation List
+List of User IDs and personal Experience IDs. Represent users seeking validation for their Experience from the organization.
+Method of Contact
+If signups are not enabled, a method of contact (email, messaging) is provided to allow users to contact the organization for more information.
+
+
+Experience (for User)
+An experience represents an experience that a user has had. This can include jobs (a shift at McDonald’s), volunteer shifts, and a role that a person has in an organization (club president for DECA at Richmond Hill High). It is optional to get it verified by the organization. Experiences can be tied to existing Opportunity objects, to show that the user has participated in that specific opportunity. Experiences are tied to the user, and stored under the user’s schema.
+
+Data Point
+Description
+Location
+Location that the event had taken place.
+Experience ID
+ID of the Experience. The IDs are specific to the user.
+For which Organization ID (If Applicable)
+Organization ID if the experience is being tied to an Organization on the site.
+For which Opportunity ID (If Applicable)
+Opportunity ID if the experience is being tied to a specific Opportunity on the site.
+Description (User defined)
+A user defined description of the experience. Another description might be provided from an Opportunity if it is tied to one.
+When
+When the Experience took place (ex. Sept. 2015 - Aug. 2016
+Verified?
+Whether or not this Experience has been verified by the Organization specified. If no organization is specified, it will not show as verified.
+
+
+Notification
+
+
+Functions
+
+
+
+Possible APIs to Use
+https://github.com/notifme/notifme-sdk
+
+Problems To Discuss
+Exception handling
+Debugging
+Handles conflicts
+Reporting system
+Emails
+Upload resume
+Locale
+
