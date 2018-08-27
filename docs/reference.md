@@ -9,4 +9,12 @@ There are several requirements for queries against the API.
 * An API key is required for each query (using the `api_key` parameter).
 * If the query needs user authorization, an `oauth2_token` parameter must be included.
 
+## Resource Types
 
+### Account
+
+
+
+### User
+
+### Organization
