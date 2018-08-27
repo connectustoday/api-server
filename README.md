@@ -1,6 +1,6 @@
 # ConnectUS Backend API Server
 
-This is the main backend server for ConnectUS. It is written in TypeScript for NodeJS.
+This is the web application for ConnectUS. It is written in TypeScript for NodeJS.
 
 ## Running (Dev)
 The server software has only been tested on GNU/Linux.
@@ -16,5 +16,5 @@ For development, you should run api-server with `npm start`, as it will call ts-
 ## Running (Production)
 Todo.
 
-## API Spec
-Please see the [wiki](https://github.com/connectustoday/api-server/wiki).
+## API Documentation
+Please see our documentation [here](https://connectustoday.github.io/api-server/).
