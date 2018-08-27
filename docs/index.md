@@ -2,11 +2,8 @@
 
 Here you will find documentation. Wow.
 
-### Test
-hello.
-# 1
-hi
-## 2
-hi
-### 3
-hi
+### Reference
+Check out the API reference [here](https://connectustoday.github.io/api-server/reference).
+
+### Guides
+Not ready yet...
