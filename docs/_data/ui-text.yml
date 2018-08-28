@@ -1005,8 +1005,7 @@ ja: &DEFAULT_JA
   comment_btn_submit         : "コメントを送信する"
   comment_btn_submitted      : "送信しました"
   comment_success_msg        : "コメントありがとうございます！　コメントは承認されるとページに表示されます。"
-  comment_error_msg          : 
-"送信エラーです。必須項目がすべて入力されていることを確認して再送信してください。"
+  comment_error_msg          : "送信エラーです。必須項目がすべて入力されていることを確認して再送信してください。"
   loading_label              : "読み込み中..."
   search_placeholder_text    : "検索キーワードを入力してください..."
   results_found              : "件"
