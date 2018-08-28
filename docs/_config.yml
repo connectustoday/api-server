@@ -8,24 +8,16 @@ title                    : "ConnectUS API"
 title_separator          : "-"
 name                     : "ConnectUS API"
 description              : "Documentation "
-url                      : https://connectustoday.github.io # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
-baseurl                  : /api-server # the subpath of your site, e.g. "/blog"
+url                      : https://connectustoday.github.io 
+baseurl                  : /api-server
 repository               : connectustoday/api-server # GitHub username/repo-name
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 breadcrumbs              : true # true, false (default)
 words_per_minute         : 200
 comments:
-  provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
-  disqus:
-    shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
-  discourse:
-    server               : # https://meta.discourse.org/t/embedding-discourse-comments-via-javascript/31963 , e.g.: meta.discourse.org
-  facebook:
-    appid                :
-    num_posts            : # 5 (default)
-    colorscheme          : # "light" (default), "dark"
-search                   : # true, false (default)
-search_full_content      : # true, false (default)
+  provider               : false # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
+search                   : true # true, false (default)
+search_full_content      : true # true, false (default)
 search_provider          : # lunr (default), algolia, google
 algolia:
   application_id         : # YOUR_APPLICATION_ID
@@ -57,10 +49,6 @@ social:
 # Analytics
 analytics:
   provider               : false # false (default), "google", "google-universal", "custom"
-  google:
-    tracking_id          :
-    anonymize_ip         : # true, false (default)
-
 
 # Reading Files
 include:
@@ -188,7 +176,7 @@ compress_html:
 
 # Defaults
 defaults:
-  # _posts
+  # _docs
   - scope:
       path: ""
       type: docs
@@ -199,6 +187,8 @@ defaults:
       comments: # true
       share: true
       related: true
+      permalink: /reference/
+      permalink: /internal_reference/
       sidebar:
         nav: "docs"
 
