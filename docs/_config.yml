@@ -176,10 +176,10 @@ compress_html:
 
 # Defaults
 defaults:
-  # _docs
+  # _pages
   - scope:
       path: ""
-      type: docs
+      type: pages
     values:
       layout: single
       author_profile: true
@@ -190,5 +190,5 @@ defaults:
       permalink: /reference/
       permalink: /internal_reference/
       sidebar:
-        nav: "docs"
+        nav: "pages"
 
