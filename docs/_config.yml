@@ -1,6 +1,6 @@
 remote_theme: LeakyAbstractions/pretty-docs
 url: https://connectustoday.github.io
-baseurl: /docs
+baseurl: /api-server
 title: &site_title ConnectUS Docs
 description: &site_description Documentation for ConnectUS.today
 branding:
