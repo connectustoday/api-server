@@ -12,14 +12,16 @@ export class AuthRoutes {
         app.get('/v1/auth/register', (req, res) => res.send('Invalid Request')); // Client should not GET this endpoint.
 
         app.post('/v1/auth/register', function (req, res) {
-            res.send("Stub")
+            var user = req.body;
+            res.send(user.username); //testing
+
         });
 
         /* ~~ Sign In Endpoint ~~ */
         app.get('/v1/auth/signin', (req, res) => res.send('Invalid Request')); // Client should not GET this endpoint.
 
         app.post('/v1/auth/signin', function (req, res) {
-            res.send("Stub")
+            res.send("Stub");
             // retrieve the JSON using body-parser (req.body)
         });
     }
