@@ -996,8 +996,7 @@ ja: &DEFAULT_JA
   email_label                :
   recent_posts               : "最近の投稿"
   undefined_wpm              : "パラメータ words_per_minute が _config.yml で定義されていません"
-  comment_form_info          : 
-"メールアドレスが公開されることはありません。次の印のある項目は必ず入力してください:"
+  comment_form_info          : "メールアドレスが公開されることはありません。次の印のある項目は必ず入力してください:"
   comment_form_comment_label : "コメント"
   comment_form_md_info       : "Markdown を使用できます"
   comment_form_name_label    : "名前"
@@ -1052,8 +1051,7 @@ sk: &DEFAULT_SK
   comment_btn_submit         : "Vlož komentár"
   comment_btn_submitted      : "Vložený"
   comment_success_msg        : "Ďakujem za tvoj komentár! Po schválení bude zobrazený na stránke."
-  comment_error_msg          : "Prepáč, pri ukladaní nastala chyba. Ubezpeč sa prosím, že si vyplnil všetky 
-požadované polia a skús znova."
+  comment_error_msg          : "Prepáč, pri ukladaní nastala chyba. Ubezpeč sa prosím, že si vyplnil všetky požadované polia a skús znova."
   loading_label              : "Načítava sa..."
   search_placeholder_text    : "Zadaj hľadaný výraz..."
   results_found              : "Nájdených výsledkov"
