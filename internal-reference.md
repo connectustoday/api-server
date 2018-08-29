@@ -19,8 +19,9 @@ They share the same pool of IDs and similar behaviour.
 | `is_email_verified` | bool | Whether or not the `Account` has verified their email (to activate the account). |
 | `last_login` | int64 | Last login time; stored as a Unix timestamp |
 | `notifications` | `Notification` array | Stores the list of `Notification`s that the entity has. |
-| `profile_picture` | string | Link to the profile picture of the account. |
-| `account_created` | int64 | Timestamp for when the account was created. |
+| `avatar` | string | URL to the profile picture of the account. |
+| `header` | string | URL to the header image of the account. |
+| `created_at` | int64 | Timestamp for when the account was created. |
 | `pending_connections` | string array | Pending connection requests from other `Account`s. Array of IDs. | 
 | `requested_connections` | string array | Pending connection requests to other `Account`s. Array of IDs. |
 | `posts` | string array | List of `Post` IDs that the `Account` has posted.
@@ -35,6 +36,9 @@ within the `Account` object.
 |-------|:----:|-------------|
 | `allow_messages_from_unknown` | bool | Whether or not to allow messages from `Account`s that are not connected with this `Account`.
 | `email_notifications` | bool | Whether or not the user allows emails regarding notifications. |
+
+### AccountRelationship
+
 
 ### User (extends `Account`)
 Schema representing registered users on the site. It inherits the fields from `Account`.
@@ -63,6 +67,7 @@ object.
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
 | `interests` | string array | Tags that the user is interested in. |
 | `biography` | string | Biography of the user. |
 | `education` | undecided | undecided |
@@ -86,6 +91,7 @@ This is stored within the `Organization` object.
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
 | `mission` | string | The organization's stated mission. |
 | `quote` | string | The organization's specified quote. |
 | `address` | `Address` | The organization's headquarters location. |
@@ -106,12 +112,19 @@ Represents posts that `Account`s create on the website.
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
 | `post_id` | string | The unique ID of the post. |
 | `account_id` | string | ID of the `Account` that posted it. |
 | `content` | string | Text content of the post. |
-| `time_created` | int64 | Timestamp of when the post was created. |
+| `created_at` | int64 | Timestamp of when the post was created. |
 | `multimedia` | string array | Links to other media (images/videos/articles) that are attached to the post. Displayed separately.|
 | `tags` | string array | Tags that the post is categorized under. |
+
+### Attachment
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+
 
 ### Opportunity
 An opportunity object represents an opportunity that an organization has for people to sign up 
@@ -122,6 +135,7 @@ organization know which users have expressed their interest for the position.
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
 | `organization_id` | string | ID of the `Organization` that created it. |
 | `opportunity_id` | string | ID of the `Opportunity`. |
 | `name` | string | Name of the `Opportunity`. |
@@ -133,6 +147,7 @@ organization know which users have expressed their interest for the position.
 | `interested_users` | string array | The IDs of the users that have confirmed their interest for the opportunity. If signups are enabled, it will also show their interest for whatever shift they chose. This is only accessible to organization. |
 | `shift_times` | array of 2 strings pairs (object) | Shift times of the opportunity, if the signups for it are done on the website. |
 | `method_of_contact` | string | If signups are not enabled, a method of contact (email, messaging) is provided to allow users to contact the organization for more information. |
+| `created_at` | int64 | Timestamp of when the `Opportunity` was created. |
 
 ### Experience
 An experience represents an experience that a user has had. This can include jobs (a shift at 
@@ -143,6 +158,7 @@ specific opportunity. `Experience`s are stored under the corresponding user’s 
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
 | `location` | `Address` | Location that the event had taken place. |
 | `experience_id` | string | ID of the `Experience`. The IDs are specific to the user. |
 | `organization_id` | string | `Organization` ID if the experience is being tied to an `Organization` on the site. |
@@ -150,9 +166,16 @@ specific opportunity. `Experience`s are stored under the corresponding user’s 
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when` | 2 strings (object) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
 | `is_verified` | bool | Whether  or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
+| `created_at` | int64 | Timestamp of when the `Experience` was created. |
 
 ### Notification
 
+IDs are specific to a user.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `id` | int64 | ID of the notification. Specific to the user. |
+| `created_at` | int64 | Timestamp of when the notification was created. |
 
 ### Address
 
