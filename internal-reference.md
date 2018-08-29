@@ -37,9 +37,6 @@ within the `Account` object.
 | `allow_messages_from_unknown` | bool | Whether or not to allow messages from `Account`s that are not connected with this `Account`.
 | `email_notifications` | bool | Whether or not the user allows emails regarding notifications. |
 
-### AccountRelationship
-
-
 ### User (extends `Account`)
 Schema representing registered users on the site. It inherits the fields from `Account`.
 
@@ -113,18 +110,41 @@ Represents posts that `Account`s create on the website.
 | Field | Type | Description |
 |-------|:----:|-------------|
 | `schema_version` | int32 | The schema version. |
-| `post_id` | string | The unique ID of the post. |
-| `account_id` | string | ID of the `Account` that posted it. |
+| `id` | string | The unique ID of the post. |
+| `account` | string | ID of the `Account` that posted it. |
 | `content` | string | Text content of the post. |
 | `created_at` | int64 | Timestamp of when the post was created. |
-| `multimedia` | string array | Links to other media (images/videos/articles) that are attached to the post. Displayed separately.|
+| `multimedia` | `Attachment` | Links to other media (images/videos/articles) that are attached to the post. Displayed separately.|
 | `tags` | string array | Tags that the post is categorized under. |
+| `likes_count` | int32 | Number of likes for the post. | 
+| `comments_count` | int32 | Number of comments for the post. |
+| `shares_count` | int32 | Number of shares for the post. |
+| `likes` | string array | Array of `Account` IDs representing accounts that have liked the post. |
+| `comments` | `Comment` array | Array of `Comment`s that `Account`s have posted on the post. |
+| `shares` | string array | Array of `Account` IDs representing accounts that have shared the post. |
+| `visibility` | string | Visibility of the post. |
+
+### Comment
+Represents comments that `Account`s create on `Post`s. This is stored within the `Post` object.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
+| `id` | int64 | The ID of the comment, unique to the `Post`. |
+| `account` | string | The ID of the `Account` that posted it. |
+| `content` | string | Text content of the comment. |
+| `created_at` | int64 | Timestamp of when the comment was created. |
+| `multimedia` | `Attachment` | Links to other media (images/videos/articles) that are attached to the comment. Displayed separately. |
+| `likes_count` | int32 | Number of likes for the post. |
+| `comments_count` | int32 | Number of comments for the post. |
+| `likes` | string array | Array of `Account` IDs representing accounts that have liked the post. |
+| `comments` | `Comment` array | Array of `Comment`s that `Account`s have posted on the post. |
+
 
 ### Attachment
 
 | Field | Type | Description |
 |-------|:----:|-------------|
-
 
 ### Opportunity
 An opportunity object represents an opportunity that an organization has for people to sign up 
@@ -176,6 +196,7 @@ IDs are specific to a user.
 |-------|:----:|-------------|
 | `id` | int64 | ID of the notification. Specific to the user. |
 | `created_at` | int64 | Timestamp of when the notification was created. |
+
 
 ### Address
 
