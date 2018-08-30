@@ -1,12 +1,18 @@
-// Organization Interface
-import { IEntity } from "./entity";
+import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-export interface IOrganization extends IEntity {
-    name?: string;
-    metainfo?: object;
-    orgverified?: string;
-    intrests?: string[];
-    opportunities?: object[];
-    settings?: object;
+class IOrganization extends IAccount {
+	@prop({ required: true })
+	preferred_name: string;
 
+	@prop({ required: true })
+	is_verified: boolean;
+
+	@prop()
+	opportunities?: Array<string>;
+
+	@prop({ required: true })
+	org_info: IOrganizationProfile;
+
+	@prop()
+	experience_validations?: Array<[string, string]>
 }

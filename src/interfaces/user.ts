@@ -1,13 +1,24 @@
-// User Interface
-import { IEntity } from "./entity";
+import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-export interface IUser extends IEntity {
-    firstname?: string;
-    lastname?: string;
-    metainfo?: object;
-    connections?: string[];
-    intrests?: string[];
-    experiences?: object[];
-    settings?: object;
+class IUser extends IAccount {
+	@prop({ required: true })
+	first_name: string;
 
+	@prop()
+	middle_name?: string;
+
+	@prop()
+	last_name?: string;
+
+	@prop({ required: true })
+	birthday: string;
+
+	@prop()
+	gender?: string;
+
+	@prop({ required: true })
+	personal_info: IUserProfile;
+
+	@prop()
+	experiences?: Array<IExperience>;
 }
