@@ -27,6 +27,7 @@
     "@types/express": "^4.16.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
-    "mongoose": "^5.2.9"
+    "mongoose": "^5.2.9",
+    "typegoose": "^5.2.1"
   }
 }
