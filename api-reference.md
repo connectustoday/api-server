@@ -9,6 +9,9 @@ There are several requirements for queries against the API.
 * An API key is required for each query (using the `api_key` parameter).
 * If the query needs user authorization, an `oauth2_token` parameter must be included.
 
+https://www.npmjs.com/package/oauth2-server
+https://oauth2-server.readthedocs.io/en/latest/misc/migrating-v2-to-v3.html
+
 ## Resource Types
 
 ### Account
