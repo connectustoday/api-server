@@ -18,6 +18,9 @@ class IPost extends Typegoose {
 	created_at: number;
 
 	@prop()
+	reply_to?: string;
+
+	@prop()
 	multimedia?: IAttachment;
 
 	@prop()
@@ -36,7 +39,7 @@ class IPost extends Typegoose {
 	likes?: Array<string>;
 
 	@prop()
-	comments?: Array<IComment>;
+	comments?: Array<string>;
 
 	@prop()
 	shares?: Array<string>;

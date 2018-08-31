@@ -1,3 +1,4 @@
+
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
 class IAccountSettings {

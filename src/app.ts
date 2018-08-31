@@ -31,7 +31,6 @@ class App {
         // support application/json type post data
         this.app.use(bodyParser.json());
 
-
     }
 
 }

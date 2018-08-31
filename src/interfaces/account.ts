@@ -50,6 +50,12 @@ class IAccount extends Typegoose {
 	@prop()
 	posts?: Array<string>;
 
+	@prop()
+	liked?: Array<[string, number]>;
+
+	@prop()
+	shared?: Array<[string, number]>;
+
 	@prop({ required: true })
 	settings: IAccountSettings;
 

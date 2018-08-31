@@ -11,7 +11,7 @@ class IOrganizationProfile {
 	quote?: string;
 
 	@prop()
-	address?: string; //TODO
+	address?: IAddress;
 
 	@prop()
 	affiliated_orgs?: Array<string>;

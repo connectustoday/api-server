@@ -18,7 +18,7 @@ class IOpportunity extends Typegoose {
 	description?: string;
 
 	@prop()
-	address?: Address;
+	address?: IAddress;
 
 	@prop({ required: true })
 	is_signups_enabled: boolean;
