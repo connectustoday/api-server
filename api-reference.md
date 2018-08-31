@@ -11,6 +11,8 @@ There are several requirements for queries against the API.
 
 https://www.npmjs.com/package/oauth2-server
 https://oauth2-server.readthedocs.io/en/latest/misc/migrating-v2-to-v3.html
+https://docs.mongodb.com/manual/tutorial/geospatial-tutorial/
+https://github.com/expressjs/multer
 
 ## Resource Types
 

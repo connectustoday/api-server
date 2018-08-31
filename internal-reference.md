@@ -24,7 +24,9 @@ They share the same pool of IDs and similar behaviour.
 | `created_at` | int64 | Timestamp for when the account was created. |
 | `pending_connections` | string array | Pending connection requests from other `Account`s. Array of IDs. | 
 | `requested_connections` | string array | Pending connection requests to other `Account`s. Array of IDs. |
-| `posts` | string array | List of `Post` IDs that the `Account` has posted.
+| `posts` | string array | List of `Post` IDs that the `Account` has posted. |
+| `liked` | [string, int64]  array | List of `Post` IDs that the `Account` has liked, with the timestamp of when it was liked. |
+| `shared` | [string, int64] array | List of `Post` IDs that the `Account` has shared, with the timestamp of when it was shared. |
 | `settings` | `AccountSettings` | The settings for the `Account`. Will be inherited schema (`UserSettings` or `OrganizationSettings`) |
 | `admin_note` | string | A note that an admin can leave about an account. |
 
@@ -105,7 +107,7 @@ Settings specific to `Organization`s. This is stored within the `Account` object
 
 
 ### Post
-Represents posts that `Account`s create on the website.
+Represents posts and replies that `Account`s create on the website.
 
 | Field | Type | Description |
 |-------|:----:|-------------|
@@ -114,37 +116,25 @@ Represents posts that `Account`s create on the website.
 | `account` | string | ID of the `Account` that posted it. |
 | `content` | string | Text content of the post. |
 | `created_at` | int64 | Timestamp of when the post was created. |
+| `reply_to` | string | ID of the `Post` that was replied to, if applicable. |
 | `multimedia` | `Attachment` | Links to other media (images/videos/articles) that are attached to the post. Displayed separately.|
 | `tags` | string array | Tags that the post is categorized under. |
 | `likes_count` | int32 | Number of likes for the post. | 
 | `comments_count` | int32 | Number of comments for the post. |
 | `shares_count` | int32 | Number of shares for the post. |
-| `likes` | string array | Array of `Account` IDs representing accounts that have liked the post. |
-| `comments` | `Comment` array | Array of `Comment`s that `Account`s have posted on the post. |
-| `shares` | string array | Array of `Account` IDs representing accounts that have shared the post. |
-| `visibility` | string | Visibility of the post. |
-
-### Comment
-Represents comments that `Account`s create on `Post`s. This is stored within the `Post` object.
-
-| Field | Type | Description |
-|-------|:----:|-------------|
-| `schema_version` | int32 | The schema version. |
-| `id` | int64 | The ID of the comment, unique to the `Post`. |
-| `account` | string | The ID of the `Account` that posted it. |
-| `content` | string | Text content of the comment. |
-| `created_at` | int64 | Timestamp of when the comment was created. |
-| `multimedia` | `Attachment` | Links to other media (images/videos/articles) that are attached to the comment. Displayed separately. |
-| `likes_count` | int32 | Number of likes for the post. |
-| `comments_count` | int32 | Number of comments for the post. |
-| `likes` | string array | Array of `Account` IDs representing accounts that have liked the post. |
-| `comments` | `Comment` array | Array of `Comment`s that `Account`s have posted on the post. |
-
+| `likes` | [string, int64] array | Array of `Account` IDs and timestamps representing accounts that have liked the post, and when. |
+| `comments` | string array | Array of `Post` IDs that `Account`s have posted on the post. |
+| `shares` | [string, int64] array | Array of `Account` IDs representing accounts that have shared the post, and the timestamp of when. |
+| `visibility` | string | Visibility of the post on the account's profile. |
 
 ### Attachment
 
 | Field | Type | Description |
 |-------|:----:|-------------|
+| `schema_version` | int32 | The schema version. |
+| `type` | string | The type of the attachment (image, news post, video, etc.) | 
+| `url` | string | URL of the attachment. |
+| `description` | string | Description of the attachment, if applicable. |
 
 ### Opportunity
 An opportunity object represents an opportunity that an organization has for people to sign up 
@@ -156,8 +146,8 @@ organization know which users have expressed their interest for the position.
 | Field | Type | Description |
 |-------|:----:|-------------|
 | `schema_version` | int32 | The schema version. |
-| `organization_id` | string | ID of the `Organization` that created it. |
-| `opportunity_id` | string | ID of the `Opportunity`. |
+| `organization` | string | ID of the `Organization` that created it. |
+| `id` | string | ID of the `Opportunity`. |
 | `name` | string | Name of the `Opportunity`. |
 | `description` | string | Description of the `Opportunity`. |
 | `address` | `Address` | Address of where the `Opportunity` takes place. |
@@ -180,11 +170,11 @@ specific opportunity. `Experience`s are stored under the corresponding user’s 
 |-------|:----:|-------------|
 | `schema_version` | int32 | The schema version. |
 | `location` | `Address` | Location that the event had taken place. |
-| `experience_id` | string | ID of the `Experience`. The IDs are specific to the user. |
-| `organization_id` | string | `Organization` ID if the experience is being tied to an `Organization` on the site. |
-| `opportunity_id` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
+| `id` | string | ID of the `Experience`. The IDs are specific to the user. |
+| `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site. |
+| `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
-| `when` | 2 strings (object) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
+| `when` | 2 strings (tuple) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
 | `is_verified` | bool | Whether  or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
 | `created_at` | int64 | Timestamp of when the `Experience` was created. |
 
@@ -196,7 +186,9 @@ IDs are specific to a user.
 |-------|:----:|-------------|
 | `id` | int64 | ID of the notification. Specific to the user. |
 | `created_at` | int64 | Timestamp of when the notification was created. |
-
+| `type` | string | The notification type.
+| `content` | string | The content of the notification. |
+| `account` | string | The account that caused the notification, if applicable. |
 
 ### Address
 
@@ -204,11 +196,13 @@ May be replaced by MongoDB Geospatial objects.
 
 | Field | Type |
 |-------|:----:|
-| street | string |
-| city | string |
-| province | string |
-| postal_code | string |
-| apt_number | string |
+| `street` | string |
+| `city` | string |
+| `province` | string |
+| `country` | string |
+| `postal_code` | string |
+| `apt_number` | string |
+| `geojson` | GeoJSON point |
 
 ___
 
