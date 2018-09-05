@@ -1,6 +1,9 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAccount from './account';
+import IUserProfile from './user-profile';
+import IExperience from './experience';
 
-class IUser extends IAccount {
+export default class IUser extends IAccount {
 	@prop({ required: true })
 	first_name: string;
 

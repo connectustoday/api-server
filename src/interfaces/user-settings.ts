@@ -1,6 +1,7 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAccountSettings from './account-settings';
 
-class IUserSettings extends IAccountSettings {
+export default class IUserSettings extends IAccountSettings {
 
 	@prop({ required: true })
 	is_full_name_visible: boolean;

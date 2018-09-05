@@ -1,6 +1,7 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAddress from './address';
 
-class IOrganizationProfile {
+export default class IOrganizationProfile {
 	@prop({ required: true })
 	schema_version: string;
 

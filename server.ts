@@ -16,7 +16,16 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 import app from "./src/app";
+
+const flagDefinitions = [
+    {name: 'dbport', type: Number},
+    {name: 'dbaddress', type: String}
+]; //TODO
+
+const commandLineArgs = require('command-line-args');
+const flags = commandLineArgs(flagDefinitions);
 
 console.log("Starting ConnectUS API Server...");
 
@@ -24,4 +33,4 @@ const PORT = 3000;
 
 app.listen(PORT, () => {
     console.log('ConnectUS API Server listening on port ' + PORT);
-})
+});

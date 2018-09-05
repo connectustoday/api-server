@@ -1,6 +1,6 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-class IPoint {
+export default class IPoint {
 
 	@prop({ required: true })
 	type: string; //Point

@@ -1,6 +1,6 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-class INotification {
+export default class INotification {
 
 	@prop({ required: true })
 	id: number;

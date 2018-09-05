@@ -1,7 +1,8 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-class IUserProfile {
-	@prop({ required: true })
+export default class IUserProfile {
+    // @ts-ignore
+    @prop({required: true})
 	schema_version: string;
 
 	@prop()

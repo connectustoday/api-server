@@ -1,6 +1,6 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-class IAttachment {
+export default class IAttachment {
 
 	@prop({ required: true })
 	schema_version: number;

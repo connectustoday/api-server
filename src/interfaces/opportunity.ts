@@ -1,6 +1,7 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAddress from './address';
 
-class IOpportunity extends Typegoose {
+export default class IOpportunity extends Typegoose {
 
 	@prop({ required: true })
         schema_version: number;

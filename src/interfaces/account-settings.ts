@@ -1,7 +1,7 @@
 
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 
-class IAccountSettings {
+export default class IAccountSettings {
 
 	@prop({ required: true })
 	allow_messages_from_unknown: boolean;

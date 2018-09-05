@@ -1,6 +1,8 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import INotification from './notification';
+import IAccountSettings from './account-settings';
 
-class IAccount extends Typegoose {
+export default class IAccount extends Typegoose {
 
 	@prop({ required: true })
 	schema_version: number;

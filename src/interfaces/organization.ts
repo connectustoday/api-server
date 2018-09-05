@@ -1,6 +1,8 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAccount from './account';
+import IOrganizationProfile from './organization-profile';
 
-class IOrganization extends IAccount {
+export default class IOrganization extends IAccount {
 	@prop({ required: true })
 	preferred_name: string;
 

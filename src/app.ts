@@ -2,7 +2,7 @@
 import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Routes } from "./routes/routes"
-import { AuthRoutes } from "./routes/auth/authRoutes"
+import {AuthRoutes} from "./routes/auth/auth-routes"
 
 class App {
 

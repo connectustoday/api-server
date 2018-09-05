@@ -1,9 +1,10 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IAttachment from './attachment';
 
-class IPost extends Typegoose {
+export default class IPost extends Typegoose {
 
 	@prop({ required: true })
-        schema_version: number;
+    schema_version: number;
 
 	@prop({ required: true })
 	id: string;

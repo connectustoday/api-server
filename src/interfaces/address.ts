@@ -1,6 +1,7 @@
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import IPoint from './point';
 
-class IAddress {
+export default class IAddress {
 
 	@prop({ required: true })
 	schema_version: number;
