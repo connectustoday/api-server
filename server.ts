@@ -19,17 +19,18 @@
 
 import app from "./src/app";
 
-const flagDefinitions = [
-    {name: 'dbport', type: Number},
-    {name: 'dbaddress', type: String}
-]; //TODO
-
-const commandLineArgs = require('command-line-args');
-const flags = commandLineArgs(flagDefinitions);
+function getArg (env: string, def: string): string {
+    return (env == null) || (env == undefined) ? def : env;
+}
 
 console.log("Starting ConnectUS API Server...");
 
-const PORT = 3000;
+// MongoDB runtime flags
+export const DB_PORT: string = getArg(process.env.DB_PORT , "3000");
+export const DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost");
+export const DB_NAME: string = getArg(process.env.DB_NAME, "database");
+
+const PORT: string = getArg(process.env.API_PORT, "3000");
 
 app.listen(PORT, () => {
     console.log('ConnectUS API Server listening on port ' + PORT);

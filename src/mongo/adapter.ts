@@ -19,7 +19,8 @@
 
 import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 import * as mongoose from 'mongoose';
+import * as server from '../../server';
 
-// mongoose.connect();
+let promise = mongoose.connect("mongodb://" + server.dbaddress + ":" + server.dbport + "/" + server.dbname);
 
 
