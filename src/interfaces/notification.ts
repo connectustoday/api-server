@@ -28,7 +28,7 @@ export default class INotification {
 }
 
 export const NotificationSchema = new mongoose.Schema({
-    id: {type: String, required: true},
+    id: {type: String, required: true, index: true},
     created_at: {type: Number, required: true},
     type: {type: String, required: true},
     content: {type: String, required: true},

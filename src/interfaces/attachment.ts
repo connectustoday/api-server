@@ -29,6 +29,6 @@ export default interface IAttachment {
 export const AttachmentSchema = new mongoose.Schema({
     schema_version: {type: Number, required: true},
     type: {type: String, required: true},
-    url: {type: String, required: true},
+    url: {type: String, required: true, index: true},
     description: {type: String}
 });

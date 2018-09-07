@@ -35,9 +35,9 @@ export default interface IExperience {
 export const ExperienceSchema = new mongoose.Schema({
     schema_version: {type: Number, required: true},
     location: {type: AddressSchema},
-    id: {type: String, required: true},
-    organization: {type: String},
-    opportunity: {type: String},
+    id: {type: String, required: true, index: true},
+    organization: {type: String, index: true},
+    opportunity: {type: String, index: true},
     description: {type: String},
     when: {type: {begin: String, end: String}},
     is_verified: {type: Boolean, required: true},

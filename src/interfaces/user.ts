@@ -32,7 +32,7 @@ export default interface IUser extends IAccount {
     experiences?: Array<IExperience>;
 }
 export const UserSchema = new mongoose.Schema({
-    first_name: {type: String, required: true},
+    first_name: {type: String, required: true, index: true}, //TODO disable if private
     middle_name: {type: String},
     last_name: {type: String},
     birthday: {type: String, required: true},

@@ -17,7 +17,7 @@
  *
  */
 
-import IPoint from './point';
+import IPoint, {PointSchema} from './point';
 import * as mongoose from "mongoose";
 
 export default interface IAddress {

@@ -32,7 +32,7 @@ export default interface IOrganization extends IAccount {
 let expSchema = new mongoose.Schema({user_id: String, experience_id: Number}, {_id: false});
 
 export const OrganizationSchema = new mongoose.Schema({
-    preferred_name: {type: String, required: true},
+    preferred_name: {type: String, required: true, index: true},
     is_verified: {type: Boolean, required: true},
     opportunities: {type: [String]},
     org_info: {type: OrganizationProfileSchema, required: true},

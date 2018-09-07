@@ -48,16 +48,16 @@ let comSchema = new mongoose.Schema({posts: String, when: Number}, {_id: false})
 
 export const AccountSchema = new mongoose.Schema({
     schema_version: {type: String, required: true},
-    id: {type: String, required: true},
-    username: {type: String, required: true},
-    email: {type: String, required: true},
+    id: {type: String, required: true, index: true},
+    username: {type: String, required: true, index: true},
+    email: {type: String, required: true, index: true},
     password: {type: String, required: true},
     oauth_token: {type: String},
     oauth_service: {type: String},
     is_email_verified: {type: Boolean, required: true},
     last_login: {type: Number, required: true},
     notifications: {type: [NotificationSchema], required: true},
-    avatar: {type: String, required: true},
+    avatar: {type: String, required: true, index: true},
     header: {type: String, required: true},
     created_at: {type: Number, required: true},
     pending_connections: {type: [String]},
@@ -66,5 +66,5 @@ export const AccountSchema = new mongoose.Schema({
     liked: {type: [comSchema]},
     shared: {type: [comSchema]},
     settings: {type: AccountSettingsSchema, required: true},
-    admin_note: {type: String}
+    admin_note: {type: String, index: true}
 });

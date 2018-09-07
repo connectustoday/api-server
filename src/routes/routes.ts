@@ -22,5 +22,8 @@ import * as express from "express";
 export class Routes {
     public routes(app): void {
         app.get('/', (req, res) => res.send('ConnectUS Backend API Server - Working!')); // Default (root) route.
+
+        // TODO MOVE OUT OF THIS FILE
+        app.get('/v1/')
     }
 }

@@ -39,13 +39,13 @@ export default interface IPost {
 }
 export const PostSchema = new mongoose.Schema({
     schema_version: {type: Number, required: true},
-    id: {type: String, required: true},
+    id: {type: String, required: true, index: true},
     account: {type: String, required: true},
     content: {type: String, required: true},
     created_at: {type: Number, required: true},
     reply_to: {type: String},
     multimedia: {type: AttachmentSchema},
-    tags: {type: [String]},
+    tags: {type: [String], index: true}, // TODO
     likes_count: {type: Number, required: true},
     comments_count: {type: Number, required: true},
     shares_count: {type: Number, required: true},

@@ -40,9 +40,9 @@ let shiftSchema = new mongoose.Schema({begin: String, end: String}, {_id: false}
 
 export const OpportunitySchema = new mongoose.Schema({
     schema_version: {type: Number, required: true},
-    id: {type: String, required: true},
-    organization: {type: String, required: true},
-    name: {type: String, required: true},
+    id: {type: String, required: true, index: true},
+    organization: {type: String, required: true, index: true},
+    name: {type: String, required: true, index: true},
     description: {type: String},
     address: {type: AddressSchema},
     is_signups_enabled: {type: Boolean, required: true},

@@ -27,8 +27,6 @@ import IAddress from "../interfaces/address";
  * Models
  */
 
-let MAccount = mongoose.connection.model('Account',);
-
 
 /*
  * Mongo connection
