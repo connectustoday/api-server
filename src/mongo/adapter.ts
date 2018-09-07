@@ -17,10 +17,24 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 import * as mongoose from 'mongoose';
 import * as server from '../../server';
+import IAccount from "../interfaces/account";
+import IAccountSettings from "../interfaces/account-settings";
+import IAddress from "../interfaces/address";
 
-let promise = mongoose.connect("mongodb://" + server.dbaddress + ":" + server.dbport + "/" + server.dbname);
+/*
+ * Models
+ */
+
+let MAccount = mongoose.connection.model('Account',);
 
 
+/*
+ * Mongo connection
+ */
+
+void function connectDB() {
+    mongoose.connect("mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME);
+    mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
+};

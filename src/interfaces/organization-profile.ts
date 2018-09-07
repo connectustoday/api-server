@@ -17,25 +17,23 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
-import IAddress from './address';
+import * as mongoose from "mongoose";
+import IAddress, {AddressSchema} from './address';
 
-export default class IOrganizationProfile {
-    @prop({ required: true })
+export default interface IOrganizationProfile {
     schema_version: string;
-
-    @prop()
     mission?: string;
-
-    @prop()
     quote?: string;
-
-    @prop()
     address?: IAddress;
-
-    @prop()
     affiliated_orgs?: Array<string>;
-
-    @prop()
     interests?: Array<string>;
 }
+
+export const OrganizationProfileSchema = new mongoose.Schema({
+    schema_version: {type: String, required: true},
+    mission: {type: String},
+    quote: {type: String},
+    address: {type: AddressSchema},
+    affiliated_orgs: {type: [String]},
+    interests: {type: [String]}
+});

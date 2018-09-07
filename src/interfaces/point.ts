@@ -17,13 +17,14 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 
-export default class IPoint {
-
-    @prop({ required: true })
+export default interface IPoint {
     type: string; //Point
-
-    @prop({ required: true})
     coordinates: Array<number>;
 }
+
+export const PointSchema = new mongoose.Schema({
+    type: {type: String, required: true},
+    coordinates: {type: [Number], required: true}
+});

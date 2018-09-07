@@ -17,23 +17,24 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 import IAccount from './account';
-import IOrganizationProfile from './organization-profile';
+import IOrganizationProfile, {OrganizationProfileSchema} from './organization-profile';
 
-export default class IOrganization extends IAccount {
-    @prop({ required: true })
+export default interface IOrganization extends IAccount {
     preferred_name: string;
-
-    @prop({ required: true })
     is_verified: boolean;
-
-    @prop()
     opportunities?: Array<string>;
-
-    @prop({ required: true })
     org_info: IOrganizationProfile;
-
-    @prop()
     experience_validations?: Array<[string, string]>
 }
+
+let expSchema = new mongoose.Schema({user_id: String, experience_id: Number}, {_id: false});
+
+export const OrganizationSchema = new mongoose.Schema({
+    preferred_name: {type: String, required: true},
+    is_verified: {type: Boolean, required: true},
+    opportunities: {type: [String]},
+    org_info: {type: OrganizationProfileSchema, required: true},
+    experience_validations: {type: [expSchema]}
+});

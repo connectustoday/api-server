@@ -17,22 +17,20 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 
 export default class INotification {
-
-    @prop({ required: true })
     id: number;
-
-    @prop({ required: true })
     created_at: number;
-
-    @prop({ required: true })
     type: string;
-
-    @prop({ required: true })
     content: string;
-
-    @prop()
     account?: string;
 }
+
+export const NotificationSchema = new mongoose.Schema({
+    id: {type: String, required: true},
+    created_at: {type: Number, required: true},
+    type: {type: String, required: true},
+    content: {type: String, required: true},
+    account: {type: String}
+});

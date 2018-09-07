@@ -17,28 +17,23 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 
-export default class IUserProfile {
-    // @ts-ignore
-    @prop({required: true})
+export default interface IUserProfile {
     schema_version: string;
-
-    @prop()
     interests?: Array<string>;
-
-    @prop()
     biography?: string;
-
-    @prop()
     education?: string; //TODO
-
-    @prop()
     quote?: string;
-
-    @prop()
     current_residence?: string;
-
-    @prop()
     certifications?: string; //TODO
 }
+export const UserProfileSchema = new mongoose.Schema({
+    schema_version: {type: String, required: true},
+    interests: {type: [String]},
+    biography: {type: String},
+    education: {type: String},
+    quote: {type: String},
+    current_residence: {type: String},
+    certifications: {type: String}
+});

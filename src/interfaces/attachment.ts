@@ -17,20 +17,18 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 
-export default class IAttachment {
-
-    @prop({ required: true })
+export default interface IAttachment {
     schema_version: number;
-
-    @prop({ required: true })
     type: string;
-
-    @prop({ required: true })
     url: string;
-
-    @prop()
     description?: string;
-
 }
+
+export const AttachmentSchema = new mongoose.Schema({
+    schema_version: {type: Number, required: true},
+    type: {type: String, required: true},
+    url: {type: String, required: true},
+    description: {type: String}
+});

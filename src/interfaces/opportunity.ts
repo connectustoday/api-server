@@ -17,47 +17,39 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
-import IAddress from './address';
+import * as mongoose from "mongoose";
+import IAddress, {AddressSchema} from './address';
 
-export default class IOpportunity extends Typegoose {
-
-    @prop({ required: true })
+export default interface IOpportunity {
     schema_version: number;
-
-    @prop({ required: true })
     id: string;
-
-    @prop({ required: true })
     organization: string;
-
-    @prop({ required: true })
     name: string;
-
-    @prop()
     description?: string;
-
-    @prop()
     address?: IAddress;
-
-    @prop({ required: true })
     is_signups_enabled: boolean;
-
-    @prop()
     number_of_people_needed?: number;
-
-    @prop()
     tags?: Array<string>;
-
-    @prop()
     interested_users: Array<string>; //TODO
-
-    @prop()
     shift_times: Array<[string, string]>;
-
-    @prop()
     method_of_contact?: string;
-
-    @prop({ required: true })
     created_at: number;
 }
+
+let shiftSchema = new mongoose.Schema({begin: String, end: String}, {_id: false});
+
+export const OpportunitySchema = new mongoose.Schema({
+    schema_version: {type: Number, required: true},
+    id: {type: String, required: true},
+    organization: {type: String, required: true},
+    name: {type: String, required: true},
+    description: {type: String},
+    address: {type: AddressSchema},
+    is_signups_enabled: {type: Boolean, required: true},
+    number_of_people_needed: {type: Number},
+    tags: {type: [String]},
+    interested_users: {type: [String]},
+    shift_times: {type: shiftSchema},
+    method_of_contact: {type: String},
+    created_at: {type: Number, required: true}
+});

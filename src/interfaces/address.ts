@@ -17,32 +17,27 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
 import IPoint from './point';
+import * as mongoose from "mongoose";
 
-export default class IAddress {
-
-    @prop({ required: true })
+export default interface IAddress {
     schema_version: number;
-
-    @prop()
     street?: string;
-
-    @prop()
     city?: string;
-
-    @prop()
     province?: string;
-
-    @prop()
     country?: string;
-
-    @prop()
     postal_code?: string;
-
-    @prop()
     apt_number?: string;
-
-    @prop()
     geojson?: IPoint;
 }
+
+export const AddressSchema = new mongoose.Schema({
+    schema_version: {type: Number, required: true},
+    street: {type: String},
+    city: {type: String},
+    province: {type: String},
+    country: {type: String},
+    postal_code: {type: String},
+    apt_number: {type: String},
+    geojson: {type: PointSchema}
+});

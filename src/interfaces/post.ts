@@ -17,54 +17,40 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
-import IAttachment from './attachment';
+import * as mongoose from "mongoose";
+import IAttachment, {AttachmentSchema} from './attachment';
 
-export default class IPost extends Typegoose {
-
-    @prop({ required: true })
+export default interface IPost {
     schema_version: number;
-
-    @prop({ required: true })
     id: string;
-
-    @prop({ required: true })
     account: string;
-
-    @prop({ required: true })
     content: string;
-
-    @prop({ required: true })
     created_at: number;
-
-    @prop()
     reply_to?: string;
-
-    @prop()
     multimedia?: IAttachment;
-
-    @prop()
     tags?: Array<string>;
-
-    @prop({ required: true })
     likes_count: number;
-
-    @prop({ required: true })
     comments_count: number;
-
-    @prop({ required: true })
     shares_count: number;
-
-    @prop()
     likes?: Array<string>;
-
-    @prop()
     comments?: Array<string>;
-
-    @prop()
     shares?: Array<string>;
-
-    @prop({ required: true })
     visibility: string;
-
 }
+export const PostSchema = new mongoose.Schema({
+    schema_version: {type: Number, required: true},
+    id: {type: String, required: true},
+    account: {type: String, required: true},
+    content: {type: String, required: true},
+    created_at: {type: Number, required: true},
+    reply_to: {type: String},
+    multimedia: {type: AttachmentSchema},
+    tags: {type: [String]},
+    likes_count: {type: Number, required: true},
+    comments_count: {type: Number, required: true},
+    shares_count: {type: Number, required: true},
+    likes: {type: [String]},
+    comments: {type: [String]},
+    shares: {type: [String]},
+    visibility: {type: String, required: true}
+});

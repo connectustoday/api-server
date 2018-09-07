@@ -17,35 +17,29 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
-import IAddress from './address';
+import * as mongoose from "mongoose";
+import IAddress, {AddressSchema} from './address';
 
-export default class IExperience {
-
-    @prop({ required: true })
+export default interface IExperience {
     schema_version: number;
-
-    @prop()
     location?: IAddress;
-
-    @prop({ required: true })
     id: string;
-
-    @prop()
     organization?: string;
-
-    @prop()
     opportunity?: string;
-
-    @prop()
     description?: string;
-
-    @prop()
     when?: [string, string];
-
-    @prop({ required: true })
     is_verified: boolean;
-
-    @prop({ required: true })
     created_at: number;
 }
+
+export const ExperienceSchema = new mongoose.Schema({
+    schema_version: {type: Number, required: true},
+    location: {type: AddressSchema},
+    id: {type: String, required: true},
+    organization: {type: String},
+    opportunity: {type: String},
+    description: {type: String},
+    when: {type: {begin: String, end: String}},
+    is_verified: {type: Boolean, required: true},
+    created_at: {type: Number, required: true}
+});

@@ -17,70 +17,54 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
-import INotification from './notification';
-import IAccountSettings from './account-settings';
+import INotification, {NotificationSchema} from './notification';
+import IAccountSettings, {AccountSettingsSchema} from './account-settings';
+import * as mongoose from "mongoose";
 
-export default class IAccount extends Typegoose {
-
-    @prop({ required: true })
+export default interface IAccount {
     schema_version: number;
-
-    @prop({ required: true })
     id: string;
-
-    @prop({ required: true })
     username: string;
-
-    @prop({ required: true })
     email: string;
-
-    @prop({ required: true })
     password: string;
-
-    @prop()
     oauth_token?: string;
-
-    @prop()
     oauth_service?: string;
-
-    @prop({ required: true })
     is_email_verified: boolean;
-
-    @prop({ required: true })
     last_login: number;
-
-    @prop({ required: true })
     notifications: Array<INotification>;
-
-    @prop({ required: true })
     avatar: string;
-
-    @prop({ required: true })
     header: string;
-
-    @prop({ required: true })
     created_at: number;
-
-    @prop()
     pending_connections?: Array<string>;
-
-    @prop()
     requested_connections?: Array<string>;
-
-    @prop()
     posts?: Array<string>;
-
-    @prop()
     liked?: Array<[string, number]>;
-
-    @prop()
     shared?: Array<[string, number]>;
-
-    @prop({ required: true })
     settings: IAccountSettings;
-
-    @prop()
     admin_note?: string;
-
 }
+
+let comSchema = new mongoose.Schema({posts: String, when: Number}, {_id: false});
+
+export const AccountSchema = new mongoose.Schema({
+    schema_version: {type: String, required: true},
+    id: {type: String, required: true},
+    username: {type: String, required: true},
+    email: {type: String, required: true},
+    password: {type: String, required: true},
+    oauth_token: {type: String},
+    oauth_service: {type: String},
+    is_email_verified: {type: Boolean, required: true},
+    last_login: {type: Number, required: true},
+    notifications: {type: [NotificationSchema], required: true},
+    avatar: {type: String, required: true},
+    header: {type: String, required: true},
+    created_at: {type: Number, required: true},
+    pending_connections: {type: [String]},
+    requested_connections: {type: [String]},
+    posts: {type: [String]},
+    liked: {type: [comSchema]},
+    shared: {type: [comSchema]},
+    settings: {type: AccountSettingsSchema, required: true},
+    admin_note: {type: String}
+});

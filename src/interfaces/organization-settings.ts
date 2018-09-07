@@ -17,12 +17,13 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 import IAccountSettings from './account-settings';
 
-export default class IOrganizationSettings extends IAccountSettings {
-
-    @prop({ required: true })
+export default interface IOrganizationSettings extends IAccountSettings {
     is_nonprofit: boolean;
-
 }
+
+export const OrganizationSettingsSchema = new mongoose.Schema({
+    is_nonprofit: {type: Boolean, required: true}
+});

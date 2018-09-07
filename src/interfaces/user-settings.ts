@@ -17,15 +17,14 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 import IAccountSettings from './account-settings';
 
-export default class IUserSettings extends IAccountSettings {
-
-    @prop({ required: true })
+export default interface IUserSettings extends IAccountSettings {
     is_full_name_visible: boolean;
-
-    @prop({ required: true })
     blocked_users: Array<string>;
-
 }
+export const UserSettingsSchema = new mongoose.Schema({
+    is_full_name_visible: {type: Boolean, required: true},
+    blocked_users: {type: [String], required: true}
+});

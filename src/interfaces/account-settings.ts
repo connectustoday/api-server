@@ -17,14 +17,14 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 
-export default class IAccountSettings {
-
-    @prop({ required: true })
+export default interface IAccountSettings {
     allow_messages_from_unknown: boolean;
-
-    @prop({ required: true })
     email_notifications: boolean;
-
 }
+
+export const AccountSettingsSchema = new mongoose.Schema({
+    allow_messages_from_unknown: {type: Boolean, required: true},
+    email_notifications: {type: Boolean, required: true}
+});

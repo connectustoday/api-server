@@ -17,30 +17,26 @@
  *
  */
 
-import { prop, Typegoose, ModelType, InstanceType } from 'typegoose';
+import * as mongoose from "mongoose";
 import IAccount from './account';
-import IUserProfile from './user-profile';
-import IExperience from './experience';
+import IUserProfile, {UserProfileSchema} from './user-profile';
+import IExperience, {ExperienceSchema} from './experience';
 
-export default class IUser extends IAccount {
-    @prop({ required: true })
+export default interface IUser extends IAccount {
     first_name: string;
-
-    @prop()
     middle_name?: string;
-
-    @prop()
     last_name?: string;
-
-    @prop({ required: true })
     birthday: string;
-
-    @prop()
     gender?: string;
-
-    @prop({ required: true })
     personal_info: IUserProfile;
-
-    @prop()
     experiences?: Array<IExperience>;
 }
+export const UserSchema = new mongoose.Schema({
+    first_name: {type: String, required: true},
+    middle_name: {type: String},
+    last_name: {type: String},
+    birthday: {type: String, required: true},
+    gender: {type: String},
+    personal_info: {type: UserProfileSchema, required: true},
+    experiences: {type: ExperienceSchema}
+});
