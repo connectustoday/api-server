@@ -21,27 +21,26 @@
 
 // API Version 1
 import * as express from "express";
+import * as errors from  "../errors";
+import * as passport from "passport";
+import * as localStrategy from "passport-local";
 
 export class AuthRoutes {
     public routes(app): void {
 
-        app.get('/v1/auth', (req, res) => res.send('Authentication Endpoint - Invalid Request'));
+        app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
 
         /* ~~ Registration Endpoint ~~ */
-        app.get('/v1/auth/register', (req, res) => res.send('Invalid Request')); // Client should not GET this endpoint.
+        app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed)); // Client should not GET this endpoint.
 
         app.post('/v1/auth/register', function (req, res) {
-            var user = req.body;
+            let user = req.body;
             res.send(user.username); //testing
 
         });
 
         /* ~~ Sign In Endpoint ~~ */
-        app.get('/v1/auth/signin', (req, res) => res.send('Invalid Request')); // Client should not GET this endpoint.
-
-        app.post('/v1/auth/signin', function (req, res) {
-            res.send("Stub");
-            // retrieve the JSON using body-parser (req.body)
-        });
+        app.get('/v1/auth/login', (req, res) => res.send(errors.methodNotAllowed)); // Client should not GET this endpoint.
+        app.post('/v1/auth/login', passport.authenticate('local'), {successRedirect: '/', failureRedirect: '/login'});
     }
 }
