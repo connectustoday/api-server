@@ -20,6 +20,8 @@
 import INotification, {NotificationSchema} from './notification';
 import IAccountSettings, {AccountSettingsSchema} from './account-settings';
 import * as mongoose from "mongoose";
+import { Document, Schema, Model, model} from "mongoose";
+import * as passportLocalMongoose from "passport-local-mongoose";
 
 export default interface IAccount {
     schema_version: number;
@@ -68,3 +70,6 @@ export const AccountSchema = new mongoose.Schema({
     settings: {type: AccountSettingsSchema, required: true},
     admin_note: {type: String, index: true}
 });
+AccountSchema.plugin(passportLocalMongoose);
+
+export const AccountModel: Model<IAccount> = model<IAccount>("AccountModel", AccountSchema);

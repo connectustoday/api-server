@@ -17,17 +17,15 @@
  *
  */
 
-import * as mongoose from "mongoose";
-import IAccount, {AccountSchema} from "./account";
+import * as mongoose from 'mongoose';
+import * as plm from 'passport-local-mongoose';
+import * as server from '../../server';
+import IAccount from "../interfaces/account";
+import IAccountSettings from "../interfaces/account-settings";
+import IAddress from "../interfaces/address";
 
-export default interface IAccountSettings {
-    allow_messages_from_unknown: boolean;
-    email_notifications: boolean;
-}
 
-export const AccountSettingsSchema = new mongoose.Schema({
-    allow_messages_from_unknown: {type: Boolean, required: true},
-    email_notifications: {type: Boolean, required: true}
-});
 
-export const AccountSettingsModel: Model<IAccount> = model<IAccount>("AccountModel", AccountSchema);
+void function initModels()  {
+
+};

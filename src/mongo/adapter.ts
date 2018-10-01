@@ -27,7 +27,6 @@ import IAddress from "../interfaces/address";
  * Models
  */
 
-
 /*
  * Mongo connection
  */
