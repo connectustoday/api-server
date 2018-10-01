@@ -18,12 +18,14 @@
  */
 
 import * as mongoose from "mongoose";
-import IAccountSettings from './account-settings';
+import { Document, Schema, Model, model} from "mongoose";
+import IAccountSettings, {AccountSettingsModel} from './account-settings';
 
 export default interface IOrganizationSettings extends IAccountSettings {
     is_nonprofit: boolean;
 }
 
-export const OrganizationSettingsSchema = new mongoose.Schema({
+export const OrganizationSettingsSchema = AccountSettingsModel.discriminator("OrganizationSettings", new mongoose.Schema({
     is_nonprofit: {type: Boolean, required: true}
-});
+}));
+export const OrganizationSettingsModel: Model<IOrganizationSettings> = model<IOrganizationSettings>("OrganizationSettingsModel", OrganizationSettingsSchema);

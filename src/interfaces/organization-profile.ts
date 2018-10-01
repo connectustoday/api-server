@@ -19,6 +19,7 @@
 
 import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IOrganizationProfile {
     schema_version: string;
@@ -37,3 +38,4 @@ export const OrganizationProfileSchema = new mongoose.Schema({
     affiliated_orgs: {type: [String]},
     interests: {type: [String]}
 });
+export const OrganizationProfileModel: Model<IOrganizationProfile> = model<IOrganizationProfile>("OrganizationProfileModel", OrganizationProfileSchema);

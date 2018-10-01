@@ -19,6 +19,7 @@
 
 import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IExperience {
     schema_version: number;
@@ -43,3 +44,4 @@ export const ExperienceSchema = new mongoose.Schema({
     is_verified: {type: Boolean, required: true},
     created_at: {type: Number, required: true}
 });
+export const ExperienceModel: Model<IExperience> = model<IExperience>("ExperienceModel", ExperienceSchema);

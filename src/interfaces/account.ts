@@ -69,7 +69,7 @@ export const AccountSchema = new mongoose.Schema({
     shared: {type: [comSchema]},
     settings: {type: AccountSettingsSchema, required: true},
     admin_note: {type: String, index: true}
-});
+}, {discriminatorKey: 'type'});
 AccountSchema.plugin(passportLocalMongoose);
 
 export const AccountModel: Model<IAccount> = model<IAccount>("AccountModel", AccountSchema);

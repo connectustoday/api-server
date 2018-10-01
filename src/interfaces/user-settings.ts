@@ -18,13 +18,15 @@
  */
 
 import * as mongoose from "mongoose";
-import IAccountSettings from './account-settings';
+import IAccountSettings, {AccountSettingsModel} from './account-settings';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IUserSettings extends IAccountSettings {
     is_full_name_visible: boolean;
     blocked_users: Array<string>;
 }
-export const UserSettingsSchema = new mongoose.Schema({
+export const UserSettingsSchema = AccountSettingsModel.discriminator("UserSettings", new mongoose.Schema({
     is_full_name_visible: {type: Boolean, required: true},
     blocked_users: {type: [String], required: true}
-});
+}));
+export const UserSettingsModel: Model<IUserSettings> = model<IUserSettings>("UserSettingsModel", UserSettingsSchema);

@@ -19,6 +19,7 @@
 
 import IPoint, {PointSchema} from './point';
 import * as mongoose from "mongoose";
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IAddress {
     schema_version: number;
@@ -41,3 +42,5 @@ export const AddressSchema = new mongoose.Schema({
     apt_number: {type: String},
     geojson: {type: PointSchema}
 });
+
+export const AddressModel: Model<IAddress> = model<IAddress>("AddressModel", AddressSchema);

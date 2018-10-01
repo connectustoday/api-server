@@ -23,10 +23,12 @@
 import * as express from "express";
 import * as errors from  "../errors";
 import * as passport from "passport";
-import * as localStrategy from "passport-local";
+import * as LocalStrategy from "passport-local";
+import {AccountModel} from '../../interfaces';
 
 export class AuthRoutes {
     public routes(app): void {
+        passport.use(new LocalStrategy(AccountModel.createStrategy()));
 
         app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
 

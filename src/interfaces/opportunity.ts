@@ -19,6 +19,7 @@
 
 import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IOpportunity {
     schema_version: number;
@@ -53,3 +54,4 @@ export const OpportunitySchema = new mongoose.Schema({
     method_of_contact: {type: String},
     created_at: {type: Number, required: true}
 });
+export const OpportunityModel: Model<IOpportunity> = model<IOpportunity>("OpportunityModel", OpportunitySchema);

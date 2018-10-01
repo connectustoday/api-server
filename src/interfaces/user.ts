@@ -18,9 +18,10 @@
  */
 
 import * as mongoose from "mongoose";
-import IAccount from './account';
+import IAccount, {AccountModel} from './account';
 import IUserProfile, {UserProfileSchema} from './user-profile';
 import IExperience, {ExperienceSchema} from './experience';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IUser extends IAccount {
     first_name: string;
@@ -31,7 +32,7 @@ export default interface IUser extends IAccount {
     personal_info: IUserProfile;
     experiences?: Array<IExperience>;
 }
-export const UserSchema = new mongoose.Schema({
+export const UserSchema = AccountModel.discriminator("User", new mongoose.Schema({
     first_name: {type: String, required: true, index: true}, //TODO disable if private
     middle_name: {type: String},
     last_name: {type: String},
@@ -39,4 +40,5 @@ export const UserSchema = new mongoose.Schema({
     gender: {type: String},
     personal_info: {type: UserProfileSchema, required: true},
     experiences: {type: ExperienceSchema}
-});
+}));
+export const UserModel: Model<IUser> = model<IUser>("UserModel", UserSchema);

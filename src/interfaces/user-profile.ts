@@ -18,6 +18,7 @@
  */
 
 import * as mongoose from "mongoose";
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IUserProfile {
     schema_version: string;
@@ -37,3 +38,4 @@ export const UserProfileSchema = new mongoose.Schema({
     current_residence: {type: String},
     certifications: {type: String}
 });
+export const UserProfileModel: Model<IUserProfile> = model<IUserProfile>("UserProfileModel", UserProfileSchema);

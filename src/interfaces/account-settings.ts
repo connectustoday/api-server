@@ -18,7 +18,7 @@
  */
 
 import * as mongoose from "mongoose";
-import IAccount, {AccountSchema} from "./account";
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IAccountSettings {
     allow_messages_from_unknown: boolean;
@@ -28,6 +28,6 @@ export default interface IAccountSettings {
 export const AccountSettingsSchema = new mongoose.Schema({
     allow_messages_from_unknown: {type: Boolean, required: true},
     email_notifications: {type: Boolean, required: true}
-});
+}, {discriminatorKey: 'type'});
 
-export const AccountSettingsModel: Model<IAccount> = model<IAccount>("AccountModel", AccountSchema);
+export const AccountSettingsModel: Model<IAccountSettings> = model<IAccountSettings>("AccountSettingsModel", AccountSettingsSchema);

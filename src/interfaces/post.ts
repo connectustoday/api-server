@@ -19,6 +19,7 @@
 
 import * as mongoose from "mongoose";
 import IAttachment, {AttachmentSchema} from './attachment';
+import { Document, Schema, Model, model} from "mongoose";
 
 export default interface IPost {
     schema_version: number;
@@ -54,3 +55,4 @@ export const PostSchema = new mongoose.Schema({
     shares: {type: [String]},
     visibility: {type: String, required: true}
 });
+export const PostModel: Model<IPost> = model<IPost>("PostModel", PostSchema);
