@@ -20,8 +20,9 @@
 // Express App ConnectUS
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import { Routes } from "./routes/routes"
+import {Routes} from "./routes/routes"
 import {AuthRoutes} from "./routes/auth/auth-routes"
+import * as adapter from "./mongo/adapter";
 
 class App {
 
@@ -33,7 +34,8 @@ class App {
         this.app = express();
         this.config();
 
-        // API Endpoints
+        adapter.connectDB();
+
         this.routes.routes(this.app);
         this.authRoutes.routes(this.app);
     }
@@ -48,6 +50,7 @@ class App {
         });
 
         // support application/json type post data
+        this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(bodyParser.json());
 
     }

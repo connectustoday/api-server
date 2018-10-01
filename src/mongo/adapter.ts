@@ -23,15 +23,19 @@ import IAccount from "../interfaces/account";
 import IAccountSettings from "../interfaces/account-settings";
 import IAddress from "../interfaces/address";
 
+
 /*
  * Models
  */
+
+
 
 /*
  * Mongo connection
  */
 
-void function connectDB() {
+export function connectDB(): void {
     mongoose.connect("mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME);
     mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
-};
+
+}

@@ -30,7 +30,8 @@ console.log("Starting ConnectUS API Server...");
 // MongoDB runtime flags
 export const DB_PORT: string = getArg(process.env.DB_PORT, "3000"),
     DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"),
-    DB_NAME: string = getArg(process.env.DB_NAME, "database");
+    DB_NAME: string = getArg(process.env.DB_NAME, "database"),
+    SECRET: string = getArg(process.env.SECRET, "default secret");
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 
