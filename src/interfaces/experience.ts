@@ -21,7 +21,7 @@ import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IExperience {
+export default interface IExperience extends mongoose.Document {
     schema_version: number;
     location?: IAddress;
     id: string;

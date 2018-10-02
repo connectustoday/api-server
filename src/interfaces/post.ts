@@ -21,7 +21,7 @@ import * as mongoose from "mongoose";
 import IAttachment, {AttachmentSchema} from './attachment';
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IPost {
+export default interface IPost extends mongoose.Document {
     schema_version: number;
     id: string;
     account: string;

@@ -20,7 +20,7 @@
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IUserProfile {
+export default interface IUserProfile extends mongoose.Document {
     schema_version: string;
     interests?: Array<string>;
     biography?: string;

@@ -28,5 +28,5 @@ export default interface IUserSettings extends IAccountSettings {
 export const UserSettingsSchema = AccountSettingsModel.discriminator("UserSettings", new mongoose.Schema({
     is_full_name_visible: {type: Boolean, required: true},
     blocked_users: {type: [String], required: true}
-}));
+})).schema;
 export const UserSettingsModel: Model<IUserSettings> = model<IUserSettings>("UserSettingsModel", UserSettingsSchema);

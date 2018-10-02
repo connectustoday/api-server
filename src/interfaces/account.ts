@@ -23,7 +23,7 @@ import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 import * as passportLocalMongoose from "passport-local-mongoose";
 
-export default interface IAccount {
+export default interface IAccount extends mongoose.Document {
     schema_version: number;
     id: string;
     username: string;

@@ -20,7 +20,7 @@
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default class INotification {
+export default interface INotification extends mongoose.Document {
     id: number;
     created_at: number;
     type: string;

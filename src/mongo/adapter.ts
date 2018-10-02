@@ -18,7 +18,7 @@
  */
 
 import * as mongoose from 'mongoose';
-import * as server from '../../server';
+import * as server from '../server';
 import IAccount from "../interfaces/account";
 import IAccountSettings from "../interfaces/account-settings";
 import IAddress from "../interfaces/address";

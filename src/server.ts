@@ -19,7 +19,7 @@
 
 // ConnectUS Server
 
-import app from "./src/app";
+import app from "./app";
 
 function getArg(env: string, def: string): string {
     return (env == null) || (env == undefined) ? def : env;
@@ -35,6 +35,6 @@ export const DB_PORT: string = getArg(process.env.DB_PORT, "3000"),
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 
-app.listen(PORT, () => {
-    console.log('ConnectUS API Server listening on port ' + PORT);
+app.listen(3000, () => {
+    console.log("ConnectUS API Server listening on port " + PORT);
 });

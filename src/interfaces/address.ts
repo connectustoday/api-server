@@ -21,7 +21,7 @@ import IPoint, {PointSchema} from './point';
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IAddress {
+export default interface IAddress extends mongoose.Document {
     schema_version: number;
     street?: string;
     city?: string;

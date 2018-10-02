@@ -20,7 +20,7 @@
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IAttachment {
+export default interface IAttachment extends mongoose.Document {
     schema_version: number;
     type: string;
     url: string;

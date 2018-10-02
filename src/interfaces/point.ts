@@ -20,7 +20,7 @@
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IPoint {
+export default interface IPoint extends mongoose.Document {
     type: string; //Point
     coordinates: Array<number>;
 }

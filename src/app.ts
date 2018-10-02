@@ -20,8 +20,8 @@
 // Express App ConnectUS
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Routes} from "./routes/routes"
-import {AuthRoutes} from "./routes/auth/auth-routes"
+import {Routes} from "./routes/routes";
+import {AuthRoutes} from "./routes/auth/auth-routes";
 import * as adapter from "./mongo/adapter";
 
 class App {
@@ -34,7 +34,7 @@ class App {
         this.app = express();
         this.config();
 
-        adapter.connectDB();
+        //adapter.connectDB();
 
         this.routes.routes(this.app);
         this.authRoutes.routes(this.app);

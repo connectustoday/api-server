@@ -21,17 +21,17 @@
 
 // API Version 1
 import * as express from "express";
-import * as server from "../../../server";
+import * as server from "../../server";
 import * as errors from  "../errors";
 import * as passport from "passport";
 import * as LocalStrategy from "passport-local";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
-import {AccountModel} from '../../interfaces';
+import {AccountModel} from '../../interfaces/account';
 
 export class AuthRoutes {
     public routes(app): void {
-        passport.use(new LocalStrategy(AccountModel.createStrategy()));
+        //passport.use(new LocalStrategy(AccountModel.createStrategy()));
 
         app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
 

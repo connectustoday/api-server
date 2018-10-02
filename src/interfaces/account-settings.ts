@@ -20,7 +20,7 @@
 import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 
-export default interface IAccountSettings {
+export default interface IAccountSettings extends mongoose.Document {
     allow_messages_from_unknown: boolean;
     email_notifications: boolean;
 }

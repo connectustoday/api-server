@@ -40,5 +40,5 @@ export const UserSchema = AccountModel.discriminator("User", new mongoose.Schema
     gender: {type: String},
     personal_info: {type: UserProfileSchema, required: true},
     experiences: {type: ExperienceSchema}
-}));
+})).schema;
 export const UserModel: Model<IUser> = model<IUser>("UserModel", UserSchema);
