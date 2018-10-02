@@ -30,16 +30,16 @@ export default interface IOrganization extends IAccount {
     experience_validations?: Array<[string, string]>
 }
 
-let expSchema = AccountModel.discriminator("Organization", new mongoose.Schema({
+let expSchema = new mongoose.Schema({
     user_id: String,
     experience_id: Number
-}, {_id: false}));
+}, {_id: false});
 
-export const OrganizationSchema = new mongoose.Schema({
+export const OrganizationSchema = AccountModel.discriminator("Organization", new mongoose.Schema({
     preferred_name: {type: String, required: true, index: true},
     is_verified: {type: Boolean, required: true},
     opportunities: {type: [String]},
     org_info: {type: OrganizationProfileSchema, required: true},
     experience_validations: {type: [expSchema]}
-});
+})).schema;
 export const OrganizationModel: Model<IOrganization> = model<IOrganization>("OrganizationModel", OrganizationSchema);

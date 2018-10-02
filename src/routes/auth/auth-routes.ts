@@ -32,8 +32,6 @@ export class AuthRoutes {
 
         app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
 
-        app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
-
         /*
          * Register Endpoint Required Fields
          * - username
@@ -48,11 +46,16 @@ export class AuthRoutes {
          * Organization Required Fields
          * - is_nonprofit
          * - preferred_name
+         * ------------------------------------
+         * Returns 200 + auth=true + token if SUCCESSFUL
          */
 
         app.post('/v1/auth/register', function(req, res) {
             return register.registerRequest(req, res);
         });
+        app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
+
+
 
         app.get('/v1/auth/me', function (req, res) {
             var token = req.headers['x-access-token'];

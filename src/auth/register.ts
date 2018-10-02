@@ -17,7 +17,8 @@
  *
  */
 
-import {UserModel, OrganizationModel} from "../interfaces";
+import {UserModel} from "../interfaces/user";
+import {OrganizationModel} from "../interfaces/organization";
 import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as bcrypt from "bcryptjs";
@@ -36,9 +37,9 @@ export function registerRequest(req, res) {
 export function registerUserRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-    UserModel.create({ // Default user
+    UserModel.create({ // Default user TODO ASSIGN ID
         schema_version: "0",
-        username: req.body.name,
+        username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
         is_email_verified: false,
@@ -74,9 +75,9 @@ export function registerUserRequest(req, res) {
 export function registerOrganizationRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-    OrganizationModel.create({ // Default user
+    OrganizationModel.create({ // Default user TODO ASSIGN ID
         schema_version: "0",
-        username: req.body.name,
+        username: req.body.username,
         email: req.body.email,
         password: hashedPassword,
         is_email_verified: false,
