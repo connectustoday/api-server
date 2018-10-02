@@ -25,8 +25,8 @@ import * as server from "../../server";
 import * as errors from  "../errors";
 import * as passport from "passport";
 import * as LocalStrategy from "passport-local";
+import * as register from "../../auth/register";
 import * as jwt from "jsonwebtoken";
-import * as bcrypt from "bcryptjs";
 import {AccountModel} from '../../interfaces/account';
 
 export class AuthRoutes {
@@ -38,21 +38,7 @@ export class AuthRoutes {
         app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
 
         app.post('/v1/auth/register', function(req, res) {
-            let hashedPassword = bcrypt.hashSync(req.body.password, 8);
-
-            AccountModel.create({
-                schema_version: "1",
-                username: req.body.name,
-                email: req.body.email,
-                password: hashedPassword
-            }, function (err, user) {
-                if (err) return res.status(500).send("There was a problem registering the user.");
-
-                var token = jwt.sign({id: user._id}, server.SECRET, {
-                    expiresIn: 86400 //TODO token expiry
-                });
-                res.status(200).send({auth: true, token: token});
-            });
+            return register.registerRequest(req, res);
         });
 
         app.get('/v1/auth/me', function (req, res) {

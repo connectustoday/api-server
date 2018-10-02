@@ -19,23 +19,16 @@
 
 import * as mongoose from 'mongoose';
 import * as server from '../server';
-import IAccount from "../interfaces/account";
-import IAccountSettings from "../interfaces/account-settings";
-import IAddress from "../interfaces/address";
-
-
-/*
- * Models
- */
-
-
 
 /*
  * Mongo connection
  */
 
 export function connectDB(): void {
-    mongoose.connect("mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME);
+    console.log(server);
+    let url: string = "mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME;
+    console.log("Connecting to MongoDB at " + url);
+    mongoose.connect(url, {useNewUrlParser: true});
     mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 }

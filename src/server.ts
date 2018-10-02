@@ -20,6 +20,7 @@
 // ConnectUS Server
 
 import app from "./app";
+import * as adapter from "./mongo/adapter";
 
 function getArg(env: string, def: string): string {
     return (env == null) || (env == undefined) ? def : env;
@@ -28,13 +29,15 @@ function getArg(env: string, def: string): string {
 console.log("Starting ConnectUS API Server...");
 
 // MongoDB runtime flags
-export const DB_PORT: string = getArg(process.env.DB_PORT, "3000"),
+export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
     DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"),
     DB_NAME: string = getArg(process.env.DB_NAME, "database"),
     SECRET: string = getArg(process.env.SECRET, "default secret");
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 
-app.listen(3000, () => {
+adapter.connectDB();
+
+app.listen(parseInt(PORT, 10), () => {
     console.log("ConnectUS API Server listening on port " + PORT);
 });
