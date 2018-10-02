@@ -5,8 +5,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# IGNORES JS FILES
-*.js
+dist
 
 # Runtime data
 pids
