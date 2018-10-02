@@ -36,7 +36,7 @@ export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 
-adapter.connectDB();
+adapter.connectDB();  // MongoDB connection
 
 app.listen(parseInt(PORT, 10), () => {
     console.log("ConnectUS API Server listening on port " + PORT);

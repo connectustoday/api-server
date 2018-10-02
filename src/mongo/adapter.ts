@@ -25,7 +25,6 @@ import * as server from '../server';
  */
 
 export function connectDB(): void {
-    console.log(server);
     let url: string = "mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME;
     console.log("Connecting to MongoDB at " + url);
     mongoose.connect(url, {useNewUrlParser: true});

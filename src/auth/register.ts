@@ -17,20 +17,82 @@
  *
  */
 
-import {AccountModel} from "../interfaces";
+import {UserModel, OrganizationModel} from "../interfaces";
 import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 
 export function registerRequest(req, res) {
+    if (req.body.type == "organization") {
+        return registerOrganizationRequest(req, res);
+    } else if (req.body.type == "user") {
+        return registerUserRequest(req, res);
+    } else {
+        return res.status(400).send(errors.internalServerError + " (Invalid account type)");
+    }
+}
+
+export function registerUserRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-    AccountModel.create({ // Default user
-        schema_version: "1",
+    UserModel.create({ // Default user
+        schema_version: "0",
         username: req.body.name,
         email: req.body.email,
-        password: hashedPassword
+        password: hashedPassword,
+        is_email_verified: false,
+        last_login: 0,
+        notifications: [],
+        avatar: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", //TODO default images
+        header: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+        created_at: (new Date).getTime(),
+        settings: {
+            allow_messages_from_unknown: true,
+            email_notifications: true,
+            is_full_name_visible: false,
+            blocked_users: []
+        },
+        first_name: req.body.first_name,
+        birthday: req.body.birthday,
+        personal_info: {
+            schema_version: "0"
+        }
+    }, function (err, user) {
+        if (err) {
+            console.error(err);
+            return res.status(500).send(errors.internalServerError + " (There was a problem registering the user.)");
+        }
+
+        let token = jwt.sign({id: user._id}, server.SECRET, {
+            expiresIn: 86400 //TODO token expiry
+        });
+        res.status(200).send({auth: true, token: token});
+    });
+}
+
+export function registerOrganizationRequest(req, res) {
+    let hashedPassword = bcrypt.hashSync(req.body.password, 8);
+
+    OrganizationModel.create({ // Default user
+        schema_version: "0",
+        username: req.body.name,
+        email: req.body.email,
+        password: hashedPassword,
+        is_email_verified: false,
+        last_login: 0,
+        notifications: [],
+        avatar: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", //TODO default images
+        header: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+        created_at: (new Date).getTime(),
+        settings: {
+            is_nonprofit: req.body.is_nonprofit
+        },
+        preferred_name: req.body.first_name,
+        is_verified: false,
+        org_info: {
+            schema_version: "0"
+        }
     }, function (err, user) {
         if (err) {
             console.error(err);

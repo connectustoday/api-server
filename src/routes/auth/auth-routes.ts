@@ -20,22 +20,35 @@
 // Authentication API Routes
 
 // API Version 1
-import * as express from "express";
 import * as server from "../../server";
 import * as errors from  "../errors";
-import * as passport from "passport";
-import * as LocalStrategy from "passport-local";
+import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as jwt from "jsonwebtoken";
 import {AccountModel} from '../../interfaces/account';
 
 export class AuthRoutes {
     public routes(app): void {
-        //passport.use(new LocalStrategy(AccountModel.createStrategy()));
 
         app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
 
         app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
+
+        /*
+         * Register Endpoint Required Fields
+         * - username
+         * - email
+         * - password
+         * - type ("organization", "user")
+         * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         * User Required Fields
+         * - first_name
+         * - birthday
+         * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+         * Organization Required Fields
+         * - is_nonprofit
+         * - preferred_name
+         */
 
         app.post('/v1/auth/register', function(req, res) {
             return register.registerRequest(req, res);
