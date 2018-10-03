@@ -42,7 +42,6 @@ export const OrganizationSchema = new Schema({
     is_verified: {type: Boolean, required: true},
     opportunities: {type: [String]},
     org_info: {type: OrganizationProfileSchema, required: true},
-    settings: {type: OrganizationSettingsSchema, required: true},
     experience_validations: {type: [expSchema]}
 });
 //export const OrganizationModel: Model<IOrganization> = model<IOrganization>("OrganizationModel", OrganizationSchema);

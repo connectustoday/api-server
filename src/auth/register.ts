@@ -24,7 +24,6 @@ import * as server from "../server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "./account-util";
-import {AccountModel} from "../interfaces/account";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
@@ -54,7 +53,7 @@ export function registerUserRequest(req, res) {
             avatar: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", //TODO default images
             header: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
             created_at: (new Date).getTime(),
-            settings: {
+            settings: { //TODO NOT DISTINGUISHING BETWEEN USER SETTINGS AND ACCOUNT SETTINGS
                 type: "UserSettings",
                 allow_messages_from_unknown: true,
                 email_notifications: true,

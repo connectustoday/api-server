@@ -41,7 +41,6 @@ export const UserSchema = new Schema({
     birthday: {type: String, required: true},
     gender: {type: String},
     personal_info: {type: UserProfileSchema, required: true},
-    settings: {type: UserSettingsSchema, required: true},
     experiences: {type: ExperienceSchema}
 });
 //export const UserModel: Model<IUser> = model<IUser>("UserModel", UserSchema);
