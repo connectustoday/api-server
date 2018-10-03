@@ -17,15 +17,17 @@
  *
  */
 
-import * as express from "express";
+import {AuthRoutes} from "./auth/auth-routes";
 
 export class Routes {
-    public routes(app): void {
+    public static authRoutes: AuthRoutes = new AuthRoutes();
+    static routes(app): void {
         app.get('/', (req, res) => res.send('ConnectUS Backend API Server - Working!')); // Default (root) route.
 
         // TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 
-        // TODO MOVE OUT OF THIS FILE
+        AuthRoutes.routes(app, "/v1/auth");
+
         app.get('/v1/')
     }
 }

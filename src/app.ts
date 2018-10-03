@@ -27,18 +27,15 @@ class App {
 
     public app: express.Application;
     public routes: Routes = new Routes();
-    public authRoutes: AuthRoutes = new AuthRoutes();
 
     constructor() {
         this.app = express();
         this.config();
 
-        this.routes.routes(this.app);
-        this.authRoutes.routes(this.app);
+        Routes.routes(this.app);
     }
 
     private config(): void {
-
         // CHANGE THIS IN PRODUCTION! CORS policy
         this.app.use(function (req, res, next) {
             res.header("Access-Control-Allow-Origin", "*");
@@ -49,9 +46,7 @@ class App {
         // support application/json type post data
         this.app.use(bodyParser.urlencoded({extended: false}));
         this.app.use(bodyParser.json());
-
     }
-
 }
 
 export default new App().app;

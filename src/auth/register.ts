@@ -73,8 +73,7 @@ export function registerUserRequest(req, res) {
                 return res.status(500).send(errors.internalServerError + " (There was a problem registering the user.)");
             }
 
-            console.log(user);
-
+            //console.log(user);
             // @ts-ignore
             let token = jwt.sign({username: user.username}, server.SECRET, {
                 expiresIn: 86400 //TODO token expiry

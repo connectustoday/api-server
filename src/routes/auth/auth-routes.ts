@@ -21,16 +21,16 @@
 
 // API Version 1
 import * as server from "../../server";
-import * as errors from  "../errors";
+import * as errors from "../errors";
 import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as jwt from "jsonwebtoken";
-import {AccountModel} from '../../interfaces/account';
+import {AccountModel} from "../../interfaces/account";
 
 export class AuthRoutes {
-    public routes(app): void {
+    public static routes(app, prefix: string): void {
 
-        app.get('/v1/auth', (req, res) => res.send(errors.badRequest));
+        app.get(prefix, (req, res) => res.send(errors.badRequest));
 
         /*
          * Register Endpoint Required Fields
@@ -48,19 +48,24 @@ export class AuthRoutes {
          * - preferred_name
          * ------------------------------------
          * Returns 200 + auth=true + token if SUCCESSFUL
+         * TODO EMAIL VERIFICATION
          */
 
-        app.post('/v1/auth/register', function(req, res) {
+        app.post(prefix + "/register", function (req, res) {
             return register.registerRequest(req, res);
         });
-        app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
+        app.get(prefix + "/register", (req, res) => res.send(errors.methodNotAllowed));
 
-        app.get('/v1/auth/me', function (req, res) {
-            let token = req.headers['x-access-token'];
-            if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
+        /*
+         * Test utility to check if logged in
+         */
 
-            jwt.verify(token, server.SECRET, function(err, decoded) {
-                if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
+        app.get(prefix + "/me", function (req, res) {
+            let token = req.headers["x-access-token"];
+            if (!token) return res.status(401).send({auth: false, message: "No token provided."});
+
+            jwt.verify(token, server.SECRET, function (err, decoded) {
+                if (err) return res.status(500).send({auth: false, message: "Failed to authenticate token."});
 
                 AccountModel.find({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
                     if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
@@ -71,20 +76,28 @@ export class AuthRoutes {
             });
         });
 
-        app.get('/v1/auth/login', (req, res) => res.send(errors.methodNotAllowed));
-        app.post('/v1/auth/login', function (req, res) {
+        /*
+        * Register Endpoint Required Fields
+        * - username
+        * - password
+        * Returns 200 + auth=true + token if SUCCESSFUL
+        * TODO EMAIL LOGIN (RATHER THAN USERNAME)
+        */
+
+        app.get(prefix + "/login", (req, res) => res.send(errors.methodNotAllowed));
+        app.post(prefix + "/login", function (req, res) {
             AccountModel.findOne({username: req.body.username}, function (err, user) {
                 if (err) return res.status(500).send(errors.internalServerError);
-                if (!user) return res.status(404).send(errors.notFound + ' (No user found.)');
+                if (!user) return res.status(404).send(errors.notFound + " (No user found.)");
 
                 let passwordIsValid: boolean = bcrypt.compareSync(req.body.password, user.password);
                 if (!passwordIsValid) {
-                    return res.status(401).send({ auth: false, token: null });
+                    return res.status(401).send({auth: false, token: null});
                 }
-                let token = jwt.sign({ username: user.username }, server.SECRET, {
+                let token = jwt.sign({username: user.username}, server.SECRET, {
                     expiresIn: 86400 //TODO CONFIGURABLE
                 });
-                res.status(200).send({ auth: true, token: token });
+                res.status(200).send({auth: true, token: token});
             });
         });
     }
