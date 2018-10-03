@@ -18,7 +18,7 @@
  */
 
 import * as mongoose from "mongoose";
-import { Document, Schema, Model, model} from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface IUserProfile extends mongoose.Document {
     schema_version: string;
@@ -30,12 +30,12 @@ export default interface IUserProfile extends mongoose.Document {
     certifications?: string; //TODO
 }
 export const UserProfileSchema = new mongoose.Schema({
-    schema_version: {type: String, required: true},
-    interests: {type: [String]},
-    biography: {type: String},
-    education: {type: String},
-    quote: {type: String},
-    current_residence: {type: String},
-    certifications: {type: String}
+    schema_version: { type: String, required: true },
+    interests: { type: [String] },
+    biography: { type: String },
+    education: { type: String },
+    quote: { type: String },
+    current_residence: { type: String },
+    certifications: { type: String }
 });
 export const UserProfileModel: Model<IUserProfile> = model<IUserProfile>("UserProfileModel", UserProfileSchema);

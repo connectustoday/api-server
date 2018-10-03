@@ -31,6 +31,7 @@ export class Routes {
 
         // TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 
+        // Routes
         AuthRoutes.routes(app, "/v1/auth");
         AccountRoutes.routes(app, "/v1/accounts");
         PersonalAccountRoutes.routes(app, "/v1");

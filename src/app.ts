@@ -17,11 +17,11 @@
  *
  */
 
-// Express App ConnectUS
+// ConnectUS Backend API Server
 import * as express from "express";
 import * as bodyParser from "body-parser";
-import {Routes} from "./routes/routes";
-import {AuthRoutes} from "./routes/auth/auth-routes";
+import { Routes } from "./routes/routes";
+import { AuthRoutes } from "./routes/auth/auth-routes";
 
 class App {
 
@@ -44,7 +44,7 @@ class App {
         });
 
         // support application/json type post data
-        this.app.use(bodyParser.urlencoded({extended: false}));
+        this.app.use(bodyParser.urlencoded({ extended: false }));
         this.app.use(bodyParser.json());
     }
 }

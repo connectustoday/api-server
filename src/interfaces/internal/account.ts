@@ -17,15 +17,15 @@
  *
  */
 
-import INotification, {NotificationSchema} from './notification';
-import IAccountSettings, {AccountSettingsSchema} from './account-settings';
+import INotification, { NotificationSchema } from './notification';
+import IAccountSettings, { AccountSettingsSchema } from './account-settings';
 import * as mongoose from "mongoose";
-import { Document, Schema, Model, model} from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 import * as passportLocalMongoose from "passport-local-mongoose";
 
 export default interface IAccount extends Document {
     schema_version: number;
-//    id: string;
+    //    id: string;
     username: string;
     email: string;
     password: string;
@@ -47,30 +47,30 @@ export default interface IAccount extends Document {
     admin_note?: string;
 }
 
-let comSchema = new Schema({posts: String, when: Number}, {_id: false});
+let comSchema = new Schema({ posts: String, when: Number }, { _id: false });
 
 export const AccountSchema = new Schema({
-    schema_version: {type: String, required: true},
-//    id: {type: String, required: true, index: true, unique: true},
-    username: {type: String, required: true, index: true, unique: true, trim: true, collation: {locale: 'en', strength: 2}},
-    email: {type: String, required: true, index: true},
-    password: {type: String, required: true},
-    oauth_token: {type: String},
-    oauth_service: {type: String},
-    is_email_verified: {type: Boolean, required: true},
-    last_login: {type: Number, required: true},
-    notifications: {type: [NotificationSchema], required: true},
-    avatar: {type: String, required: true, index: true},
-    header: {type: String, required: true},
-    created_at: {type: Number, required: true},
-    pending_connections: {type: [String]},
-    requested_connections: {type: [String]},
-    posts: {type: [String]},
-    liked: {type: [comSchema]},
-    shared: {type: [comSchema]},
-    settings: {type: AccountSettingsSchema, required: true},
-    admin_note: {type: String, index: true}
-}, {discriminatorKey: 'type', id: false});
+    schema_version: { type: String, required: true },
+    //    id: {type: String, required: true, index: true, unique: true},
+    username: { type: String, required: true, index: true, unique: true, trim: true, collation: { locale: 'en', strength: 2 } },
+    email: { type: String, required: true, index: true },
+    password: { type: String, required: true },
+    oauth_token: { type: String },
+    oauth_service: { type: String },
+    is_email_verified: { type: Boolean, required: true },
+    last_login: { type: Number, required: true },
+    notifications: { type: [NotificationSchema], required: true },
+    avatar: { type: String, required: true, index: true },
+    header: { type: String, required: true },
+    created_at: { type: Number, required: true },
+    pending_connections: { type: [String] },
+    requested_connections: { type: [String] },
+    posts: { type: [String] },
+    liked: { type: [comSchema] },
+    shared: { type: [comSchema] },
+    settings: { type: AccountSettingsSchema, required: true },
+    admin_note: { type: String, index: true }
+}, { discriminatorKey: 'type', id: false });
 
 AccountSchema.plugin(passportLocalMongoose);
 //AccountSchema.set('autoIndex', false);

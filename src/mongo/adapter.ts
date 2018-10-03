@@ -19,7 +19,7 @@
 
 import * as mongoose from "mongoose";
 import * as server from "../server";
-import {Mongoose} from "mongoose";
+import { Mongoose } from "mongoose";
 
 /*
  * Mongo connection
@@ -29,7 +29,7 @@ export function connectDB(): void {
 
     let url: string = "mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME;
     console.log("Connecting to MongoDB at " + url);
-    let promise: Promise<Mongoose> = mongoose.connect(url, {useNewUrlParser: true});
+    let promise: Promise<Mongoose> = mongoose.connect(url, { useNewUrlParser: true });
     promise.then(() =>
         console.log("Attempted connection to MongoDB.")
     );

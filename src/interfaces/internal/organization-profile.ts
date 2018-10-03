@@ -18,8 +18,8 @@
  */
 
 import * as mongoose from "mongoose";
-import IAddress, {AddressSchema} from './address';
-import { Document, Schema, Model, model} from "mongoose";
+import IAddress, { AddressSchema } from './address';
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface IOrganizationProfile extends mongoose.Document {
     schema_version: string;
@@ -31,11 +31,11 @@ export default interface IOrganizationProfile extends mongoose.Document {
 }
 
 export const OrganizationProfileSchema = new mongoose.Schema({
-    schema_version: {type: String, required: true},
-    mission: {type: String},
-    quote: {type: String},
-    address: {type: AddressSchema},
-    affiliated_orgs: {type: [String]},
-    interests: {type: [String]}
+    schema_version: { type: String, required: true },
+    mission: { type: String },
+    quote: { type: String },
+    address: { type: AddressSchema },
+    affiliated_orgs: { type: [String] },
+    interests: { type: [String] }
 });
 export const OrganizationProfileModel: Model<IOrganizationProfile> = model<IOrganizationProfile>("OrganizationProfileModel", OrganizationProfileSchema);

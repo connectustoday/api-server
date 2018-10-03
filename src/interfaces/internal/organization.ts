@@ -18,11 +18,11 @@
  */
 
 import * as mongoose from "mongoose";
-import IAccount, {AccountModel} from './account';
-import IOrganizationProfile, {OrganizationProfileSchema} from './organization-profile';
-import {Document, Schema, Model, model} from "mongoose";
-import {AccountSettingsSchema} from "./account-settings";
-import {OrganizationSettingsSchema} from "./organization-settings";
+import IAccount, { AccountModel } from './account';
+import IOrganizationProfile, { OrganizationProfileSchema } from './organization-profile';
+import { Document, Schema, Model, model } from "mongoose";
+import { AccountSettingsSchema } from "./account-settings";
+import { OrganizationSettingsSchema } from "./organization-settings";
 
 export default interface IOrganization extends IAccount {
     preferred_name: string;
@@ -35,14 +35,14 @@ export default interface IOrganization extends IAccount {
 let expSchema = new Schema({
     user_id: String,
     experience_id: Number
-}, {_id: false});
+}, { _id: false });
 
 export const OrganizationSchema = new Schema({
-    preferred_name: {type: String, required: true, index: true},
-    is_verified: {type: Boolean, required: true},
-    opportunities: {type: [String]},
-    org_info: {type: OrganizationProfileSchema, required: true},
-    experience_validations: {type: [expSchema]}
+    preferred_name: { type: String, required: true, index: true },
+    is_verified: { type: Boolean, required: true },
+    opportunities: { type: [String] },
+    org_info: { type: OrganizationProfileSchema, required: true },
+    experience_validations: { type: [expSchema] }
 });
 //export const OrganizationModel: Model<IOrganization> = model<IOrganization>("OrganizationModel", OrganizationSchema);
 export const OrganizationModel = AccountModel.discriminator("Organization", OrganizationSchema);

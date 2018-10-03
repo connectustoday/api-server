@@ -19,13 +19,13 @@
 
 // Authentication API Routes
 
-// API Version 1
+// API Version 1.0
 import * as server from "../../server";
 import * as errors from "../errors";
 import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as jwt from "jsonwebtoken";
-import {AccountModel} from "../../interfaces/internal/account";
+import { AccountModel } from "../../interfaces/internal/account";
 import express = require("express");
 
 export class AuthRoutes {
@@ -61,12 +61,12 @@ export class AuthRoutes {
 
         app.get(prefix + "/me", (req, res) => {
             let token = req.headers["x-access-token"];
-            if (!token) return res.status(401).send({auth: false, message: "No token provided."});
+            if (!token) return res.status(401).send({ auth: false, message: "No token provided." });
 
             jwt.verify(token, server.SECRET, function (err, decoded) {
-                if (err) return res.status(500).send({auth: false, message: "Failed to authenticate token."});
+                if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
 
-                AccountModel.find({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
+                AccountModel.find({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
                     if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
                     if (!user) return res.status(404).send(errors.notFound + " (User not found)");
 
@@ -85,18 +85,18 @@ export class AuthRoutes {
 
         app.get(prefix + "/login", (req, res) => res.send(errors.methodNotAllowed));
         app.post(prefix + "/login", (req, res) => {
-            AccountModel.findOne({username: req.body.username}, function (err, user) {
+            AccountModel.findOne({ username: req.body.username }, function (err, user) {
                 if (err) return res.status(500).send(errors.internalServerError);
                 if (!user) return res.status(404).send(errors.notFound + " (No user found.)");
 
                 let passwordIsValid: boolean = bcrypt.compareSync(req.body.password, user.password);
                 if (!passwordIsValid) {
-                    return res.status(401).send({auth: false, token: null});
+                    return res.status(401).send({ auth: false, token: null });
                 }
-                let token = jwt.sign({username: user.username}, server.SECRET, {
+                let token = jwt.sign({ username: user.username }, server.SECRET, {
                     expiresIn: 86400 //TODO CONFIGURABLE
                 });
-                res.status(200).send({auth: true, token: token});
+                res.status(200).send({ auth: true, token: token });
             });
         });
     }

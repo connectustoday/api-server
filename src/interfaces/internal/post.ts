@@ -18,8 +18,8 @@
  */
 
 import * as mongoose from "mongoose";
-import IAttachment, {AttachmentSchema} from './attachment';
-import { Document, Schema, Model, model} from "mongoose";
+import IAttachment, { AttachmentSchema } from './attachment';
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface IPost extends mongoose.Document {
     schema_version: number;
@@ -39,20 +39,20 @@ export default interface IPost extends mongoose.Document {
     visibility: string;
 }
 export const PostSchema = new mongoose.Schema({
-    schema_version: {type: Number, required: true},
-    id: {type: String, required: true, index: true},
-    account: {type: String, required: true},
-    content: {type: String, required: true},
-    created_at: {type: Number, required: true},
-    reply_to: {type: String},
-    multimedia: {type: AttachmentSchema},
-    tags: {type: [String], index: true}, // TODO
-    likes_count: {type: Number, required: true},
-    comments_count: {type: Number, required: true},
-    shares_count: {type: Number, required: true},
-    likes: {type: [String]},
-    comments: {type: [String]},
-    shares: {type: [String]},
-    visibility: {type: String, required: true}
+    schema_version: { type: Number, required: true },
+    id: { type: String, required: true, index: true },
+    account: { type: String, required: true },
+    content: { type: String, required: true },
+    created_at: { type: Number, required: true },
+    reply_to: { type: String },
+    multimedia: { type: AttachmentSchema },
+    tags: { type: [String], index: true }, // TODO
+    likes_count: { type: Number, required: true },
+    comments_count: { type: Number, required: true },
+    shares_count: { type: Number, required: true },
+    likes: { type: [String] },
+    comments: { type: [String] },
+    shares: { type: [String] },
+    visibility: { type: String, required: true }
 });
 export const PostModel: Model<IPost> = model<IPost>("PostModel", PostSchema);

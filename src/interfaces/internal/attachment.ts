@@ -18,7 +18,7 @@
  */
 
 import * as mongoose from "mongoose";
-import { Document, Schema, Model, model} from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface IAttachment extends mongoose.Document {
     schema_version: number;
@@ -28,9 +28,9 @@ export default interface IAttachment extends mongoose.Document {
 }
 
 export const AttachmentSchema = new mongoose.Schema({
-    schema_version: {type: Number, required: true},
-    type: {type: String, required: true},
-    url: {type: String, required: true, index: true},
-    description: {type: String}
+    schema_version: { type: Number, required: true },
+    type: { type: String, required: true },
+    url: { type: String, required: true, index: true },
+    description: { type: String }
 });
 export const AttachmentModel: Model<IAttachment> = model<IAttachment>("AttachmentModel", AttachmentSchema);

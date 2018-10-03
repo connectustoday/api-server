@@ -17,9 +17,9 @@
  *
  */
 
-import IPoint, {PointSchema} from './point';
+import IPoint, { PointSchema } from './point';
 import * as mongoose from "mongoose";
-import { Document, Schema, Model, model} from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface IAddress extends mongoose.Document {
     schema_version: number;
@@ -33,14 +33,14 @@ export default interface IAddress extends mongoose.Document {
 }
 
 export const AddressSchema = new mongoose.Schema({
-    schema_version: {type: Number, required: true},
-    street: {type: String},
-    city: {type: String},
-    province: {type: String},
-    country: {type: String},
-    postal_code: {type: String},
-    apt_number: {type: String},
-    geojson: {type: PointSchema}
+    schema_version: { type: Number, required: true },
+    street: { type: String },
+    city: { type: String },
+    province: { type: String },
+    country: { type: String },
+    postal_code: { type: String },
+    apt_number: { type: String },
+    geojson: { type: PointSchema }
 });
 
 export const AddressModel: Model<IAddress> = model<IAddress>("AddressModel", AddressSchema);

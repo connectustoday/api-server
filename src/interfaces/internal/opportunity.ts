@@ -18,9 +18,9 @@
  */
 
 import * as mongoose from "mongoose";
-import IAddress, {AddressSchema} from './address';
-import { Document, Schema, Model, model} from "mongoose";
-import {AccountSchema} from "./account";
+import IAddress, { AddressSchema } from './address';
+import { Document, Schema, Model, model } from "mongoose";
+import { AccountSchema } from "./account";
 
 export default interface IOpportunity extends mongoose.Document {
     schema_version: number;
@@ -38,22 +38,22 @@ export default interface IOpportunity extends mongoose.Document {
     created_at: number;
 }
 
-let shiftSchema = new mongoose.Schema({begin: String, end: String}, {_id: false});
+let shiftSchema = new mongoose.Schema({ begin: String, end: String }, { _id: false });
 
 export const OpportunitySchema = new mongoose.Schema({
-    schema_version: {type: Number, required: true},
-    id: {type: String, required: true, index: true},
-    organization: {type: String, required: true, index: true},
-    name: {type: String, required: true, index: true},
-    description: {type: String},
-    address: {type: AddressSchema},
-    is_signups_enabled: {type: Boolean, required: true},
-    number_of_people_needed: {type: Number},
-    tags: {type: [String]},
-    interested_users: {type: [String]},
-    shift_times: {type: shiftSchema},
-    method_of_contact: {type: String},
-    created_at: {type: Number, required: true}
+    schema_version: { type: Number, required: true },
+    id: { type: String, required: true, index: true },
+    organization: { type: String, required: true, index: true },
+    name: { type: String, required: true, index: true },
+    description: { type: String },
+    address: { type: AddressSchema },
+    is_signups_enabled: { type: Boolean, required: true },
+    number_of_people_needed: { type: Number },
+    tags: { type: [String] },
+    interested_users: { type: [String] },
+    shift_times: { type: shiftSchema },
+    method_of_contact: { type: String },
+    created_at: { type: Number, required: true }
 });
 
 //OpportunitySchema.set('autoIndex', false);

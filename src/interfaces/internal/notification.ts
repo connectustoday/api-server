@@ -18,7 +18,7 @@
  */
 
 import * as mongoose from "mongoose";
-import { Document, Schema, Model, model} from "mongoose";
+import { Document, Schema, Model, model } from "mongoose";
 
 export default interface INotification extends mongoose.Document {
     id: number;
@@ -29,10 +29,10 @@ export default interface INotification extends mongoose.Document {
 }
 
 export const NotificationSchema = new mongoose.Schema({
-    id: {type: String, required: true, index: true},
-    created_at: {type: Number, required: true},
-    type: {type: String, required: true},
-    content: {type: String, required: true},
-    account: {type: String}
+    id: { type: String, required: true, index: true },
+    created_at: { type: Number, required: true },
+    type: { type: String, required: true },
+    content: { type: String, required: true },
+    account: { type: String }
 });
 export const NotificationModel: Model<INotification> = model<INotification>("NotificationModel", NotificationSchema);
