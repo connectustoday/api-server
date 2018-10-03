@@ -29,4 +29,5 @@ export const UserSettingsSchema = AccountSettingsModel.discriminator("UserSettin
     is_full_name_visible: {type: Boolean, required: true},
     blocked_users: {type: [String], required: true}
 })).schema;
-export const UserSettingsModel: Model<IUserSettings> = model<IUserSettings>("UserSettingsModel", UserSettingsSchema);
+//export const UserSettingsModel: Model<IUserSettings> = model<IUserSettings>("UserSettingsModel", UserSettingsSchema);
+export const UserSettingsModel: Model<IUserSettings> = AccountSettingsModel.discriminator("UserSettings", UserSettingsSchema);

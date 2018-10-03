@@ -21,6 +21,8 @@ import * as mongoose from "mongoose";
 import IAccount, {AccountModel} from './account';
 import IOrganizationProfile, {OrganizationProfileSchema} from './organization-profile';
 import {Document, Schema, Model, model} from "mongoose";
+import {AccountSettingsSchema} from "./account-settings";
+import {OrganizationSettingsSchema} from "./organization-settings";
 
 export default interface IOrganization extends IAccount {
     preferred_name: string;
@@ -30,16 +32,18 @@ export default interface IOrganization extends IAccount {
     experience_validations?: Array<[string, string]>
 }
 
-let expSchema = new mongoose.Schema({
+let expSchema = new Schema({
     user_id: String,
     experience_id: Number
 }, {_id: false});
 
-export const OrganizationSchema = AccountModel.discriminator("Organization", new mongoose.Schema({
+export const OrganizationSchema = new Schema({
     preferred_name: {type: String, required: true, index: true},
     is_verified: {type: Boolean, required: true},
     opportunities: {type: [String]},
     org_info: {type: OrganizationProfileSchema, required: true},
+    settings: {type: OrganizationSettingsSchema, required: true},
     experience_validations: {type: [expSchema]}
-})).schema;
-export const OrganizationModel: Model<IOrganization> = model<IOrganization>("OrganizationModel", OrganizationSchema);
+});
+//export const OrganizationModel: Model<IOrganization> = model<IOrganization>("OrganizationModel", OrganizationSchema);
+export const OrganizationModel = AccountModel.discriminator("Organization", OrganizationSchema);

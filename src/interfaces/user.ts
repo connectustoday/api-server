@@ -22,6 +22,8 @@ import IAccount, {AccountModel} from './account';
 import IUserProfile, {UserProfileSchema} from './user-profile';
 import IExperience, {ExperienceSchema} from './experience';
 import { Schema, Model, model} from "mongoose";
+import {AccountSettingsSchema} from "./account-settings";
+import {UserSettingsSchema} from "./user-settings";
 
 export default interface IUser extends IAccount {
     first_name: string;
@@ -32,13 +34,15 @@ export default interface IUser extends IAccount {
     personal_info: IUserProfile;
     experiences?: Array<IExperience>;
 }
-export const UserSchema = AccountModel.discriminator("User", new Schema({
+export const UserSchema = new Schema({
     first_name: {type: String, required: true, index: true}, //TODO disable if private
     middle_name: {type: String},
     last_name: {type: String},
     birthday: {type: String, required: true},
     gender: {type: String},
     personal_info: {type: UserProfileSchema, required: true},
+    settings: {type: UserSettingsSchema, required: true},
     experiences: {type: ExperienceSchema}
-})).schema;
-export const UserModel: Model<IUser> = model<IUser>("UserModel", UserSchema);
+});
+//export const UserModel: Model<IUser> = model<IUser>("UserModel", UserSchema);
+export const UserModel = AccountModel.discriminator("User", UserSchema);

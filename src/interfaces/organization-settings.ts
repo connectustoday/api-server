@@ -25,7 +25,8 @@ export default interface IOrganizationSettings extends IAccountSettings {
     is_nonprofit: boolean;
 }
 
-export const OrganizationSettingsSchema = AccountSettingsModel.discriminator("OrganizationSettings", new mongoose.Schema({
+export const OrganizationSettingsSchema = new Schema({
     is_nonprofit: {type: Boolean, required: true}
-})).schema;
-export const OrganizationSettingsModel: Model<IOrganizationSettings> = model<IOrganizationSettings>("OrganizationSettingsModel", OrganizationSettingsSchema);
+});
+//export const OrganizationSettingsModel: Model<IOrganizationSettings> = model<IOrganizationSettings>("OrganizationSettingsModel", OrganizationSettingsSchema);
+export const OrganizationSettingsModel: Model<IOrganizationSettings> = AccountSettingsModel.discriminator("OrganizationSettings", OrganizationSettingsSchema);

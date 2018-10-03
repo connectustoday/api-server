@@ -42,7 +42,8 @@ export function registerUserRequest(req, res) {
     AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
         if (!isUnique) return res.status(500).send(errors.internalServerError + " (Username taken)");
 
-        AccountModel.create({ // Default user
+        const defUser = new UserModel({ // Default user
+            type: "User",
             schema_version: "0",
             username: req.body.username,
             email: req.body.email,
@@ -54,28 +55,34 @@ export function registerUserRequest(req, res) {
             header: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
             created_at: (new Date).getTime(),
             settings: {
+                type: "UserSettings",
                 allow_messages_from_unknown: true,
                 email_notifications: true,
                 is_full_name_visible: false,
-                blocked_users: []
+                blocked_users: [],
             },
-            type: "user",
             first_name: req.body.first_name,
             birthday: req.body.birthday,
             personal_info: {
                 schema_version: "0"
             }
-        }, function (err, user) {
+        });
+
+        defUser.save(function (err, user) {
             if (err) {
                 if (server.DEBUG) console.error(err);
                 return res.status(500).send(errors.internalServerError + " (There was a problem registering the user.)");
             }
 
+            console.log(user);
+
+            // @ts-ignore
             let token = jwt.sign({username: user.username}, server.SECRET, {
                 expiresIn: 86400 //TODO token expiry
             });
             res.status(200).send({auth: true, token: token});
         });
+
     });
 }
 
@@ -85,7 +92,8 @@ export function registerOrganizationRequest(req, res) {
     AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
         if (!isUnique) return res.status(500).send(errors.internalServerError + " (Duplicate username)");
 
-        AccountModel.create({ // Default organization
+        const defOrganization = new OrganizationModel({ // Default organization
+            type: "Organization",
             schema_version: "0",
             username: req.body.username,
             email: req.body.email,
@@ -99,21 +107,24 @@ export function registerOrganizationRequest(req, res) {
             settings: {
                 is_nonprofit: req.body.is_nonprofit,
                 allow_messages_from_unknown: true,
-                email_notifications: true
+                email_notifications: true,
+                type: "OrganizationSettings"
             },
-            type: "organization",
             preferred_name: req.body.first_name,
             is_verified: false,
             org_info: {
                 schema_version: "0"
             }
-        }, function (err, user) {
+        });
+
+        defOrganization.save(function (err, user) {
             if (err) {
                 console.error(err);
-                return res.status(500).send(errors.internalServerError + " (There was a problem registering the user.)");
+                return res.status(500).send(errors.internalServerError + " (There was a problem registering the organization.)");
             }
 
-            let token = jwt.sign({id: user._id}, server.SECRET, {
+            // @ts-ignore
+            let token = jwt.sign({id: user.username}, server.SECRET, {
                 expiresIn: 86400 //TODO token expiry
             });
             res.status(200).send({auth: true, token: token});

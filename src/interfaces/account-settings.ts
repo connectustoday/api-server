@@ -30,4 +30,4 @@ export const AccountSettingsSchema = new mongoose.Schema({
     email_notifications: {type: Boolean, required: true}
 }, {discriminatorKey: 'type'});
 
-export const AccountSettingsModel: Model<IAccountSettings> = model<IAccountSettings>("AccountSettingsModel", AccountSettingsSchema);
+export const AccountSettingsModel: Model<IAccountSettings> = model<IAccountSettings>("AccountSettings", AccountSettingsSchema);

@@ -62,8 +62,6 @@ export class AuthRoutes {
             jwt.verify(token, server.SECRET, function(err, decoded) {
                 if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
 
-                console.log(decoded);
-
                 AccountModel.find({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
                     if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
                     if (!user) return res.status(404).send(errors.notFound + " (User not found)");
