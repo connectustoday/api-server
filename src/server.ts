@@ -32,7 +32,8 @@ console.log("Starting ConnectUS API Server...");
 export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
     DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"),
     DB_NAME: string = getArg(process.env.DB_NAME, "database"),
-    SECRET: string = getArg(process.env.SECRET, "default secret");
+    SECRET: string = getArg(process.env.SECRET, "defaultsecret"),
+    DEBUG: boolean = JSON.parse(getArg(process.env.DEBUG, "false"));
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 

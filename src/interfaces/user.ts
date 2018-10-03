@@ -21,7 +21,7 @@ import * as mongoose from "mongoose";
 import IAccount, {AccountModel} from './account';
 import IUserProfile, {UserProfileSchema} from './user-profile';
 import IExperience, {ExperienceSchema} from './experience';
-import { Document, Schema, Model, model} from "mongoose";
+import { Schema, Model, model} from "mongoose";
 
 export default interface IUser extends IAccount {
     first_name: string;
@@ -32,7 +32,7 @@ export default interface IUser extends IAccount {
     personal_info: IUserProfile;
     experiences?: Array<IExperience>;
 }
-export const UserSchema = AccountModel.discriminator("User", new mongoose.Schema({
+export const UserSchema = AccountModel.discriminator("User", new Schema({
     first_name: {type: String, required: true, index: true}, //TODO disable if private
     middle_name: {type: String},
     last_name: {type: String},

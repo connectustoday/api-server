@@ -55,16 +55,16 @@ export class AuthRoutes {
         });
         app.get('/v1/auth/register', (req, res) => res.send(errors.methodNotAllowed));
 
-
-
         app.get('/v1/auth/me', function (req, res) {
-            var token = req.headers['x-access-token'];
+            let token = req.headers['x-access-token'];
             if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
 
             jwt.verify(token, server.SECRET, function(err, decoded) {
                 if (err) return res.status(500).send({ auth: false, message: 'Failed to authenticate token.' });
 
-                AccountModel.findById(decoded.id, {password: 0}, function (err, user) { //TODO switch to id
+                console.log(decoded);
+
+                AccountModel.find({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
                     if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
                     if (!user) return res.status(404).send(errors.notFound + " (User not found)");
 
@@ -75,7 +75,7 @@ export class AuthRoutes {
 
         app.get('/v1/auth/login', (req, res) => res.send(errors.methodNotAllowed));
         app.post('/v1/auth/login', function (req, res) {
-            AccountModel.findOne({email: req.body.email}, function (err, user) {
+            AccountModel.findOne({username: req.body.username}, function (err, user) {
                 if (err) return res.status(500).send(errors.internalServerError);
                 if (!user) return res.status(404).send(errors.notFound + ' (No user found.)');
 
@@ -83,7 +83,7 @@ export class AuthRoutes {
                 if (!passwordIsValid) {
                     return res.status(401).send({ auth: false, token: null });
                 }
-                let token = jwt.sign({ id: user._id }, server.SECRET, {
+                let token = jwt.sign({ username: user.username }, server.SECRET, {
                     expiresIn: 86400 //TODO CONFIGURABLE
                 });
                 res.status(200).send({ auth: true, token: token });

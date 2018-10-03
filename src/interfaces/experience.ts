@@ -20,8 +20,9 @@
 import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
 import { Document, Schema, Model, model} from "mongoose";
+import {AccountSchema} from "./account";
 
-export default interface IExperience extends mongoose.Document {
+export default interface IExperience extends Document {
     schema_version: number;
     location?: IAddress;
     id: string;
@@ -33,7 +34,7 @@ export default interface IExperience extends mongoose.Document {
     created_at: number;
 }
 
-export const ExperienceSchema = new mongoose.Schema({
+export const ExperienceSchema = new Schema({
     schema_version: {type: Number, required: true},
     location: {type: AddressSchema},
     id: {type: String, required: true, index: true},
@@ -44,4 +45,7 @@ export const ExperienceSchema = new mongoose.Schema({
     is_verified: {type: Boolean, required: true},
     created_at: {type: Number, required: true}
 });
+
+//ExperienceSchema.set('autoIndex', false);
+
 export const ExperienceModel: Model<IExperience> = model<IExperience>("ExperienceModel", ExperienceSchema);

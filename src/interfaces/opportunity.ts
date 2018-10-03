@@ -20,6 +20,7 @@
 import * as mongoose from "mongoose";
 import IAddress, {AddressSchema} from './address';
 import { Document, Schema, Model, model} from "mongoose";
+import {AccountSchema} from "./account";
 
 export default interface IOpportunity extends mongoose.Document {
     schema_version: number;
@@ -54,4 +55,7 @@ export const OpportunitySchema = new mongoose.Schema({
     method_of_contact: {type: String},
     created_at: {type: Number, required: true}
 });
+
+//OpportunitySchema.set('autoIndex', false);
+
 export const OpportunityModel: Model<IOpportunity> = model<IOpportunity>("OpportunityModel", OpportunitySchema);

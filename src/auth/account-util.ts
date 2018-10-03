@@ -17,20 +17,15 @@
  *
  */
 
-import * as mongoose from "mongoose";
-import * as server from "../server";
-import {Mongoose} from "mongoose";
+import {AccountModel} from "../interfaces/account";
 
-/*
- * Mongo connection
- */
+export class AccountUtil {
 
-export function connectDB(): void {
-    let url: string = "mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME;
-    console.log("Connecting to MongoDB at " + url);
-    let promise: Promise<Mongoose> = mongoose.connect(url, {useNewUrlParser: true});
-    promise.then(() =>
-        console.log("Attempted connection to MongoDB.")
-    );
-    mongoose.connection.on("error", console.error.bind(console, "MongoDB connection error:"));
+    // verifies if the username does not exist in the database
+    public static verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
+        AccountModel.count({username: username}, function (err, count) {
+            if (err) console.log(err);
+            callback(count <= 0);
+        });
+    }
 }

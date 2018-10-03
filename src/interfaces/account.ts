@@ -23,9 +23,9 @@ import * as mongoose from "mongoose";
 import { Document, Schema, Model, model} from "mongoose";
 import * as passportLocalMongoose from "passport-local-mongoose";
 
-export default interface IAccount extends mongoose.Document {
+export default interface IAccount extends Document {
     schema_version: number;
-    id: string;
+//    id: string;
     username: string;
     email: string;
     password: string;
@@ -43,15 +43,16 @@ export default interface IAccount extends mongoose.Document {
     liked?: Array<[string, number]>;
     shared?: Array<[string, number]>;
     settings: IAccountSettings;
+    type: string; // new
     admin_note?: string;
 }
 
-let comSchema = new mongoose.Schema({posts: String, when: Number}, {_id: false});
+let comSchema = new Schema({posts: String, when: Number}, {_id: false});
 
-export const AccountSchema = new mongoose.Schema({
+export const AccountSchema = new Schema({
     schema_version: {type: String, required: true},
-    id: {type: String, required: true, index: true},
-    username: {type: String, required: true, index: true},
+//    id: {type: String, required: true, index: true, unique: true},
+    username: {type: String, required: true, index: true, unique: true, trim: true, collation: {locale: 'en', strength: 2}},
     email: {type: String, required: true, index: true},
     password: {type: String, required: true},
     oauth_token: {type: String},
@@ -69,7 +70,9 @@ export const AccountSchema = new mongoose.Schema({
     shared: {type: [comSchema]},
     settings: {type: AccountSettingsSchema, required: true},
     admin_note: {type: String, index: true}
-}, {discriminatorKey: 'type'});
+}, {discriminatorKey: 'type', id: false});
+
 AccountSchema.plugin(passportLocalMongoose);
+//AccountSchema.set('autoIndex', false);
 
 export const AccountModel: Model<IAccount> = model<IAccount>("AccountModel", AccountSchema);
