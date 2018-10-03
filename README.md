@@ -9,11 +9,9 @@ The server software has only been tested on GNU/Linux.
 ```bash
 $ git clone https://github.com/connectustoday/api-server.git
 $ cd api-server
-$ npm install
+$ npm run grunt
 $ npm start
 ```
-For development, you should run api-server with `npm start`, as it will call ts-node to automatically compile and run the TypeScript code on the fly.
-
 ## Running (Production)
 Todo.
 

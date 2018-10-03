@@ -23,6 +23,7 @@ import {AccountRoutes} from "./account/account-routes";
 import {PersonalAccountRoutes} from "./account/personal-account-routes";
 import * as errors from "./errors";
 import {ExperienceRoutes} from "./experiences/experience-routes";
+import {OpportunityRoutes} from "./experiences/opportunity-routes";
 
 export class Routes {
     public static authRoutes: AuthRoutes = new AuthRoutes();
@@ -31,11 +32,12 @@ export class Routes {
 
         // TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 
-        // Routes
+        // v1 Routes
         AuthRoutes.routes(app, "/v1/auth");
         AccountRoutes.routes(app, "/v1/accounts");
         PersonalAccountRoutes.routes(app, "/v1");
         ExperienceRoutes.routes(app, "/v1/experiences");
+        OpportunityRoutes.routes(app, "/v1/opportunities");
 
         app.get("/v1", (req, res) => res.send(errors.badRequest));
     }

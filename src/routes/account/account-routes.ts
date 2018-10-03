@@ -27,7 +27,6 @@ export class AccountRoutes {
         app.get(prefix, (req, res) => res.send(errors.badRequest));
 
         /*
-         * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
          * Global Account Routes
          */
 
@@ -35,7 +34,7 @@ export class AccountRoutes {
 
         });
 
-        // Fetch an Account's basic information
+        // Fetch an Account's basic information (Global)
 
         app.get(prefix + "/:id", (req, res) => {
 
@@ -50,6 +49,14 @@ export class AccountRoutes {
         });
 
         app.get(prefix + "/:id/posts", (req, res) => {
+
+        });
+
+        app.get(prefix + "/:id/experiences", (req, res) => {
+
+        });
+
+        app.get(prefix + "/:id/opportunities", (req, res) => {
 
         });
 

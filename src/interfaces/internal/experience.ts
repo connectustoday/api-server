@@ -18,9 +18,9 @@
  */
 
 import * as mongoose from "mongoose";
-import IAddress, { AddressSchema } from './address';
-import { Document, Schema, Model, model } from "mongoose";
-import { AccountSchema } from "./account";
+import IAddress, {AddressSchema} from "./address";
+import {Document, Schema, Model, model} from "mongoose";
+import {AccountSchema} from "./account";
 
 export default interface IExperience extends Document {
     schema_version: number;
@@ -35,15 +35,15 @@ export default interface IExperience extends Document {
 }
 
 export const ExperienceSchema = new Schema({
-    schema_version: { type: Number, required: true },
-    location: { type: AddressSchema },
-    id: { type: String, required: true, index: true },
-    organization: { type: String, index: true },
-    opportunity: { type: String, index: true },
-    description: { type: String },
-    when: { type: { begin: String, end: String } },
-    is_verified: { type: Boolean, required: true },
-    created_at: { type: Number, required: true }
+    schema_version: {type: Number, required: true},
+    location: {type: AddressSchema},
+    id: {type: String, required: true, index: true},
+    organization: {type: String, index: true},
+    opportunity: {type: String, index: true},
+    description: {type: String},
+    when: {type: {begin: String, end: String}},
+    is_verified: {type: Boolean, required: true},
+    created_at: {type: Number, required: true}
 });
 
 //ExperienceSchema.set('autoIndex', false);

@@ -1,3 +1,5 @@
+import express = require("express");
+
 /*
  *
  *     Copyright (C) 2018 ConnectUS
@@ -17,36 +19,10 @@
  *
  */
 
-import * as errors from "../errors";
-import express = require("express");
-
-export class ExperienceRoutes {
+export class OpportunityRoutes {
     public static routes(app: express.Application, prefix: string): void {
-
-        // Get experiences
         app.get(prefix, (req, res) => {
 
         });
-
-        // Create experience
-        app.post(prefix, (req, res) => {
-
-        });
-
-        // Delete experience
-        app.delete(prefix + "/:id", (req, res) => {
-
-        });
-
-        // List pending experience validations (for organization)
-        app.get(prefix + "validations", (req, res) => {
-
-        });
-
-        // Approve or don't approve validation (for organization)
-        app.post(prefix + "validations/:id", (req, res) => {
-
-        });
-
     }
 }
