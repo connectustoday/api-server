@@ -18,16 +18,24 @@
  */
 
 import {AuthRoutes} from "./auth/auth-routes";
+import express = require("express");
+import {AccountRoutes} from "./account/account-routes";
+import {PersonalAccountRoutes} from "./account/personal-account-routes";
+import * as errors from "./errors";
+import {ExperienceRoutes} from "./experiences/experience-routes";
 
 export class Routes {
     public static authRoutes: AuthRoutes = new AuthRoutes();
-    static routes(app): void {
-        app.get('/', (req, res) => res.send('ConnectUS Backend API Server - Working!')); // Default (root) route.
+    static routes(app: express.Application): void {
+        app.get("/", (req, res) => res.send("ConnectUS Backend API Server - Working!")); // Default (root) route.
 
         // TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 
         AuthRoutes.routes(app, "/v1/auth");
+        AccountRoutes.routes(app, "/v1/accounts");
+        PersonalAccountRoutes.routes(app, "/v1");
+        ExperienceRoutes.routes(app, "/v1/experiences");
 
-        app.get('/v1/')
+        app.get("/v1", (req, res) => res.send(errors.badRequest));
     }
 }

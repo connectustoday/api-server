@@ -17,16 +17,3 @@
  *
  */
 
-import * as errors from "../errors";
-import express = require("express");
-
-export class ExperienceRoutes {
-    public static routes(app: express.Application, prefix: string): void {
-
-        app.get(prefix, (req, res) => res.send(errors.badRequest));
-
-        app.post(prefix + "/create", (req, res) => {
-
-        });
-    }
-}

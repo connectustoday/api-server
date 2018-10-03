@@ -1,3 +1,4 @@
+
 /*
  *
  *     Copyright (C) 2018 ConnectUS
@@ -17,16 +18,47 @@
  *
  */
 
-import * as errors from "../errors";
 import express = require("express");
+import * as errors from "../errors";
 
-export class ExperienceRoutes {
+export class PersonalAccountRoutes {
     public static routes(app: express.Application, prefix: string): void {
 
-        app.get(prefix, (req, res) => res.send(errors.badRequest));
+        /*
+        * Current User Routes
+        */
 
-        app.post(prefix + "/create", (req, res) => {
+        app.get(prefix + "/notifications", (req, res) => {
 
         });
+
+        app.post(prefix + "/notification/clear", (req, res) => {
+
+        });
+
+        app.post(prefix + "/notification/dismiss", (req, res) => {
+
+        });
+
+        app.get(prefix + "/settings", (req, res) => {
+
+        });
+
+        app.post(prefix + "/settings", (req, res) => {
+
+        });
+
+        app.get(prefix + "/profile", (req, res) => {
+
+        });
+
+        app.post(prefix + "/profile", (req, res) => {
+
+        });
+
+        app.get(prefix + "/connection-requests", (req, res) => {
+
+        })
+
     }
 }

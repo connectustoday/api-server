@@ -25,10 +25,11 @@ import * as errors from "../errors";
 import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as jwt from "jsonwebtoken";
-import {AccountModel} from "../../interfaces/account";
+import {AccountModel} from "../../interfaces/internal/account";
+import express = require("express");
 
 export class AuthRoutes {
-    public static routes(app, prefix: string): void {
+    public static routes(app: express.Application, prefix: string): void {
 
         app.get(prefix, (req, res) => res.send(errors.badRequest));
 
@@ -51,16 +52,14 @@ export class AuthRoutes {
          * TODO EMAIL VERIFICATION
          */
 
-        app.post(prefix + "/register", function (req, res) {
-            return register.registerRequest(req, res);
-        });
+        app.post(prefix + "/register", (req, res) => register.registerRequest(req, res));
         app.get(prefix + "/register", (req, res) => res.send(errors.methodNotAllowed));
 
         /*
          * Test utility to check if logged in
          */
 
-        app.get(prefix + "/me", function (req, res) {
+        app.get(prefix + "/me", (req, res) => {
             let token = req.headers["x-access-token"];
             if (!token) return res.status(401).send({auth: false, message: "No token provided."});
 
@@ -85,7 +84,7 @@ export class AuthRoutes {
         */
 
         app.get(prefix + "/login", (req, res) => res.send(errors.methodNotAllowed));
-        app.post(prefix + "/login", function (req, res) {
+        app.post(prefix + "/login", (req, res) => {
             AccountModel.findOne({username: req.body.username}, function (err, user) {
                 if (err) return res.status(500).send(errors.internalServerError);
                 if (!user) return res.status(404).send(errors.notFound + " (No user found.)");

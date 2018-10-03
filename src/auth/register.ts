@@ -17,8 +17,8 @@
  *
  */
 
-import {UserModel} from "../interfaces/user";
-import {OrganizationModel} from "../interfaces/organization";
+import {UserModel} from "../interfaces/internal/user";
+import {OrganizationModel} from "../interfaces/internal/organization";
 import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as bcrypt from "bcryptjs";
