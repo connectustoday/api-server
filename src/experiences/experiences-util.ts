@@ -27,7 +27,7 @@ export class ExperiencesUtil {
 
     }
 
-    public static createExperience(req: Request, res) {
+    public static createExperience(req, res) {
         let accType = AuthUtil.verifyUser(req, res);
         if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
 
@@ -39,9 +39,11 @@ export class ExperiencesUtil {
 
     }
 
-    public static queryExperience(req: Request, res) {
-        let accType = AuthUtil.verifyUser(req, res);
-        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+    public static getExperienceValidations(req, res) {
+
+    }
+
+    public static reviewExperienceValidations(req: Request, res) {
 
     }
 }

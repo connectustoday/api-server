@@ -38,9 +38,7 @@ export class ExperienceRoutes {
         app.delete(prefix + "/:id", (req, res) => ExperiencesUtil.deleteExperience(req, res));
 
         // List pending experience validations (for organization)
-        app.get(prefix + "validations", (req, res) => {
-
-        });
+        app.get(prefix + "validations", (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
 
         // Approve or don't approve validation (for organization)
         app.post(prefix + "validations/:id", (req, res) => {
