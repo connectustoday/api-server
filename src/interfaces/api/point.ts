@@ -1,5 +1,3 @@
-import express = require("express");
-
 /*
  *
  *     Copyright (C) 2018 ConnectUS
@@ -19,33 +17,7 @@ import express = require("express");
  *
  */
 
-export class OpportunityRoutes {
-    public static routes(app: express.Application, prefix: string): void {
-
-        /*
-         * Opportunity Routes
-         */
-
-        // List opportunities the current organization has created
-        app.get(prefix, (req, res) => {
-
-        });
-
-        // Create opportunity
-        app.post(prefix, (req, res) => {
-
-        });
-
-        // Get opportunity from id
-        app.get(prefix + "/:id", (req, res) => {
-
-        });
-
-        // Delete opportunity
-        app.delete(prefix + "/:id", (req, res) => {
-
-        });
-
-        // TODO signups
-    }
+export default interface IPoint {
+    type: string; //Point
+    coordinates: Array<number>;
 }

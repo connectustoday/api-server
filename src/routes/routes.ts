@@ -27,6 +27,7 @@ import {OpportunityRoutes} from "./experiences/opportunity-routes";
 
 export class Routes {
     public static authRoutes: AuthRoutes = new AuthRoutes();
+
     static routes(app: express.Application): void {
         app.get("/", (req, res) => res.send("ConnectUS Backend API Server - Working!")); // Default (root) route.
 

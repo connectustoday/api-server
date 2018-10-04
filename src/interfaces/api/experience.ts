@@ -17,3 +17,17 @@
  *
  */
 
+
+import {Document} from "mongoose";
+import IAddress from "../internal/address";
+
+export default interface IExperience extends Document {
+    location: IAddress;
+    id: string;
+    organization?: string;
+    opportunity?: string;
+    description?: string;
+    when?: [string, string];
+    is_verified: boolean;
+    created_at: number;
+}

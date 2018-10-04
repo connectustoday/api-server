@@ -1,5 +1,3 @@
-import express = require("express");
-
 /*
  *
  *     Copyright (C) 2018 ConnectUS
@@ -19,33 +17,18 @@ import express = require("express");
  *
  */
 
-export class OpportunityRoutes {
-    public static routes(app: express.Application, prefix: string): void {
+import {AccountModel} from "../interfaces/internal";
 
-        /*
-         * Opportunity Routes
-         */
+export class AccountUtil {
+    public static getAccount(req, res) {
+        
+    }
 
-        // List opportunities the current organization has created
-        app.get(prefix, (req, res) => {
-
+    // verifies if the username does not exist in the database
+    public static verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
+        AccountModel.count({username: username}, function (err, count) {
+            if (err) console.log(err);
+            callback(count <= 0);
         });
-
-        // Create opportunity
-        app.post(prefix, (req, res) => {
-
-        });
-
-        // Get opportunity from id
-        app.get(prefix + "/:id", (req, res) => {
-
-        });
-
-        // Delete opportunity
-        app.delete(prefix + "/:id", (req, res) => {
-
-        });
-
-        // TODO signups
     }
 }

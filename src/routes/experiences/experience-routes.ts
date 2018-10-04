@@ -23,7 +23,11 @@ import express = require("express");
 export class ExperienceRoutes {
     public static routes(app: express.Application, prefix: string): void {
 
-        // Get experiences
+        /*
+         * Experience Routes
+         */
+
+        // Get current user's experiences
         app.get(prefix, (req, res) => {
 
         });

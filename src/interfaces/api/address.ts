@@ -17,15 +17,16 @@
  *
  */
 
-import {AccountModel} from "../interfaces/internal/account";
+import * as mongoose from "mongoose";
+import IPoint from "../internal/point";
 
-export class AccountUtil {
-
-    // verifies if the username does not exist in the database
-    public static verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
-        AccountModel.count({username: username}, function (err, count) {
-            if (err) console.log(err);
-            callback(count <= 0);
-        });
-    }
+export default interface IAddress {
+    schema_version: number;
+    street?: string;
+    city?: string;
+    province?: string;
+    country?: string;
+    postal_code?: string;
+    apt_number?: string;
+    geojson?: IPoint;
 }

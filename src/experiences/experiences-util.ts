@@ -1,5 +1,3 @@
-import express = require("express");
-
 /*
  *
  *     Copyright (C) 2018 ConnectUS
@@ -19,33 +17,18 @@ import express = require("express");
  *
  */
 
-export class OpportunityRoutes {
-    public static routes(app: express.Application, prefix: string): void {
+import {AuthUtil} from "../auth/auth-util";
+import * as errors from "../routes/errors";
 
-        /*
-         * Opportunity Routes
-         */
+export class ExperiencesUtil {
+    public static createExperience(req, res) {
+        let accType = AuthUtil.verifyUser(req, res);
+        if (accType != "user") {
+            res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+        }
+    }
 
-        // List opportunities the current organization has created
-        app.get(prefix, (req, res) => {
+    public static deleteExperience(req, res) {
 
-        });
-
-        // Create opportunity
-        app.post(prefix, (req, res) => {
-
-        });
-
-        // Get opportunity from id
-        app.get(prefix + "/:id", (req, res) => {
-
-        });
-
-        // Delete opportunity
-        app.delete(prefix + "/:id", (req, res) => {
-
-        });
-
-        // TODO signups
     }
 }

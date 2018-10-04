@@ -40,5 +40,4 @@ export default class IAccount {
         this.liked_count = liked_count;
         this.shared_count = shared_count;
     }
-
 }

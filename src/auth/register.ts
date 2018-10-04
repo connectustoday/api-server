@@ -23,7 +23,7 @@ import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-import {AccountUtil} from "./account-util";
+import {AccountUtil} from "../account/account-util";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
