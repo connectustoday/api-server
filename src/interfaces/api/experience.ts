@@ -18,10 +18,9 @@
  */
 
 
-import {Document} from "mongoose";
-import IAddress from "../internal/address";
+import IAddress from "./address";
 
-export default interface IExperience extends Document {
+export default interface IExperience {
     location: IAddress;
     id: string;
     organization?: string;

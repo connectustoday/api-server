@@ -21,14 +21,27 @@ import {AuthUtil} from "../auth/auth-util";
 import * as errors from "../routes/errors";
 
 export class ExperiencesUtil {
-    public static createExperience(req, res) {
+    public static getExperiences(req, res): any {
         let accType = AuthUtil.verifyUser(req, res);
-        if (accType != "user") {
-            res.status(400).send({message: errors.badRequest + " (User account type required.)"});
-        }
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+
     }
 
-    public static deleteExperience(req, res) {
+    public static createExperience(req: Request, res) {
+        let accType = AuthUtil.verifyUser(req, res);
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+
+    }
+
+    public static deleteExperience(req: Request, res) {
+        let accType = AuthUtil.verifyUser(req, res);
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+
+    }
+
+    public static queryExperience(req: Request, res) {
+        let accType = AuthUtil.verifyUser(req, res);
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
 
     }
 }

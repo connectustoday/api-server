@@ -19,6 +19,7 @@
 
 import * as errors from "../errors";
 import express = require("express");
+import {ExperiencesUtil} from "../../experiences/experiences-util";
 
 export class ExperienceRoutes {
     public static routes(app: express.Application, prefix: string): void {
@@ -28,19 +29,13 @@ export class ExperienceRoutes {
          */
 
         // Get current user's experiences
-        app.get(prefix, (req, res) => {
-
-        });
+        app.get(prefix, (req, res) => ExperiencesUtil.getExperiences(req, res));
 
         // Create experience
-        app.post(prefix, (req, res) => {
-
-        });
+        app.post(prefix, (req, res) => ExperiencesUtil.createExperience(req, res));
 
         // Delete experience
-        app.delete(prefix + "/:id", (req, res) => {
-
-        });
+        app.delete(prefix + "/:id", (req, res) => ExperiencesUtil.deleteExperience(req, res));
 
         // List pending experience validations (for organization)
         app.get(prefix + "validations", (req, res) => {

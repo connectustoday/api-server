@@ -17,8 +17,7 @@
  *
  */
 
-import * as mongoose from "mongoose";
-import IPoint from "../internal/point";
+import IPoint from "./point";
 
 export default interface IAddress {
     schema_version: number;
