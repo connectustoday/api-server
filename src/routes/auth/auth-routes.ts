@@ -24,6 +24,7 @@ import * as server from "../../server";
 import * as errors from "../errors";
 import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
+import * as login from "../../auth/login";
 import * as jwt from "jsonwebtoken";
 import { AccountModel } from "../../interfaces/internal/account";
 import express = require("express");
@@ -84,21 +85,6 @@ export class AuthRoutes {
         */
 
         app.get(prefix + "/login", (req, res) => res.send(errors.methodNotAllowed));
-        app.post(prefix + "/login", (req, res) => {
-            AccountModel.findOne({ username: req.body.username }, function (err, user) {
-                if (err) return res.status(500).send(errors.internalServerError);
-                if (!user) return res.status(404).send(errors.notFound + " (No user found.)");
-
-                let passwordIsValid: boolean = bcrypt.compareSync(req.body.password, user.password);
-                if (!passwordIsValid) {
-                    return res.status(401).send({ auth: false, token: null });
-                }
-
-                let token = jwt.sign({ username: user.username }, server.SECRET, {
-                    expiresIn: 86400 //TODO CONFIGURABLE
-                });
-                res.status(200).send({ auth: true, token: token });
-            });
-        });
+        app.post(prefix + "/login", (req, res) => login.login(req, res));
     }
 }

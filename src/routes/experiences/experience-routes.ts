@@ -44,6 +44,5 @@ export class ExperienceRoutes {
         app.post(prefix + "validations/:id", (req, res) => {
 
         });
-
     }
 }
