@@ -26,8 +26,9 @@ import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as login from "../../auth/login";
 import * as jwt from "jsonwebtoken";
-import { AccountModel } from "../../interfaces/internal/account";
+import {AccountModel} from "../../interfaces/internal/account";
 import express = require("express");
+import {AuthUtil} from "../../auth/auth-util";
 
 export class AuthRoutes {
     public static routes(app: express.Application, prefix: string): void {
@@ -60,19 +61,15 @@ export class AuthRoutes {
          * Test utility to check if logged in
          */
 
-        app.get(prefix + "/me", (req, res) => {
-            let token = req.headers["x-access-token"];
-            if (!token) return res.status(401).send({ auth: false, message: "No token provided." });
+        app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => {
+            // @ts-ignore
+            let decoded = req.decodedToken;
 
-            jwt.verify(token, server.SECRET, function (err, decoded) {
-                if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
+            AccountModel.findOne({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
+                if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
+                if (!user) return res.status(404).send(errors.notFound + " (User not found)");
 
-                AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
-                    if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
-                    if (!user) return res.status(404).send(errors.notFound + " (User not found)");
-
-                    res.status(200).send(user);
-                });
+                res.status(200).send(user);
             });
         });
 

@@ -24,9 +24,27 @@ import * as jwt from "jsonwebtoken";
 
 export class AuthUtil {
 
-    // Verify the user
+    // Verify token middleware
     // Returns the account type, or null if the query failed.
-    public static verifyUser(req, res): string {
+    public static verifyToken(req, res, next): string {
+        let token = req.headers["x-access-token"];
+        if (!token) {
+            res.status(401).send({ auth: false, message: "No token provided." });
+            return null;
+        }
+
+        jwt.verify(token, server.SECRET, function (err, decoded) {
+            if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
+
+            next();
+        });
+        return null;
+    }
+
+    // Verify account token
+    // Sets the request's accountType field to the account's type
+    // Sets the request's decodedToken field to the decoded token
+    public static verifyAccount(req, res, next): string {
         let token = req.headers["x-access-token"];
         if (!token) {
             res.status(401).send({ auth: false, message: "No token provided." });
@@ -37,13 +55,13 @@ export class AuthUtil {
             if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
 
             AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
-                if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
-                if (!user) return res.status(404).send(errors.notFound + " (User not found)");
+                if (err) return res.status(500).send(errors.internalServerError + " (Problem finding account)");
+                if (!user) return res.status(404).send(errors.notFound + " (Account not found)");
 
-                return user.type;
-//              res.status(200).send(user);
+                req.decodedToken = decoded;
+                req.accountType = user.type;
+                next();
             });
         });
-        return null;
     }
 }

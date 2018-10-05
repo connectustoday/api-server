@@ -19,14 +19,25 @@
 
 
 import IAddress from "./address";
+import {create} from "domain";
 
-export default interface IExperience {
+export default class IExperience {
     location: IAddress;
     id: string;
-    organization?: string;
-    opportunity?: string;
-    description?: string;
-    when?: [string, string];
+    organization: string;
+    opportunity: string;
+    description: string;
+    when: [string, string];
     is_verified: boolean;
     created_at: number;
+    public constructor(location: IAddress, id: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
+        this.location = location;
+        this.id = id;
+        this.organization = organization;
+        this.opportunity = opportunity;
+        this.description = description;
+        this.when = when;
+        this.is_verified = is_verified;
+        this.created_at = created_at;
+    }
 }

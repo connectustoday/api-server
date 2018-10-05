@@ -20,6 +20,7 @@
 import * as errors from "../errors";
 import express = require("express");
 import {ExperiencesUtil} from "../../experiences/experiences-util";
+import {AuthUtil} from "../../auth/auth-util";
 
 export class ExperienceRoutes {
     public static routes(app: express.Application, prefix: string): void {
@@ -29,19 +30,19 @@ export class ExperienceRoutes {
          */
 
         // Get current user's experiences
-        app.get(prefix, (req, res) => ExperiencesUtil.getExperiences(req, res));
+        app.get(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperiences(req, res));
 
         // Create experience
-        app.post(prefix, (req, res) => ExperiencesUtil.createExperience(req, res));
+        app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res));
 
         // Delete experience
         app.delete(prefix + "/:id", (req, res) => ExperiencesUtil.deleteExperience(req, res));
 
         // List pending experience validations (for organization)
-        app.get(prefix + "validations", (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
+        app.get(prefix + "validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
 
         // Approve or don't approve validation (for organization)
-        app.post(prefix + "validations/:id", (req, res) => {
+        app.post(prefix + "validations/:id", AuthUtil.verifyAccount, (req, res) => {
 
         });
     }

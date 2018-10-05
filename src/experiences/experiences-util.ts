@@ -22,20 +22,20 @@ import * as errors from "../routes/errors";
 
 export class ExperiencesUtil {
     public static getExperiences(req, res): any {
-        let accType = AuthUtil.verifyUser(req, res);
-        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+        let accType = req.accountType;
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
     }
 
     public static createExperience(req, res) {
-        let accType = AuthUtil.verifyUser(req, res);
-        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+        let accType = req.accountType;
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
     }
 
-    public static deleteExperience(req: Request, res) {
-        let accType = AuthUtil.verifyUser(req, res);
-        if (accType != "user") res.status(400).send({message: errors.badRequest + " (User account type required.)"});
+    public static deleteExperience(req, res) {
+        let accType = req.accountType;
+        if (accType != "user") res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
     }
 
