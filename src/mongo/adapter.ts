@@ -31,8 +31,5 @@ export function connectDB(): void {
 
     console.log("Connecting to MongoDB at " + url);
     let promise: Promise<Mongoose> = mongoose.connect(url, { useNewUrlParser: true });
-    promise.then(() =>
-        console.log("Attempted connection to MongoDB.")
-    );
     mongoose.connection.on("error", console.error.bind(console, "MongoDB connection error:"));
 }

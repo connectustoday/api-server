@@ -88,7 +88,7 @@ export function registerOrganizationRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
     AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
-        if (!isUnique) return res.status(500).send(errors.internalServerError + " (Duplicate username)");
+        if (!isUnique) return res.status(400).send(errors.internalServerError + " (Duplicate username)");
 
         const defOrganization = new OrganizationModel({ // Default organization
             type: "Organization",
@@ -117,7 +117,7 @@ export function registerOrganizationRequest(req, res) {
 
         defOrganization.save(function (err, user) {
             if (err) {
-                console.error(err);
+                if (server.DEBUG) console.error(err);
                 return res.status(500).send(errors.internalServerError + " (There was a problem registering the organization.)");
             }
 

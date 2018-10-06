@@ -46,11 +46,10 @@ export class AuthUtil {
     // Sets the request's accountType field to the account's type
     // Sets the request's decodedToken field to the decoded token
     // Sets the request's account field to the account object
-    public static verifyAccount(req, res, next): string {
+    public static verifyAccount(req, res, next): void {
         let token = req.headers["x-access-token"];
         if (!token) {
-            res.status(401).send({ auth: false, message: "No token provided." });
-            return null;
+            return res.status(401).send({ auth: false, message: "No token provided." });
         }
 
         jwt.verify(token, server.SECRET, function (err, decoded) {
