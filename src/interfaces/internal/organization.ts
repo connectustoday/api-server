@@ -26,9 +26,9 @@ import { OrganizationSettingsSchema } from "./organization-settings";
 
 export default class IValidations {
     user_id: String;
-    experience_id: Number;
+    experience_id: String;
 
-    public constructor (user_id: String, experience_id: Number) {
+    public constructor (user_id: String, experience_id: String) {
         this.user_id = user_id;
         this.experience_id = experience_id;
     }
@@ -44,7 +44,7 @@ export default interface IOrganization extends IAccount {
 
 let expSchema = new Schema({
     user_id: String,
-    experience_id: Number
+    experience_id: String
 }, { _id: false });
 
 export const OrganizationSchema = new Schema({

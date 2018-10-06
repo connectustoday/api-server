@@ -108,7 +108,7 @@ export function registerOrganizationRequest(req, res) {
                 email_notifications: true,
                 type: "OrganizationSettings"
             },
-            preferred_name: req.body.first_name,
+            preferred_name: req.body.preferred_name,
             is_verified: false,
             org_info: {
                 schema_version: 0
@@ -122,7 +122,7 @@ export function registerOrganizationRequest(req, res) {
             }
 
             // @ts-ignore
-            let token = jwt.sign({id: user.username}, server.SECRET, {
+            let token = jwt.sign({username: user.username}, server.SECRET, {
                 expiresIn: 86400 //TODO token expiry
             });
             res.status(200).send({auth: true, token: token});

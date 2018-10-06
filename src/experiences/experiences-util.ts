@@ -19,10 +19,7 @@
 
 import {AuthUtil} from "../auth/auth-util";
 import * as errors from "../routes/errors";
-import IExperienceAPI from "../interfaces/api/experience";
-import IExperience from "../interfaces/internal/experience";
 import {AccountModel} from "../interfaces/internal/account";
-import IUser from "../interfaces/internal/user";
 import * as servers from "../server";
 import IOrganization from "../interfaces/internal/organization";
 import IValidations from "../interfaces/internal/organization";
@@ -49,7 +46,7 @@ export class ExperiencesUtil {
         //if (!(req.experience instanceof IExperienceAPI)) return res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
         //if (req.account.experiences == undefined) req.account.experiences = [];
 
-        let promise = Promise.resolve(), failed = false, addOrganizationRequest = false;
+        let failed = false, addOrganizationRequest = false;
 
         // verifications for data
 
@@ -58,7 +55,7 @@ export class ExperiencesUtil {
         }
 
         if (req.body.experience.organization != undefined && req.body.experience.organization != "") { // check if there is an associated organization on the site (for validations)
-            promise = AccountModel.count({username: req.body.experience.organization, type: "Organization"}, function (err, count) {
+            AccountModel.count({username: req.body.experience.organization, type: "Organization"}, function (err, count) {
                 if (err) {
                     failed = true;
                     if (servers.DEBUG) console.error(err);
@@ -70,47 +67,58 @@ export class ExperiencesUtil {
                 }
 
                 addOrganizationRequest = true;
+                ExperiencesUtil.createExperienceMongo(req, res, failed, addOrganizationRequest);
             }); // TODO CASE INSENSITIVE LOOKUPS
+        } else {
+            // finish adding experience to database
+            ExperiencesUtil.createExperienceMongo(req, res, failed, addOrganizationRequest);
         }
+    }
 
-        // finish adding experience to database
-
+    private static createExperienceMongo(req, res, failed: boolean, addOrganizationRequest: boolean) {
         let exp;
 
-        promise.then(() => {
-                if (failed) return;
+        if (failed) return;
 
-                // default experience object
-                exp = new ExperienceModel({
-                    schema_version: 0,
-                    location: req.body.experience.location,
-                    name: req.body.experience.name,
-                    organization: req.body.experience.organization,
-                    opportunity: req.body.experience.opportunity,
-                    description: req.body.experience.description,
-                    is_verified: false,
-                    created_at: (new Date).getTime()
-                });
+        // default experience object
+        exp = new ExperienceModel({
+            schema_version: 0,
+            location: req.body.experience.location,
+            name: req.body.experience.name,
+            organization: req.body.experience.organization,
+            opportunity: req.body.experience.opportunity,
+            description: req.body.experience.description,
+            is_verified: false,
+            created_at: (new Date).getTime()
+        });
 
-                req.account.experiences.push(exp); // add to user's experience
-                req.account.save(); // save to db
-                res.status(200).send({message: errors.ok});
+        req.account.experiences.push(exp); // add to user's experience
+        req.account.save(function (err) {
+            if (err) {
+                if (servers.DEBUG) console.error(err);
+                return res.status(500).send({message: errors.internalServerError});
             }
-        ).then(() => {
-            if (addOrganizationRequest) {
-                // add experience to organization pending validations list
-                // TODO NOTIFICATION ON PENDING VALIDATION
-                AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
+        }); // save to db
+        console.log(addOrganizationRequest);
+        if (addOrganizationRequest) {
+            // add experience to organization pending validations list
+            // TODO NOTIFICATION ON PENDING VALIDATION
+            AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
+                if (err) {
+                    failed = true;
+                    if (servers.DEBUG) console.error(err);
+                    return res.status(500).send({message: errors.internalServerError});
+                }
+                org.experience_validations.push(new IValidations(req.account.username, req.account.experiences[req.account.experiences.length - 1]._id)); // add validation entry to organization
+                org.save(function (err) {
                     if (err) {
-                        failed = true;
                         if (servers.DEBUG) console.error(err);
                         return res.status(500).send({message: errors.internalServerError});
                     }
-                    org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
-                    org.save(); // save to db
-                });
-            }
-        });
+                }); // save to db
+            });
+        }
+        if (!res.headersSent && !failed) return res.status(200).send({message: errors.ok}); // send ok header if all is good
     }
 
     public static deleteExperience(req, res) {
