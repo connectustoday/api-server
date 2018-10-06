@@ -25,8 +25,8 @@ import {AccountSchema} from "./account";
 export default interface IExperience extends Document {
     schema_version: number;
     location?: IAddress;
-    id: string;
-    name?: string;
+    id: number;
+    name: string;
     organization?: string;
     opportunity?: string;
     description?: string;
@@ -38,7 +38,7 @@ export default interface IExperience extends Document {
 export const ExperienceSchema = new Schema({
     schema_version: {type: Number, required: true},
     location: {type: AddressSchema},
-    id: {type: String, required: true, index: true},
+    id: {type: Number, required: true},
     name: {type: String},
     organization: {type: String, index: true},
     opportunity: {type: String, index: true},

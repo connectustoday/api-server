@@ -26,11 +26,24 @@ import IUser from "../interfaces/internal/user";
 import * as servers from "../server";
 import IOrganization from "../interfaces/internal/organization";
 import IValidations from "../interfaces/internal/organization";
+import {ExperienceModel} from "../interfaces/internal/experience";
 import {Promise} from "mongoose";
+import * as ClassTransformer from "class-transformer";
 
 export class ExperiencesUtil {
 
     /*
+    *{
+		"location": "hi",
+		"id": "",
+		"name": "lol!",
+		"organization": "",
+		"opportunity": "",
+		"description": "this is a desc",
+		"when": ["hi", "hi"],
+		"is_verified": true,
+		"created_at": 0
+	}
      * REST API handlers
      */
 
@@ -44,19 +57,22 @@ export class ExperiencesUtil {
         let accType = req.accountType;
         if (accType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
-        if (!(req.experience instanceof IExperienceAPI)) return res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
+        //if (!(req.experience instanceof IExperienceAPI)) return res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
+
+        if (!req.account.hasOwnProperty('experiences')) req.account.experiences = [];
 
         let promise = Promise.resolve(), failed: boolean = false;
-        let newExpID = req.user.experiences[req.user.experiences.length].id + 1; // set the id to the latest largest id plus one
+        let newExpID = 0; // set the id to the latest largest id plus one
+        if (req.account.experiences.length != 0) newExpID = req.account.experiences[req.account.experiences.length-1].id + 1;
 
         // verifications for data
 
-        if (req.experience.opportunity != undefined && req.experience.opportunity != "") {
+        if (req.body.experience.hasOwnProperty('opportunity') && req.body.experience.opportunity != "") {
             // TODO OPPORTUNITY
         }
 
-        if (req.experience.organization != undefined && req.experience.organization != "") { // check if there is an associated organization on the site (for validations)
-            promise = AccountModel.count({username: req.experience.organization, type: "Organization"}, function (err, count) {
+        if (req.body.experience.hasOwnProperty('organization') && req.body.experience.organization != "") { // check if there is an associated organization on the site (for validations)
+            promise = AccountModel.count({username: req.body.experience.organization, type: "Organization"}, function (err, count) {
                 if (err) {
                     failed = true;
                     if (servers.DEBUG) console.error(err);
@@ -69,13 +85,13 @@ export class ExperiencesUtil {
 
                 // add to organization pending validations list
                 // TODO NOTIFICATION ON PENDING VALIDATION
-                AccountModel.findOne({username: req.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
+                AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
                     if (err) {
                         failed = true;
                         if (servers.DEBUG) console.error(err);
                         return res.status(500).send({message: errors.internalServerError});
                     }
-                    org.experience_validations.push(new IValidations(req.user.username, newExpID)); // add validation entry to organization
+                    org.experience_validations.push(new IValidations(req.account.username, newExpID)); // add validation entry to organization
                     org.save(); // save to db
                 });
             }); // TODO CASE INSENSITIVE LOOKUPS
@@ -86,16 +102,23 @@ export class ExperiencesUtil {
         promise.then(() => {
                 if (failed) return;
                 // cast to experienceapi object and then internal experience object
-                let exp: IExperienceAPI = req.experience as IExperienceAPI, newExp: IExperience;
-                exp.is_verified = false;
-                exp.created_at = (new Date).getTime();
 
-                newExp = exp as IExperience;
-                newExp.schema_version = 0;
-                newExp.id = newExpID;
+                // default experience object
+                let exp = new ExperienceModel({
+                    schema_version: 0,
+                    location: req.body.experience.location,
+                    id: newExpID,
+                    name: req.body.experience.name,
+                    organization: req.body.experience.organization,
+                    opportunity: req.body.experience.opportunity,
+                    description: req.body.experience.description,
+                    is_verified: false,
+                    created_at: (new Date).getTime()
+                });
 
-                req.user.experiences.push(newExp); // add to user's experience
-                req.user.save(); // save to db
+                req.account.experiences.push(exp); // add to user's experience
+                req.account.save(); // save to db
+                res.status(200).send({message: errors.ok});
             }
         );
     }
