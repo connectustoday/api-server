@@ -17,7 +17,7 @@
  *
  */
 
-import {AccountModel} from "../interfaces/internal";
+import {AccountModel} from "../interfaces/internal/account";
 import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as jwt from "jsonwebtoken";

@@ -17,7 +17,7 @@
  *
  */
 
-import {AccountModel} from "../interfaces/internal";
+import {AccountModel} from "../interfaces/internal/account";
 
 export class AccountUtil {
     public static getAccount(req, res) {

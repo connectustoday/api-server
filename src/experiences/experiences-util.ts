@@ -21,11 +21,12 @@ import {AuthUtil} from "../auth/auth-util";
 import * as errors from "../routes/errors";
 import IExperienceAPI from "../interfaces/api/experience";
 import IExperience from "../interfaces/internal/experience";
-import {AccountModel} from "../interfaces/internal";
+import {AccountModel} from "../interfaces/internal/account";
 import IUser from "../interfaces/internal/user";
 import * as servers from "../server";
 import IOrganization from "../interfaces/internal/organization";
 import IValidations from "../interfaces/internal/organization";
+import {Promise} from "mongoose";
 
 export class ExperiencesUtil {
 
@@ -45,13 +46,14 @@ export class ExperiencesUtil {
 
         if (!(req.experience instanceof IExperienceAPI)) res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
 
+        let promise = Promise.resolve(), failed: boolean = false;
+        let newExpID = req.user.experiences[req.user.experiences.length].id + 1; // set the id to the latest largest id plus one
+
+        // verifications for data
+
         if (req.experience.opportunity != undefined && req.experience.opportunity != "") {
             // TODO OPPORTUNITY
         }
-        // @ts-ignore
-        let promise = Promise.resolve(), failed: boolean = false;
-
-        let newExpID = req.user.experiences[req.user.experiences.length].id + 1; // set the id to the latest largest id plus one
 
         if (req.experience.organization != undefined && req.experience.organization != "") { // check if there is an associated organization on the site (for validations)
             promise = AccountModel.count({username: req.experience.organization, type: "organization"}, function (err, count) {
@@ -79,7 +81,9 @@ export class ExperiencesUtil {
             }); // TODO CASE INSENSITIVE LOOKUPS
         }
 
-        promise.then(() => { // finish adding to db
+        // finish adding experience to database
+
+        promise.then(() => {
                 if (failed) return;
                 // cast to experienceapi object and then internal experience object
                 let exp: IExperienceAPI = req.experience as IExperienceAPI, newExp: IExperience;

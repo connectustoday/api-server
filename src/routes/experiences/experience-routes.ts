@@ -33,6 +33,7 @@ export class ExperienceRoutes {
         app.get(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperiences(req, res));
 
         // Create experience
+        // Use IExperienceAPI object as "experience" field
         app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res));
 
         // Update experience

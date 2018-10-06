@@ -28,6 +28,7 @@ import { Mongoose } from "mongoose";
 export function connectDB(): void {
 
     let url: string = "mongodb://" + server.DB_ADDRESS + ":" + server.DB_PORT + "/" + server.DB_NAME;
+
     console.log("Connecting to MongoDB at " + url);
     let promise: Promise<Mongoose> = mongoose.connect(url, { useNewUrlParser: true });
     promise.then(() =>
