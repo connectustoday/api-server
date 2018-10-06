@@ -17,7 +17,7 @@
  *
  */
 
-export default class IAccount {
+export default class IAccountAPI {
 //    id: string;
     username: string;
     email: string;

@@ -35,14 +35,17 @@ export class ExperienceRoutes {
         // Create experience
         app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res));
 
+        // Update experience
+        app.put(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => {});
+
         // Delete experience
         app.delete(prefix + "/:id", (req, res) => ExperiencesUtil.deleteExperience(req, res));
 
         // List pending experience validations (for organization)
-        app.get(prefix + "validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
+        app.get(prefix + "/validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
 
         // Approve or don't approve validation (for organization)
-        app.post(prefix + "validations/:id", AuthUtil.verifyAccount, (req, res) => {
+        app.post(prefix + "/validations/:id", AuthUtil.verifyAccount, (req, res) => {
 
         });
     }

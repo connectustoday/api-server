@@ -17,9 +17,10 @@
  *
  */
 
-import IPoint from "./point";
 
-export default interface IAddress {
+import IPointAPI from "./point";
+
+export default interface IAddressAPI {
     schema_version: number;
     street?: string;
     city?: string;
@@ -27,5 +28,5 @@ export default interface IAddress {
     country?: string;
     postal_code?: string;
     apt_number?: string;
-    geojson?: IPoint;
+    geojson?: IPointAPI;
 }

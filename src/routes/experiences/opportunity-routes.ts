@@ -41,6 +41,11 @@ export class OpportunityRoutes {
 
         });
 
+        // Update opportunity at id
+        app.put(prefix + "/:id", (req, res) => {
+
+        });
+
         // Delete opportunity
         app.delete(prefix + "/:id", (req, res) => {
 

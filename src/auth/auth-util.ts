@@ -36,6 +36,7 @@ export class AuthUtil {
         jwt.verify(token, server.SECRET, function (err, decoded) {
             if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
 
+            req.decodedToken = decoded;
             next();
         });
         return null;
@@ -44,6 +45,7 @@ export class AuthUtil {
     // Verify account token
     // Sets the request's accountType field to the account's type
     // Sets the request's decodedToken field to the decoded token
+    // Sets the request's account field to the account object
     public static verifyAccount(req, res, next): string {
         let token = req.headers["x-access-token"];
         if (!token) {
@@ -58,6 +60,7 @@ export class AuthUtil {
                 if (err) return res.status(500).send(errors.internalServerError + " (Problem finding account)");
                 if (!user) return res.status(404).send(errors.notFound + " (Account not found)");
 
+                req.account = user;
                 req.decodedToken = decoded;
                 req.accountType = user.type;
                 next();

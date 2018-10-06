@@ -43,7 +43,7 @@ export function registerUserRequest(req, res) {
 
         const defUser = new UserModel({ // Default user
             type: "User",
-            schema_version: "0",
+            schema_version: 0,
             username: req.body.username,
             email: req.body.email,
             password: hashedPassword,
@@ -63,7 +63,7 @@ export function registerUserRequest(req, res) {
             first_name: req.body.first_name,
             birthday: req.body.birthday,
             personal_info: {
-                schema_version: "0"
+                schema_version: 0
             }
         });
 
@@ -92,7 +92,7 @@ export function registerOrganizationRequest(req, res) {
 
         const defOrganization = new OrganizationModel({ // Default organization
             type: "Organization",
-            schema_version: "0",
+            schema_version: 0,
             username: req.body.username,
             email: req.body.email,
             password: hashedPassword,
@@ -111,7 +111,7 @@ export function registerOrganizationRequest(req, res) {
             preferred_name: req.body.first_name,
             is_verified: false,
             org_info: {
-                schema_version: "0"
+                schema_version: 0
             }
         });
 

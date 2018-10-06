@@ -18,21 +18,22 @@
  */
 
 
-import IAddress from "./address";
-import {create} from "domain";
+import IAddressAPI from "./address";
 
-export default class IExperience {
-    location: IAddress;
+export default class IExperienceAPI {
+    location: IAddressAPI;
     id: string;
+    name: string;
     organization: string;
     opportunity: string;
     description: string;
     when: [string, string];
     is_verified: boolean;
     created_at: number;
-    public constructor(location: IAddress, id: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
+    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
         this.location = location;
         this.id = id;
+        this.name = name;
         this.organization = organization;
         this.opportunity = opportunity;
         this.description = description;

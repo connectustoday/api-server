@@ -19,8 +19,20 @@
 
 import {AuthUtil} from "../auth/auth-util";
 import * as errors from "../routes/errors";
+import IExperienceAPI from "../interfaces/api/experience";
+import IExperience from "../interfaces/internal/experience";
+import {AccountModel} from "../interfaces/internal";
+import IUser from "../interfaces/internal/user";
+import * as servers from "../server";
+import IOrganization from "../interfaces/internal/organization";
+import IValidations from "../interfaces/internal/organization";
 
 export class ExperiencesUtil {
+
+    /*
+     * REST API handlers
+     */
+
     public static getExperiences(req, res): any {
         let accType = req.accountType;
         if (accType != "user") res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
@@ -31,6 +43,57 @@ export class ExperiencesUtil {
         let accType = req.accountType;
         if (accType != "user") res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
+        if (!(req.experience instanceof IExperienceAPI)) res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
+
+        if (req.experience.opportunity != undefined && req.experience.opportunity != "") {
+            // TODO OPPORTUNITY
+        }
+        // @ts-ignore
+        let promise = Promise.resolve(), failed: boolean = false;
+
+        let newExpID = req.user.experiences[req.user.experiences.length].id + 1; // set the id to the latest largest id plus one
+
+        if (req.experience.organization != undefined && req.experience.organization != "") { // check if there is an associated organization on the site (for validations)
+            promise = AccountModel.count({username: req.experience.organization, type: "organization"}, function (err, count) {
+                if (err) {
+                    failed = true;
+                    if (servers.DEBUG) console.error(err);
+                    return res.status(500).send({message: errors.internalServerError});
+                }
+                if (count <= 0) {
+                    failed = true;
+                    return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
+                }
+
+                // add to organization pending validations list
+                // TODO NOTIFICATION ON PENDING VALIDATION
+                AccountModel.findOne({username: req.experience.organization, type: "organization"}, function (err, org: IOrganization) {
+                    if (err) {
+                        failed = true;
+                        if (servers.DEBUG) console.error(err);
+                        return res.status(500).send({message: errors.internalServerError});
+                    }
+                    org.experience_validations.push(new IValidations(req.user.username, newExpID)); // add validation entry to organization
+                    org.save(); // save to db
+                });
+            }); // TODO CASE INSENSITIVE LOOKUPS
+        }
+
+        promise.then(() => { // finish adding to db
+                if (failed) return;
+                // cast to experienceapi object and then internal experience object
+                let exp: IExperienceAPI = req.experience as IExperienceAPI, newExp: IExperience;
+                exp.is_verified = false;
+                exp.created_at = (new Date).getTime();
+
+                newExp = exp as IExperience;
+                newExp.schema_version = 0;
+                newExp.id = newExpID;
+
+                req.user.experiences.push(newExp); // add to user's experience
+                req.user.save(); // save to db
+            }
+        );
     }
 
     public static deleteExperience(req, res) {

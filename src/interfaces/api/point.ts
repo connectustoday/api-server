@@ -17,7 +17,7 @@
  *
  */
 
-export default interface IPoint {
+export default interface IPointAPI {
     type: string; //Point
     coordinates: Array<number>;
 }

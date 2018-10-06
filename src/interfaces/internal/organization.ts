@@ -24,12 +24,22 @@ import { Document, Schema, Model, model } from "mongoose";
 import { AccountSettingsSchema } from "./account-settings";
 import { OrganizationSettingsSchema } from "./organization-settings";
 
+export default class IValidations {
+    user_id: String;
+    experience_id: Number;
+
+    public constructor (user_id: String, experience_id: Number) {
+        this.user_id = user_id;
+        this.experience_id = experience_id;
+    }
+}
+
 export default interface IOrganization extends IAccount {
     preferred_name: string;
     is_verified: boolean;
     opportunities?: Array<string>;
     org_info: IOrganizationProfile;
-    experience_validations?: Array<[string, string]>
+    experience_validations?: Array<IValidations>;
 }
 
 let expSchema = new Schema({
