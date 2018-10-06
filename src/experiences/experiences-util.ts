@@ -33,17 +33,6 @@ import * as ClassTransformer from "class-transformer";
 export class ExperiencesUtil {
 
     /*
-    *{
-		"location": "hi",
-		"id": "",
-		"name": "lol!",
-		"organization": "",
-		"opportunity": "",
-		"description": "this is a desc",
-		"when": ["hi", "hi"],
-		"is_verified": true,
-		"created_at": 0
-	}
      * REST API handlers
      */
 
@@ -58,20 +47,17 @@ export class ExperiencesUtil {
         if (accType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
         //if (!(req.experience instanceof IExperienceAPI)) return res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
+        //if (req.account.experiences == undefined) req.account.experiences = [];
 
-        if (!req.account.hasOwnProperty('experiences')) req.account.experiences = [];
-
-        let promise = Promise.resolve(), failed: boolean = false;
-        let newExpID = 0; // set the id to the latest largest id plus one
-        if (req.account.experiences.length != 0) newExpID = req.account.experiences[req.account.experiences.length-1].id + 1;
+        let promise = Promise.resolve(), failed = false, addOrganizationRequest = false;
 
         // verifications for data
 
-        if (req.body.experience.hasOwnProperty('opportunity') && req.body.experience.opportunity != "") {
+        if (req.body.experience.opportunity != undefined && req.body.experience.opportunity != "") {
             // TODO OPPORTUNITY
         }
 
-        if (req.body.experience.hasOwnProperty('organization') && req.body.experience.organization != "") { // check if there is an associated organization on the site (for validations)
+        if (req.body.experience.organization != undefined && req.body.experience.organization != "") { // check if there is an associated organization on the site (for validations)
             promise = AccountModel.count({username: req.body.experience.organization, type: "Organization"}, function (err, count) {
                 if (err) {
                     failed = true;
@@ -83,31 +69,21 @@ export class ExperiencesUtil {
                     return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
                 }
 
-                // add to organization pending validations list
-                // TODO NOTIFICATION ON PENDING VALIDATION
-                AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
-                    if (err) {
-                        failed = true;
-                        if (servers.DEBUG) console.error(err);
-                        return res.status(500).send({message: errors.internalServerError});
-                    }
-                    org.experience_validations.push(new IValidations(req.account.username, newExpID)); // add validation entry to organization
-                    org.save(); // save to db
-                });
+                addOrganizationRequest = true;
             }); // TODO CASE INSENSITIVE LOOKUPS
         }
 
         // finish adding experience to database
 
+        let exp;
+
         promise.then(() => {
                 if (failed) return;
-                // cast to experienceapi object and then internal experience object
 
                 // default experience object
-                let exp = new ExperienceModel({
+                exp = new ExperienceModel({
                     schema_version: 0,
                     location: req.body.experience.location,
-                    id: newExpID,
                     name: req.body.experience.name,
                     organization: req.body.experience.organization,
                     opportunity: req.body.experience.opportunity,
@@ -120,7 +96,21 @@ export class ExperiencesUtil {
                 req.account.save(); // save to db
                 res.status(200).send({message: errors.ok});
             }
-        );
+        ).then(() => {
+            if (addOrganizationRequest) {
+                // add experience to organization pending validations list
+                // TODO NOTIFICATION ON PENDING VALIDATION
+                AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
+                    if (err) {
+                        failed = true;
+                        if (servers.DEBUG) console.error(err);
+                        return res.status(500).send({message: errors.internalServerError});
+                    }
+                    org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
+                    org.save(); // save to db
+                });
+            }
+        });
     }
 
     public static deleteExperience(req, res) {
