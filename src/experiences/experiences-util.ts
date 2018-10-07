@@ -43,7 +43,7 @@ export class ExperiencesUtil {
         this.getExperiences(req, res);
     }
 
-    // Get experiences of any user
+    // Get all experiences of any user
     public static getExperiences(req, res) {
         AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) {
             if (err) {
@@ -149,7 +149,7 @@ export class ExperiencesUtil {
 
         let experience, index = -1;
 
-        for (let i = 0; i < req.account.experiences.length; i++) {
+        for (let i = 0; i < req.account.experiences.length; i++) { // find experience to delete in array
             if (req.account.experiences[i]._id == req.params.id) {
                 experience = req.account.experiences[i];
                 index = i;
@@ -164,7 +164,7 @@ export class ExperiencesUtil {
             //TODO OPPORTUNITY
         }
         if (experience.organization != undefined && experience.organization != "") { // remove pending requests for experience
-            AccountModel.findOne({username: experience.organization, type: "Organization"}, function(err, org: IOrganization) {
+            AccountModel.findOne({username: experience.organization, type: "Organization"}, function (err, org: IOrganization) {
                 if (err) {
                     if (servers.DEBUG) console.error(err);
                     return res.status(500).send({message: errors.internalServerError});
@@ -214,6 +214,13 @@ export class ExperiencesUtil {
     }
 
     public static reviewExperienceValidations(req, res) {
-
+        if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
+        let found = false;
+        for (let i = 0; i < req.account.experience_validations.length; i++) {
+            if (req.account.experience_validations[i].user_id == req.params.user && req.account.experience_validations[i].experience_id == req.params.id) {
+                //TODO
+            }
+        }
+        if (!found) return res.status(404).send({message: errors.notFound + " (Not found)"});
     }
 }
