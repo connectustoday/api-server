@@ -24,8 +24,6 @@ import * as servers from "../server";
 import IOrganization from "../interfaces/internal/organization";
 import IValidations from "../interfaces/internal/organization";
 import {ExperienceModel} from "../interfaces/internal/experience";
-import {Promise} from "mongoose";
-import * as ClassTransformer from "class-transformer";
 import * as mongoose from "mongoose";
 import IUser from "../interfaces/internal/user";
 import IExperienceAPI from "../interfaces/api/experience";
@@ -50,7 +48,7 @@ export class ExperiencesUtil {
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
-                object.push(new IExperienceAPI(new IAddressAPI(element.location), element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at));
+                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at));
             });
             res.status(200).send(object);
         });
@@ -70,7 +68,7 @@ export class ExperiencesUtil {
         });
     }
 
-    public static updateExperience(req, res) {
+    public static async updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL)
         this.deleteExperience(req, res);
         this.createExperience(req, res, req.params.id);
     }
@@ -127,7 +125,8 @@ export class ExperiencesUtil {
      * Save the account
      */
 
-    private static saveExperienceMongo(req, res) {
+    private static saveExperienceMongo(req, res, call?) {
+        if (call) call();
         req.account.save(function (err) {
             if (err) {
                 if (servers.DEBUG) console.error(err);
@@ -140,10 +139,18 @@ export class ExperiencesUtil {
     public static deleteExperience(req, res) {
         if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
-        let experience = JSON.parse(JSON.stringify(req.account.experiences[req.params.id])), index = req.account.experiences.indexOf(req.params.id);
+        let experience, index = -1;
 
-        if (index < 0) return res.status(404).send({message: errors.notFound + " (Experience not found with suppplied ID)"});
-        req.account.experiences.splice(index, 1); // remove experience from array (save later)
+        for (let i = 0; i < req.account.experiences.length; i++) {
+            if (req.account.experiences[i]._id == req.params.id) {
+                experience = req.account.experiences[i];
+                index = i;
+                break;
+            }
+        }
+
+        if (index < 0) return res.status(404).send({message: errors.notFound + " (Experience not found with supplied ID)"});
+        let func = () => req.account.experiences.splice(index, 1); // remove experience from array (save later)
 
         if (experience.opportunity != undefined && experience.opportunity != "") {
             //TODO OPPORTUNITY
@@ -158,23 +165,30 @@ export class ExperiencesUtil {
                     return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
                 }
 
-                let index = org.experience_validations.indexOf(new IValidations(req.account.username, experience._id)); // get index of experience validation request
+                let index = -1; // get index of experience validation request
+
+                for (let i = 0; i < org.experience_validations.length; i++) {
+                    if (req.account.username == org.experience_validations[i].user_id && experience._id == org.experience_validations[i].experience_id) {
+                        index = i;
+                        break;
+                    }
+                }
 
                 if (index > -1) { // if it exists
                     org.experience_validations.splice(index, 1); // remove from array
-                    org.save(function (err) {
+                    org.save(function (err) { // save to db
                         if (err) {
                             if (servers.DEBUG) console.error(err);
                             return res.status(500).send({message: errors.internalServerError});
                         }
-                        ExperiencesUtil.saveExperienceMongo(req, res);
+                        ExperiencesUtil.saveExperienceMongo(req, res, func);
                     }); // save to db
                 } else { // if it doesn't exist
-                    ExperiencesUtil.saveExperienceMongo(req, res);
+                    ExperiencesUtil.saveExperienceMongo(req, res, func);
                 }
             });
         } else {
-            ExperiencesUtil.saveExperienceMongo(req, res);
+            ExperiencesUtil.saveExperienceMongo(req, res, func);
         }
     }
 
