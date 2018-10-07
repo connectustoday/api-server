@@ -21,6 +21,7 @@ import * as errors from "../errors";
 import express = require("express");
 import {ExperiencesUtil} from "../../experiences/experiences-util";
 import {AuthUtil} from "../../auth/auth-util";
+import * as mongoose from "mongoose";
 
 export class ExperienceRoutes {
     public static routes(app: express.Application, prefix: string): void {
@@ -30,14 +31,16 @@ export class ExperienceRoutes {
          */
 
         // Get current user's experiences
+        // No parameters required (except header token)
         app.get(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getPersonalExperiences(req, res));
 
         // Create experience
         // Use IExperienceAPI object as "experience" field
-        app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res));
+        app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res, mongoose.Types.ObjectId()));
 
         // Update experience
-        app.put(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => {});
+        // Use IExperienceAPI object as "experience" field
+        app.put(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.updateExperience(req, res));
 
         // Delete experience
         app.delete(prefix + "/:id", (req, res) => ExperiencesUtil.deleteExperience(req, res));

@@ -56,28 +56,33 @@ export class ExperiencesUtil {
         });
     }
 
-    public static createExperience(req, res) {
-        let accType = req.accountType;
-        if (accType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
+    private static getDefaultExperience(experience, id) {
+        return new ExperienceModel({
+            _id: id,
+            schema_version: 0,
+            location: experience.location,
+            name: experience.name,
+            organization: experience.organization,
+            opportunity: experience.opportunity,
+            description: experience.description,
+            is_verified: false,
+            created_at: (new Date).getTime()
+        });
+    }
 
-        //if (!(req.experience instanceof IExperienceAPI)) return res.status(400).send({message: errors.badRequest + " (Malformed Experience object)"});
-        //if (req.account.experiences == undefined) req.account.experiences = [];
+    public static updateExperience(req, res) {
+        this.deleteExperience(req, res);
+        this.createExperience(req, res, req.params.id);
+    }
+
+    public static createExperience(req, res, id) {
+        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
         let failed = false;
 
         // default experience object
 
-        let exp = new ExperienceModel({
-            _id: mongoose.Types.ObjectId(),
-            schema_version: 0,
-            location: req.body.experience.location,
-            name: req.body.experience.name,
-            organization: req.body.experience.organization,
-            opportunity: req.body.experience.opportunity,
-            description: req.body.experience.description,
-            is_verified: false,
-            created_at: (new Date).getTime()
-        });
+        let exp = this.getDefaultExperience(req.body.experience, id);
 
         req.account.experiences.push(exp); // add to user's experiences array
 
@@ -102,19 +107,19 @@ export class ExperiencesUtil {
                     return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
                 }
 
-                org.experience_validations.push(new IValidations(req.account.username, req.account.experiences[req.account.experiences.length - 1]._id)); // add validation entry to organization
+                org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
 
                 org.save(function (err) {
                     if (err) {
                         if (servers.DEBUG) console.error(err);
                         return res.status(500).send({message: errors.internalServerError});
                     }
-                    if (!failed) ExperiencesUtil.createExperienceMongo(req, res);
+                    if (!failed) ExperiencesUtil.saveExperienceMongo(req, res);
                 }); // save to db
             });// TODO CASE INSENSITIVE LOOKUPS
         } else {
             // finish adding experience to database
-            ExperiencesUtil.createExperienceMongo(req, res);
+            ExperiencesUtil.saveExperienceMongo(req, res);
         }
     }
 
@@ -122,7 +127,7 @@ export class ExperiencesUtil {
      * Save the account
      */
 
-    private static createExperienceMongo(req, res) {
+    private static saveExperienceMongo(req, res) {
         req.account.save(function (err) {
             if (err) {
                 if (servers.DEBUG) console.error(err);
@@ -133,9 +138,44 @@ export class ExperiencesUtil {
     }
 
     public static deleteExperience(req, res) {
-        let accType = req.accountType;
-        if (accType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
+        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
+        let experience = JSON.parse(JSON.stringify(req.account.experiences[req.params.id])), index = req.account.experiences.indexOf(req.params.id);
+
+        if (index < 0) return res.status(404).send({message: errors.notFound + " (Experience not found with suppplied ID)"});
+        req.account.experiences.splice(index, 1); // remove experience from array (save later)
+
+        if (experience.opportunity != undefined && experience.opportunity != "") {
+            //TODO OPPORTUNITY
+        }
+        if (experience.organization != undefined && experience.organization != "") { // remove pending requests for experience
+            AccountModel.findOne({username: experience.organization, type: "Organization"}, function(err, org: IOrganization) {
+                if (err) {
+                    if (servers.DEBUG) console.error(err);
+                    return res.status(500).send({message: errors.internalServerError});
+                }
+                if (!org) {
+                    return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
+                }
+
+                let index = org.experience_validations.indexOf(new IValidations(req.account.username, experience._id)); // get index of experience validation request
+
+                if (index > -1) { // if it exists
+                    org.experience_validations.splice(index, 1); // remove from array
+                    org.save(function (err) {
+                        if (err) {
+                            if (servers.DEBUG) console.error(err);
+                            return res.status(500).send({message: errors.internalServerError});
+                        }
+                        ExperiencesUtil.saveExperienceMongo(req, res);
+                    }); // save to db
+                } else { // if it doesn't exist
+                    ExperiencesUtil.saveExperienceMongo(req, res);
+                }
+            });
+        } else {
+            ExperiencesUtil.saveExperienceMongo(req, res);
+        }
     }
 
     public static getExperienceValidations(req, res) {
