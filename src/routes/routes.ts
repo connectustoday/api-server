@@ -40,6 +40,8 @@ export class Routes {
         ExperienceRoutes.routes(app, "/v1/experiences");
         OpportunityRoutes.routes(app, "/v1/opportunities");
 
-        app.get("/v1", (req, res) => res.send(errors.badRequest));
+        app.use((req, res) => {
+            res.status(404).send({message: errors.notFound + " (Not API route)"});
+        });
     }
 }

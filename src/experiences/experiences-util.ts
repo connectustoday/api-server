@@ -27,6 +27,9 @@ import {ExperienceModel} from "../interfaces/internal/experience";
 import {Promise} from "mongoose";
 import * as ClassTransformer from "class-transformer";
 import * as mongoose from "mongoose";
+import IUser from "../interfaces/internal/user";
+import IExperienceAPI from "../interfaces/api/experience";
+import IAddressAPI from "../interfaces/api/address";
 
 export class ExperiencesUtil {
 
@@ -35,14 +38,22 @@ export class ExperiencesUtil {
      */
 
     public static getPersonalExperiences(req, res) {
-        let accType = req.accountType;
-        if (accType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
-
-
+        req.params.id = req.account.username;
+        this.getExperiences(req, res);
     }
 
     public static getExperiences(req, res) {
-        AccountModel.findOne()
+        AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) {
+            if (err) {
+                if (servers.DEBUG) console.error(err);
+                return res.status(500).send({message: errors.internalServerError});
+            }
+            let object: Array<IExperienceAPI> = [];
+            user.experiences.forEach((element) => {
+                object.push(new IExperienceAPI(new IAddressAPI(element.location), element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at));
+            });
+            res.status(200).send(object);
+        });
     }
 
     public static createExperience(req, res) {
@@ -68,7 +79,7 @@ export class ExperiencesUtil {
             created_at: (new Date).getTime()
         });
 
-        req.account.experiences.push(exp); // add to user's experience
+        req.account.experiences.push(exp); // add to user's experiences array
 
         // verifications for data
 
@@ -106,6 +117,10 @@ export class ExperiencesUtil {
             ExperiencesUtil.createExperienceMongo(req, res);
         }
     }
+
+    /*
+     * Save the account
+     */
 
     private static createExperienceMongo(req, res) {
         req.account.save(function (err) {

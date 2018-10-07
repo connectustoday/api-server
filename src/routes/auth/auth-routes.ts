@@ -22,11 +22,8 @@
 // API Version 1.0
 import * as server from "../../server";
 import * as errors from "../errors";
-import * as bcrypt from "bcryptjs";
 import * as register from "../../auth/register";
 import * as login from "../../auth/login";
-import * as jwt from "jsonwebtoken";
-import {AccountModel} from "../../interfaces/internal/account";
 import express = require("express");
 import {AuthUtil} from "../../auth/auth-util";
 
@@ -55,26 +52,13 @@ export class AuthRoutes {
          */
 
         app.post(prefix + "/register", (req, res) => register.registerRequest(req, res));
-        app.get(prefix + "/register", (req, res) => res.send(errors.methodNotAllowed));
 
         /*
          * Test utility to check if logged in
          */
 
-        app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => {
-            // @ts-ignore
-            res.status(200).send(req.account);
-
-            // @ts-ignore
-            /*let decoded = req.decodedToken;
-
-            AccountModel.findOne({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
-                if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
-                if (!user) return res.status(404).send(errors.notFound + " (User not found)");
-
-                res.status(200).send(user);
-            });*/
-        });
+        // @ts-ignore
+        app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => res.status(200).send(req.account));
 
         /*
         * Register Endpoint Required Fields
@@ -84,7 +68,6 @@ export class AuthRoutes {
         * TODO EMAIL LOGIN (RATHER THAN USERNAME)
         */
 
-        app.get(prefix + "/login", (req, res) => res.send(errors.methodNotAllowed));
         app.post(prefix + "/login", (req, res) => login.login(req, res));
     }
 }

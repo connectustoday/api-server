@@ -53,6 +53,8 @@ export class AccountRoutes {
 
         });
 
+        // Get the experiences list of a user
+        // No arguments required in request
         app.get(prefix + "/:id/experiences", (req, res) => ExperiencesUtil.getExperiences(req, res));
 
         app.get(prefix + "/:id/opportunities", (req, res) => {

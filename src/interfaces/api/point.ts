@@ -17,7 +17,18 @@
  *
  */
 
-export default interface IPointAPI {
+import IPoint from "../internal/point";
+
+export default class IPointAPI {
     type: string; //Point
     coordinates: Array<number>;
+
+    public constructor (type: string, coordinates: Array<number>) {
+        this.type = type;
+        this.coordinates = coordinates;
+    }
+    public static constructPointFromInternal(point: IPoint): IPointAPI {
+        if (point == undefined) return null;
+        return new IPointAPI(point.type, point.coordinates);
+    }
 }

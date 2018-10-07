@@ -22,7 +22,6 @@ import IAddressAPI from "./address";
 
 export default class IExperienceAPI {
     location: IAddressAPI;
-    id: number;
     name: string;
     organization: string;
     opportunity: string;
@@ -30,9 +29,8 @@ export default class IExperienceAPI {
     when: [string, string];
     is_verified: boolean;
     created_at: number;
-    public constructor(location: IAddressAPI, id: number, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
+    public constructor(location: IAddressAPI, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
         this.location = location;
-        this.id = id;
         this.name = name;
         this.organization = organization;
         this.opportunity = opportunity;

@@ -30,14 +30,18 @@ export default class IAccountAPI {
     shared_count: number;
 
     public constructor(username: string, email: string, avatar: string, header: string, created_at: number, type: string, posts_count: number, liked_count: number, shared_count: number) {
-        this.username = username;
-        this.email = email;
-        this.avatar = avatar;
-        this.header = header;
-        this.created_at = created_at;
-        this.type = type;
-        this.posts_count = posts_count;
-        this.liked_count = liked_count;
-        this.shared_count = shared_count;
+        try {
+            this.username = username;
+            this.email = email;
+            this.avatar = avatar;
+            this.header = header;
+            this.created_at = created_at;
+            this.type = type;
+            this.posts_count = posts_count;
+            this.liked_count = liked_count;
+            this.shared_count = shared_count;
+        } catch (err) {
+            console.error(err);
+        }
     }
 }

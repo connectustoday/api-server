@@ -19,9 +19,9 @@
 
 
 import IPointAPI from "./point";
+import IAddress from "../internal/address";
 
-export default interface IAddressAPI {
-    schema_version: number;
+export default class IAddressAPI {
     street?: string;
     city?: string;
     province?: string;
@@ -29,4 +29,15 @@ export default interface IAddressAPI {
     postal_code?: string;
     apt_number?: string;
     geojson?: IPointAPI;
+
+    public constructor(address: IAddress) {
+        if (address == undefined) return;
+        this.street = address.street;
+        this.city = address.city;
+        this.province = address.province;
+        this.country = address.country;
+        this.postal_code = address.postal_code;
+        this.apt_number = address.apt_number;
+        this.geojson = IPointAPI.constructPointFromInternal(address.geojson);
+    }
 }
