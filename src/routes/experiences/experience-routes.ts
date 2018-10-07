@@ -47,11 +47,10 @@ export class ExperienceRoutes {
         app.delete(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.deleteExperience(req, res, true));
 
         // List pending experience validations (for organization)
+        // No parameters required (except header token)
         app.get(prefix + "/validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
 
         // Approve or don't approve validation (for organization)
-        app.post(prefix + "/validations/:id", AuthUtil.verifyAccount, (req, res) => {
-
-        });
+        app.post(prefix + "/validations/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.reviewExperienceValidations(req, res));
     }
 }

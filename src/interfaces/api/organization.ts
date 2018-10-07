@@ -17,3 +17,12 @@
  *
  */
 
+export default class IValidationsAPI {
+    user_id: String;
+    experience_id: String;
+
+    public constructor (user_id: String, experience_id: String) {
+        this.user_id = user_id;
+        this.experience_id = experience_id;
+    }
+}

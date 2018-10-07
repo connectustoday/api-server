@@ -28,6 +28,7 @@ import * as mongoose from "mongoose";
 import IUser from "../interfaces/internal/user";
 import IExperienceAPI from "../interfaces/api/experience";
 import IAddressAPI from "../interfaces/api/address";
+import IValidationsAPI from "../interfaces/api/organization";
 
 export class ExperiencesUtil {
 
@@ -35,16 +36,22 @@ export class ExperiencesUtil {
      * REST API handlers
      */
 
+    // Get experiences of personal user (username found from token)
     public static getPersonalExperiences(req, res) {
+        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
         req.params.id = req.account.username;
         this.getExperiences(req, res);
     }
 
+    // Get experiences of any user
     public static getExperiences(req, res) {
         AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) {
             if (err) {
                 if (servers.DEBUG) console.error(err);
                 return res.status(500).send({message: errors.internalServerError});
+            }
+            if (!user) {
+                return res.status(404).send({message: errors.notFound + " (User not found? Is this the correct account type?)"});
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
@@ -197,10 +204,16 @@ export class ExperiencesUtil {
     }
 
     public static getExperienceValidations(req, res) {
+        if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
 
+        let object: Array<IValidationsAPI> = [];
+        req.account.experience_validations.forEach((element) => {
+            object.push(new IValidationsAPI(element.user_id, element.experience_id));
+        });
+        res.status(200).send(object);
     }
 
-    public static reviewExperienceValidations(req: Request, res) {
+    public static reviewExperienceValidations(req, res) {
 
     }
 }
