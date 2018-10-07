@@ -19,6 +19,7 @@
 
 import * as errors from "../errors";
 import express = require("express");
+import {ExperiencesUtil} from "../../experiences/experiences-util";
 
 // REST API layout inspired by the mastodon API
 
@@ -52,9 +53,7 @@ export class AccountRoutes {
 
         });
 
-        app.get(prefix + "/:id/experiences", (req, res) => {
-
-        });
+        app.get(prefix + "/:id/experiences", (req, res) => ExperiencesUtil.getExperiences(req, res));
 
         app.get(prefix + "/:id/opportunities", (req, res) => {
 

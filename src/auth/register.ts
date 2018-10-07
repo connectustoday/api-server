@@ -26,9 +26,9 @@ import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
 
 export function registerRequest(req, res) {
-    if (req.body.type == "organization") {
+    if (req.body.type == "Organization") {
         return registerOrganizationRequest(req, res);
-    } else if (req.body.type == "user") {
+    } else if (req.body.type == "User") {
         return registerUserRequest(req, res);
     } else {
         return res.status(400).send(errors.internalServerError + " (Invalid account type)");

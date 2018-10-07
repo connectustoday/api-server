@@ -63,14 +63,17 @@ export class AuthRoutes {
 
         app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => {
             // @ts-ignore
-            let decoded = req.decodedToken;
+            res.status(200).send(req.account);
+
+            // @ts-ignore
+            /*let decoded = req.decodedToken;
 
             AccountModel.findOne({username: decoded.username}, {password: 0}, function (err, user) { //TODO switch to id
                 if (err) return res.status(500).send(errors.internalServerError + " (Problem finding user)");
                 if (!user) return res.status(404).send(errors.notFound + " (User not found)");
 
                 res.status(200).send(user);
-            });
+            });*/
         });
 
         /*
