@@ -36,7 +36,7 @@ export class ExperienceRoutes {
 
         // Create experience
         // Use IExperienceAPI object as "experience" field
-        app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res, mongoose.Types.ObjectId()));
+        app.post(prefix, AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.createExperience(req, res, mongoose.Types.ObjectId(), true));
 
         // Update experience
         // Use IExperienceAPI object as "experience" field for the new replacing experience
@@ -44,7 +44,7 @@ export class ExperienceRoutes {
 
         // Delete experience
         // No parameters required (except header token)
-        app.delete(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.deleteExperience(req, res));
+        app.delete(prefix + "/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.deleteExperience(req, res, true));
 
         // List pending experience validations (for organization)
         app.get(prefix + "/validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));

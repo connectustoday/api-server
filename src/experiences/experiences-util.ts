@@ -68,12 +68,13 @@ export class ExperiencesUtil {
         });
     }
 
-    public static async updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL)
-        this.deleteExperience(req, res);
-        this.createExperience(req, res, req.params.id);
+    public static updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL)
+        this.deleteExperience(req, res, false, () => {
+            if (!res.headersSent) this.createExperience(req, res, req.params.id, true);
+        });
     }
 
-    public static createExperience(req, res, id) {
+    public static createExperience(req, res, id, save: boolean) {
         if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
         let failed = false;
@@ -112,12 +113,12 @@ export class ExperiencesUtil {
                         if (servers.DEBUG) console.error(err);
                         return res.status(500).send({message: errors.internalServerError});
                     }
-                    if (!failed) ExperiencesUtil.saveExperienceMongo(req, res);
+                    if (!failed && save) ExperiencesUtil.saveExperienceMongo(req, res);
                 }); // save to db
             });// TODO CASE INSENSITIVE LOOKUPS
         } else {
             // finish adding experience to database
-            ExperiencesUtil.saveExperienceMongo(req, res);
+            if (save) ExperiencesUtil.saveExperienceMongo(req, res);
         }
     }
 
@@ -136,7 +137,7 @@ export class ExperiencesUtil {
         }); // save to db
     }
 
-    public static deleteExperience(req, res) {
+    public static deleteExperience(req, res, save: boolean, callback?) {
         if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
 
         let experience, index = -1;
@@ -167,28 +168,31 @@ export class ExperiencesUtil {
 
                 let index = -1; // get index of experience validation request
 
-                for (let i = 0; i < org.experience_validations.length; i++) {
+                for (let i = 0; i < org.experience_validations.length; i++) { // remove all entries with the same id and user (duplicates as well)
                     if (req.account.username == org.experience_validations[i].user_id && experience._id == org.experience_validations[i].experience_id) {
                         index = i;
-                        break;
+                        org.experience_validations.splice(i, 1); // remove from array
+                        i--;
                     }
                 }
 
                 if (index > -1) { // if it exists
-                    org.experience_validations.splice(index, 1); // remove from array
                     org.save(function (err) { // save to db
                         if (err) {
                             if (servers.DEBUG) console.error(err);
                             return res.status(500).send({message: errors.internalServerError});
                         }
-                        ExperiencesUtil.saveExperienceMongo(req, res, func);
+                        if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+                        if (callback) callback();
                     }); // save to db
                 } else { // if it doesn't exist
-                    ExperiencesUtil.saveExperienceMongo(req, res, func);
+                    if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+                    if (callback) callback();
                 }
             });
         } else {
-            ExperiencesUtil.saveExperienceMongo(req, res, func);
+            if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+            if (callback) callback();
         }
     }
 
