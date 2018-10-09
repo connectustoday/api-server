@@ -75,7 +75,7 @@ export class ExperiencesUtil {
         });
     }
 
-    public static updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL)
+    public static updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
         this.deleteExperience(req, res, false, () => {
             if (!res.headersSent) this.createExperience(req, res, req.params.id, true);
         });
@@ -216,6 +216,7 @@ export class ExperiencesUtil {
     // Approve or don't approve an experience validation request
     public static async reviewExperienceValidations(req, res) {
         if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
+        if (!req.body.approved) return res.status(400).send({message: errors.badRequest + " (Bad query; no \"approved\" field)"});
         let found = false, accepted = req.body.approved;
 
         // Remove the experience validation request from the organization object
@@ -233,16 +234,18 @@ export class ExperiencesUtil {
 
             // Update user experience object with approval
             // @ts-ignore
-            let user: IUser = AccountModel.findOne({username: req.params.user, type: "User"}).exec();
+            let user: IUser = await AccountModel.findOne({username: req.params.user, type: "User"}).exec();
             if (!user) {
                 return res.status(400).send({message: errors.badRequest + " (User not found.)"})
             }
             found = false;
             for (let i = 0; i < user.experiences.length; i++) {
                 if (user.experiences[i]._id == req.params.id) {
+                    console.log(accepted); //TODO
                     if (accepted) user.experiences[i].is_verified = accepted; // verify experience object if approved
                     else {
                         user.experiences.splice(i, 1); // delete experience object if not approved
+                        console.log("delete " + i); //TODO bug with removal (not working)
                         i--;
                     }
                     found = true;
@@ -250,7 +253,7 @@ export class ExperiencesUtil {
             }
             if (!found) return res.status(500).send({message: errors.internalServerError + " (Experience not found in user object)"});
             await user.save(); // save user object
-            //TODO update experience notification for user
+            res.status(200).send({message: errors.ok});
         } catch (err) {
             if (servers.DEBUG) console.error(err);
             return res.status(500).send({message: errors.internalServerError});
