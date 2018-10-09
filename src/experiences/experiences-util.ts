@@ -215,12 +215,16 @@ export class ExperiencesUtil {
 
     public static reviewExperienceValidations(req, res) {
         if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
-        let found = false;
+        let found = false, accepted = req.body.accepted;
         for (let i = 0; i < req.account.experience_validations.length; i++) {
             if (req.account.experience_validations[i].user_id == req.params.user && req.account.experience_validations[i].experience_id == req.params.id) {
-                //TODO
+                req.account.experience_validations.splice(i, 1);
+                i--;
             }
         }
+
+
+        //TODO update experience to be confirmed
         if (!found) return res.status(404).send({message: errors.notFound + " (Not found)"});
     }
 }
