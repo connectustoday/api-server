@@ -120,12 +120,12 @@ export class ExperiencesUtil {
                         if (servers.DEBUG) console.error(err);
                         return res.status(500).send({message: errors.internalServerError});
                     }
-                    if (!failed && save) ExperiencesUtil.saveExperienceMongo(req, res);
+                    if (!failed && save) ExperiencesUtil.saveAccountMongo(req, res);
                 }); // save to db
             });// TODO CASE INSENSITIVE LOOKUPS
         } else {
             // finish adding experience to database
-            if (save) ExperiencesUtil.saveExperienceMongo(req, res);
+            if (save) ExperiencesUtil.saveAccountMongo(req, res);
         }
     }
 
@@ -133,7 +133,7 @@ export class ExperiencesUtil {
      * Save the account
      */
 
-    private static saveExperienceMongo(req, res, call?) {
+    private static saveAccountMongo(req, res, call?) {
         if (call) call();
         req.account.save(function (err) {
             if (err) {
@@ -189,16 +189,16 @@ export class ExperiencesUtil {
                             if (servers.DEBUG) console.error(err);
                             return res.status(500).send({message: errors.internalServerError});
                         }
-                        if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+                        if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
                         if (callback) callback();
                     }); // save to db
                 } else { // if it doesn't exist
-                    if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+                    if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
                     if (callback) callback();
                 }
             });
         } else {
-            if (save) ExperiencesUtil.saveExperienceMongo(req, res, func);
+            if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
             if (callback) callback();
         }
     }
@@ -213,18 +213,47 @@ export class ExperiencesUtil {
         res.status(200).send(object);
     }
 
-    public static reviewExperienceValidations(req, res) {
+    // Approve or don't approve an experience validation request
+    public static async reviewExperienceValidations(req, res) {
         if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
-        let found = false, accepted = req.body.accepted;
+        let found = false, accepted = req.body.approved;
+
+        // Remove the experience validation request from the organization object
         for (let i = 0; i < req.account.experience_validations.length; i++) {
             if (req.account.experience_validations[i].user_id == req.params.user && req.account.experience_validations[i].experience_id == req.params.id) {
                 req.account.experience_validations.splice(i, 1);
                 i--;
+                found = true;
             }
         }
+        if (!found) return res.status(404).send({message: errors.notFound + " (Experience validation request not found)"});
 
+        try {
+            await req.account.save(); // save the organization object
 
-        //TODO update experience to be confirmed
-        if (!found) return res.status(404).send({message: errors.notFound + " (Not found)"});
+            // Update user experience object with approval
+            // @ts-ignore
+            let user: IUser = AccountModel.findOne({username: req.params.user, type: "User"}).exec();
+            if (!user) {
+                return res.status(400).send({message: errors.badRequest + " (User not found.)"})
+            }
+            found = false;
+            for (let i = 0; i < user.experiences.length; i++) {
+                if (user.experiences[i]._id == req.params.id) {
+                    if (accepted) user.experiences[i].is_verified = accepted; // verify experience object if approved
+                    else {
+                        user.experiences.splice(i, 1); // delete experience object if not approved
+                        i--;
+                    }
+                    found = true;
+                }
+            }
+            if (!found) return res.status(500).send({message: errors.internalServerError + " (Experience not found in user object)"});
+            await user.save(); // save user object
+            //TODO update experience notification for user
+        } catch (err) {
+            if (servers.DEBUG) console.error(err);
+            return res.status(500).send({message: errors.internalServerError});
+        }
     }
 }

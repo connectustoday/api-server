@@ -51,7 +51,7 @@ export class ExperienceRoutes {
         app.get(prefix + "/validations", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.getExperienceValidations(req, res));
 
         // Approve or don't approve validation (for organization)
-        // approve = whether or not to approve the validation
+        // approve = boolean on whether or not to approved the validation
         app.post(prefix + "/validations/:user/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.reviewExperienceValidations(req, res));
     }
 }
