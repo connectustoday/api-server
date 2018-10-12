@@ -26,15 +26,14 @@ import * as bcrypt from "bcryptjs";
 export function login(req, res) {
     AccountModel.findOne({ username: req.body.username }, function (err, user) {
         if (err) return res.status(500).send(errors.internalServerError);
-        if (!user) return res.status(404).send(errors.notFound + " (No user found.)");
+        if (!user) return res.status(401).send({ auth: false, token: null }); // if user is not found
 
-        let passwordIsValid: boolean = bcrypt.compareSync(req.body.password, user.password);
-        if (!passwordIsValid) {
+        if (!bcrypt.compareSync(req.body.password, user.password)) { // if password isn't valid
             return res.status(401).send({ auth: false, token: null });
         }
 
         let token = jwt.sign({ username: user.username }, server.SECRET, {
-            expiresIn: 86400 //TODO CONFIGURABLE
+            expiresIn: server.TOKEN_EXPIRY
         });
         res.status(200).send({ auth: true, token: token });
     });

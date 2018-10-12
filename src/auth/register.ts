@@ -26,12 +26,12 @@ import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
 
 export function registerRequest(req, res) {
-    if (req.body.type == "Organization") {
+    if (req.body.type == "organization") {
         return registerOrganizationRequest(req, res);
-    } else if (req.body.type == "User") {
+    } else if (req.body.type == "user") {
         return registerUserRequest(req, res);
     } else {
-        return res.status(400).send(errors.internalServerError + " (Invalid account type)");
+        return res.status(400).send(errors.badRequest + " (Invalid account type)");
     }
 }
 
@@ -76,7 +76,7 @@ export function registerUserRequest(req, res) {
             //console.log(user);
             // @ts-ignore
             let token = jwt.sign({username: user.username}, server.SECRET, {
-                expiresIn: 86400 //TODO token expiry
+                expiresIn: server.TOKEN_EXPIRY //TODO token expiry
             });
             res.status(200).send({auth: true, token: token});
         });
@@ -123,7 +123,7 @@ export function registerOrganizationRequest(req, res) {
 
             // @ts-ignore
             let token = jwt.sign({username: user.username}, server.SECRET, {
-                expiresIn: 86400 //TODO token expiry
+                expiresIn: server.TOKEN_EXPIRY //TODO token expiry
             });
             res.status(200).send({auth: true, token: token});
         });
