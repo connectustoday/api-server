@@ -61,7 +61,7 @@ export class AuthRoutes {
         app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => res.status(200).send(req.account));
 
         /*
-        * Register Endpoint Required Fields
+        * Login Endpoint Required Fields
         * - username
         * - password
         * Returns 200 + auth=true + token if SUCCESSFUL
