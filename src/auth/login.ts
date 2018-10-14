@@ -22,19 +22,20 @@ import * as errors from "../routes/errors";
 import * as server from "../server";
 import * as jwt from "jsonwebtoken";
 import * as bcrypt from "bcryptjs";
+import {sendError} from "../routes/errors";
 
 export function login(req, res) {
     AccountModel.findOne({ username: req.body.username }, function (err, user) {
-        if (err) return res.status(500).send(errors.internalServerError);
-        if (!user) return res.status(401).send({ auth: false, token: null }); // if user is not found
+        if (err) return sendError(res, 500, errors.internalServerError, 3100);
+        if (!user) return sendError(res, 401, "Invalid login.", 3101); // if user is not found
 
         if (!bcrypt.compareSync(req.body.password, user.password)) { // if password isn't valid
-            return res.status(401).send({ auth: false, token: null });
+            return sendError(res, 401, "Invalid login.", 3101);
         }
 
         let token = jwt.sign({ username: user.username }, server.SECRET, {
             expiresIn: server.TOKEN_EXPIRY
         });
-        res.status(200).send({ auth: true, token: token });
+        res.status(200).send({ token: token });
     });
 }

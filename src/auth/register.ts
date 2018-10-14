@@ -24,6 +24,7 @@ import * as server from "../server";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
+import {sendError} from "../routes/errors";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
@@ -31,7 +32,7 @@ export function registerRequest(req, res) {
     } else if (req.body.type == "user") {
         return registerUserRequest(req, res);
     } else {
-        return res.status(400).send(errors.badRequest + " (Invalid account type)");
+        return sendError(res, 400, errors.badRequest + " (Invalid account type)", 3200);
     }
 }
 
@@ -39,7 +40,7 @@ export function registerUserRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
     AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
-        if (!isUnique) return res.status(500).send(errors.internalServerError + " (Username taken)");
+        if (!isUnique) return sendError(res, 500, errors.internalServerError + " (Username taken)", 3201);
 
         const defUser = new UserModel({ // Default user
             type: "User",
@@ -70,7 +71,7 @@ export function registerUserRequest(req, res) {
         defUser.save(function (err, user) {
             if (err) {
                 if (server.DEBUG) console.error(err);
-                return res.status(500).send(errors.internalServerError + " (There was a problem registering the user.)");
+                return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
             }
 
             //console.log(user);
@@ -78,7 +79,7 @@ export function registerUserRequest(req, res) {
             let token = jwt.sign({username: user.username}, server.SECRET, {
                 expiresIn: server.TOKEN_EXPIRY //TODO token expiry
             });
-            res.status(200).send({auth: true, token: token});
+            res.status(200).send({token: token});
         });
 
     });
@@ -88,7 +89,7 @@ export function registerOrganizationRequest(req, res) {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
     AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
-        if (!isUnique) return res.status(400).send(errors.internalServerError + " (Duplicate username)");
+        if (!isUnique) return sendError(res, 500, errors.internalServerError + " (Username taken)", 3201);
 
         const defOrganization = new OrganizationModel({ // Default organization
             type: "Organization",
@@ -118,14 +119,14 @@ export function registerOrganizationRequest(req, res) {
         defOrganization.save(function (err, user) {
             if (err) {
                 if (server.DEBUG) console.error(err);
-                return res.status(500).send(errors.internalServerError + " (There was a problem registering the organization.)");
+                return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
             }
 
             // @ts-ignore
             let token = jwt.sign({username: user.username}, server.SECRET, {
                 expiresIn: server.TOKEN_EXPIRY //TODO token expiry
             });
-            res.status(200).send({auth: true, token: token});
+            res.status(200).send({token: token});
         });
     });
 }

@@ -21,6 +21,7 @@ import * as server from "../server";
 import {AccountModel} from "../interfaces/internal/account";
 import * as errors from "../routes/errors";
 import * as jwt from "jsonwebtoken";
+import {sendError} from "../routes/errors";
 
 export class AuthUtil {
 
@@ -49,15 +50,15 @@ export class AuthUtil {
     public static verifyAccount(req, res, next): void {
         let token = req.headers["x-access-token"];
         if (!token) {
-            return res.status(401).send({ auth: false, message: "No token provided." });
+            return sendError(res, 401, "No token provided.", 3000);
         }
 
         jwt.verify(token, server.SECRET, function (err, decoded) {
-            if (err) return res.status(500).send({ auth: false, message: "Failed to authenticate token." });
+            if (err) return sendError(res, 500, "Failed to authenticate token.", 3001);
 
             AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
-                if (err) return res.status(500).send(errors.internalServerError + " (Problem finding account)");
-                if (!user) return res.status(404).send(errors.notFound + " (Account not found)");
+                if (err) return sendError(res, 500, errors.internalServerError + " (Problem finding account)", 3002);
+                if (!user) return sendError(res, 404, errors.notFound + " (Account not found)", 3003);
 
                 req.account = user;
                 req.decodedToken = decoded;

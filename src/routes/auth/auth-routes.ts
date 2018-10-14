@@ -64,7 +64,7 @@ export class AuthRoutes {
         * Login Endpoint Required Fields
         * - username
         * - password
-        * Returns 200 + auth=true + token if SUCCESSFUL
+        * Returns 200 + token if SUCCESSFUL
         * TODO EMAIL LOGIN (RATHER THAN USERNAME)
         */
 

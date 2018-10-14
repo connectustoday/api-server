@@ -16,6 +16,8 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+import {error} from "util";
+
 export const ok = "200 - OK",
     created = "201 - Created",
     accepted = "202 - Accepted",
@@ -31,3 +33,16 @@ export const ok = "200 - OK",
     internalServerError = "500 - Internal Server Error",
     notImplemented = "501 - Not Implemented",
     serviceUnavailable = "503 - Service Unavailable";
+
+export function sendError(res, httpCode: number, message: string, errorCode: number) {
+    res.status(httpCode).send({
+        error: getErrorObject(message, errorCode)
+    });
+}
+
+export function getErrorObject(message: string, errorCode: number) {
+    return {
+        code: errorCode,
+        message: message
+    }
+}

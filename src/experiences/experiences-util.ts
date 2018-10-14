@@ -29,6 +29,7 @@ import IUser from "../interfaces/internal/user";
 import IExperienceAPI from "../interfaces/api/experience";
 import IAddressAPI from "../interfaces/api/address";
 import IValidationsAPI from "../interfaces/api/organization";
+import {sendError} from "../routes/errors";
 
 export class ExperiencesUtil {
 
@@ -38,20 +39,20 @@ export class ExperiencesUtil {
 
     // Get experiences of personal user (username found from token)
     public static getPersonalExperiences(req, res) {
-        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
+        if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
         req.params.id = req.account.username;
         this.getExperiences(req, res);
     }
 
     // Get all experiences of any user
     public static getExperiences(req, res) {
-        AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) {
+        AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) { // TODO CASE INSENSITIVE QUERY
             if (err) {
                 if (servers.DEBUG) console.error(err);
-                return res.status(500).send({message: errors.internalServerError});
+                return sendError(res, 500, errors.internalServerError, 4001);
             }
             if (!user) {
-                return res.status(404).send({message: errors.notFound + " (User not found? Is this the correct account type?)"});
+                return sendError(res, 404, errors.notFound + " (User not found? Is this the correct account type?)", 4002);
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
@@ -87,7 +88,7 @@ export class ExperiencesUtil {
     }
 
     public static createExperience(req, res, id, save: boolean) {
-        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
+        if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
 
         let failed = false;
 
@@ -111,11 +112,11 @@ export class ExperiencesUtil {
                 if (err) {
                     failed = true;
                     if (servers.DEBUG) console.error(err);
-                    return res.status(500).send({message: errors.internalServerError});
+                    return sendError(res, 500, errors.internalServerError, 4001);
                 }
                 if (!org) {
                     failed = true;
-                    return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
+                    return sendError(res, 404, errors.badRequest + " (Organization not found.)", 4002);
                 }
 
                 org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
@@ -123,7 +124,7 @@ export class ExperiencesUtil {
                 org.save(function (err) {
                     if (err) {
                         if (servers.DEBUG) console.error(err);
-                        return res.status(500).send({message: errors.internalServerError});
+                        return sendError(res, 500, errors.internalServerError, 4001);
                     }
                     if (!failed && save) ExperiencesUtil.saveAccountMongo(req, res);
                 }); // save to db
@@ -143,14 +144,15 @@ export class ExperiencesUtil {
         req.account.save(function (err) {
             if (err) {
                 if (servers.DEBUG) console.error(err);
-                return res.status(500).send({message: errors.internalServerError});
+                return sendError(res, 500, errors.internalServerError, 4001);
             }
             if (!res.headersSent) return res.status(200).send({message: errors.ok}); // send ok header if all is good
         }); // save to db
     }
 
+    // TODO BUG IF ORGANIZATION IS REMOVED
     public static deleteExperience(req, res, save: boolean, callback?) {
-        if (req.accountType != "User") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! User account type required.)"});
+        if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
 
         let experience, index = -1;
 
@@ -162,7 +164,7 @@ export class ExperiencesUtil {
             }
         }
 
-        if (index < 0) return res.status(404).send({message: errors.notFound + " (Experience not found with supplied ID)"});
+        if (index < 0) return sendError(res, 404, errors.notFound + " (Experience not found with supplied ID)", 4002);
         let func = () => req.account.experiences.splice(index, 1); // remove experience from array (save later)
 
         if (experience.opportunity != undefined && experience.opportunity != "") {
@@ -172,10 +174,11 @@ export class ExperiencesUtil {
             AccountModel.findOne({username: experience.organization, type: "Organization"}, function (err, org: IOrganization) {
                 if (err) {
                     if (servers.DEBUG) console.error(err);
-                    return res.status(500).send({message: errors.internalServerError});
+                    return sendError(res, 500, errors.internalServerError, 4001);
                 }
                 if (!org) {
-                    return res.status(400).send({message: errors.badRequest + " (Organization not found.)"})
+                    if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
+                    if (callback) callback();
                 }
 
                 let index = -1; // get index of experience validation request
@@ -192,7 +195,7 @@ export class ExperiencesUtil {
                     org.save(function (err) { // save to db
                         if (err) {
                             if (servers.DEBUG) console.error(err);
-                            return res.status(500).send({message: errors.internalServerError});
+                            return sendError(res, 500, errors.internalServerError, 4001);
                         }
                         if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
                         if (callback) callback();
@@ -209,7 +212,7 @@ export class ExperiencesUtil {
     }
 
     public static getExperienceValidations(req, res) {
-        if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
+        if (req.accountType != "Organization") return sendError(res, 400, errors.badRequest + " (Incorrect account type! Organization account type required.)", 4000);
 
         let object: Array<IValidationsAPI> = [];
         req.account.experience_validations.forEach((element) => {
@@ -220,8 +223,8 @@ export class ExperiencesUtil {
 
     // Approve or don't approve an experience validation request
     public static async reviewExperienceValidations(req, res) {
-        if (req.accountType != "Organization") return res.status(400).send({message: errors.badRequest + " (Incorrect account type! Organization account type required.)"});
-        if (!req.body.approved) return res.status(400).send({message: errors.badRequest + " (Bad query; no \"approved\" field)"});
+        if (req.accountType != "Organization") return sendError(res, 400, errors.badRequest + " (Incorrect account type! Organization account type required.)", 4000);
+        if (!req.body.approved) return res.status(400).send({message: errors.badRequest + " (Bad query; no \"approved\" field)"}); //TODO REMOVE
         let found = false, accepted = req.body.approved;
 
         // Remove the experience validation request from the organization object
@@ -232,7 +235,7 @@ export class ExperiencesUtil {
                 found = true;
             }
         }
-        if (!found) return res.status(404).send({message: errors.notFound + " (Experience validation request not found)"});
+        if (!found) return sendError(res, 404, errors.notFound + " (Experience validation request not found)", 4002);
 
         try {
             await req.account.save(); // save the organization object
@@ -241,7 +244,7 @@ export class ExperiencesUtil {
             // @ts-ignore
             let user: IUser = await AccountModel.findOne({username: req.params.user, type: "User"}).exec();
             if (!user) {
-                return res.status(400).send({message: errors.badRequest + " (User not found.)"})
+                return sendError(res, 400, errors.badRequest + " (User not found.)", 4003);
             }
             found = false;
             for (let i = 0; i < user.experiences.length; i++) {
@@ -256,12 +259,12 @@ export class ExperiencesUtil {
                     found = true;
                 }
             }
-            if (!found) return res.status(500).send({message: errors.internalServerError + " (Experience not found in user object)"});
+            if (!found) return sendError(res, 400, errors.internalServerError + " (Experience not found in user object)", 4004);
             await user.save(); // save user object
             res.status(200).send({message: errors.ok});
         } catch (err) {
             if (servers.DEBUG) console.error(err);
-            return res.status(500).send({message: errors.internalServerError});
+            return sendError(res, 500, errors.internalServerError, 4001);
         }
     }
 }
