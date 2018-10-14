@@ -37,7 +37,8 @@ When checking for errors, check if the `error` field in the JSON object exists. 
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when` | 2 strings (array of 2) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
 | `is_verified` | bool | Whether  or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
-| `created_at` | int64 | Timestamp of when the `Experience` was created. |
+| `created_at` | number | Timestamp of when the `Experience` was created. |
+| `hours` | number | Number of hours gained from the `Experience`. |
 
 ### Address
 
