@@ -55,7 +55,7 @@ export class ExperiencesUtil {
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
-                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at));
+                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at, element.hours));
             });
             res.status(200).send(object);
         });
