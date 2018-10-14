@@ -26,6 +26,7 @@ When checking for errors, check if the error field in the JSON exists.
 ### Organization
 
 ### Experience
+
 | Field | Type | Description |
 |-------|:----:|-------------|
 | `location` | `Address` | Location that the event had taken place. |
@@ -95,10 +96,10 @@ Returns an array of `Experience`s.
 
 Not implemented
 
-`POST /v1/accounts/:id/request_connection`
-`POST /v1/accounts/:id/accept_connection`
-`POST /v1/accounts/:id/block`
-`POST /v1/accounts/:id/unblock`
+  `POST /v1/accounts/:id/request_connection`
+  `POST /v1/accounts/:id/accept_connection`
+  `POST /v1/accounts/:id/block`
+  `POST /v1/accounts/:id/unblock`
 
 ### Personal Accounts
 
@@ -115,8 +116,8 @@ Not implemented
 
 `GET /v1/experiences`
 
-This query requires authentication.
-This query only applies to Users.
+  This query requires authentication.
+  This query only applies to Users.
 
 Returns an array of `Experience`s.
 
@@ -124,8 +125,8 @@ Returns an array of `Experience`s.
 
 `POST /v1/experiences`
 
-This query requires authentication.
-This query only applies to Users.
+  This query requires authentication.
+  This query only applies to Users.
 
 Form Data:
 
@@ -146,8 +147,8 @@ Note: the `when` field is a json object storing the fields `begin` and `end`.
 
 `PUT /v1/experiences/:id`
 
-This query requires authentication.
-This query only applies to Users.
+  This query requires authentication.
+  This query only applies to Users.
 
 Form Data:
 
@@ -162,8 +163,8 @@ Form Data:
 | `when.end` | string | When the `Experience ended (ex. Aug. 2016) |
 | `hours` | int | Amount of hours gained from the `experience` |
 
-Note: the `when` field is a json object storing the fields `begin` and `end`.
-Extra Note: This will set the `is_verified` field to false.
+  Note: the `when` field is a json object storing the fields `begin` and `end`.
+  Extra Note: This will set the `is_verified` field to false.
 
 #### Delete an experience
 
@@ -175,8 +176,8 @@ This query requires authentication.
 
 `GET /v1/experiences/validations`
 
-This query requires authentication.
-This query only applies to Organizations.
+  This query requires authentication.
+  This query only applies to Organizations.
 
 Returns an array of experience validations:
 
@@ -189,8 +190,8 @@ Returns an array of experience validations:
 
 `GET /v1/experiences/validations/:user/:id`
 
-This query requires authentication.
-This query only applies to Organizations.
+  This query requires authentication.
+  This query only applies to Organizations.
 
 Form Data:
 
