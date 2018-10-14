@@ -58,7 +58,7 @@ When checking for errors, check if the `error` field in the JSON object exists. 
 
 #### Login
 
-`GET /v1/auth/login`
+`POST /v1/auth/login`
 
 Form Data:
 
@@ -82,7 +82,7 @@ Error Codes:
 
 #### Register
 
-`GET /v1/auth/register`
+`POST /v1/auth/register`
 
 Form Data (for both Users and Organizations): 
 
@@ -326,7 +326,7 @@ Error Codes:
 
 #### Approve or don't approve validation
 
-`GET /v1/experiences/validations/:user/:id`
+`POST /v1/experiences/validations/:user/:id`
 
 This query requires authentication.<br/>
 This query only applies to Organizations.
