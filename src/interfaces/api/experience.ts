@@ -30,7 +30,8 @@ export default class IExperienceAPI {
     when: [string, string];
     is_verified: boolean;
     created_at: number;
-    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number) {
+    hours: number;
+    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number, hours: number) {
         this.location = location;
         this.id = id;
         this.name = name;
@@ -40,5 +41,6 @@ export default class IExperienceAPI {
         this.when = when;
         this.is_verified = is_verified;
         this.created_at = created_at;
+        this.hours = hours;
     }
 }

@@ -32,6 +32,7 @@ export default interface IExperience extends Document {
     when?: [string, string];
     is_verified: boolean;
     created_at: number;
+    hours: number;
 }
 
 export const ExperienceSchema = new Schema({
@@ -43,7 +44,8 @@ export const ExperienceSchema = new Schema({
     description: {type: String},
     when: {type: {begin: String, end: String}},
     is_verified: {type: Boolean, required: true},
-    created_at: {type: Number, required: true}
+    created_at: {type: Number, required: true},
+    hours: {type:Number}
 });
 
 //ExperienceSchema.set('autoIndex', false);

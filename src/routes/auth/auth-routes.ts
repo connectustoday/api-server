@@ -58,7 +58,7 @@ export class AuthRoutes {
          */
 
         // @ts-ignore
-        app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => res.status(200).send(req.account));
+        if (server.DEBUG) app.get(prefix + "/me", AuthUtil.verifyAccount, (req, res) => res.status(200).send(req.account));
 
         /*
         * Login Endpoint Required Fields

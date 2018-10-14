@@ -70,6 +70,11 @@ export class ExperiencesUtil {
             organization: experience.organization,
             opportunity: experience.opportunity,
             description: experience.description,
+            when: {
+              begin: experience.begin,
+              end: experience.end
+            },
+            hours: experience.hours,
             is_verified: false,
             created_at: (new Date).getTime()
         });
