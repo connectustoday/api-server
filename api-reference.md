@@ -15,7 +15,7 @@ https://github.com/expressjs/multer
 
 ## Error Handling
 
-When checking for errors, check if the error field in the JSON exists.
+When checking for errors, check if the `error` field in the JSON object exists. If there is an error, the JSON object will not have any other fields. Otherwise, the server will return with code `200` if the query was successful.
 
 ## Resource Types
 
@@ -52,6 +52,75 @@ When checking for errors, check if the error field in the JSON exists.
 | `geojson` | Point |
 
 ## Endpoints
+
+### Authentication
+
+#### Login
+
+`GET /v1/auth/login`
+
+Form Data:
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `username` | string | Username of the account. |
+| `password` | string | Password of the account. |
+
+Returns (if successful):
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `token` | string | The authentication token for the account. |
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3100 | Internal server error. | 500 |
+| 3101 | Invalid login. | 401 |
+
+#### Register
+
+`GET /v1/auth/register`
+
+Form Data (for both Users and Organizations): 
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `username` | string | Username of the account. |
+| `email` | string | Email of the account. |
+| `password` | string | Password of the account. |
+| `type` | string | Type of the account (organization, user) |
+
+User specific form data fields:
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `first_name` | string | First name of the user. |
+| `birthday` | string | Birthday of the user. |
+
+Organization specific form data fields:
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `is_nonprofit` | bool | Whether or not the organization is a non profit. |
+| `preferred_name` | string | Preferred name of the organization. |
+
+Returns (if successful):
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `token` | string | The authentication token for the account. |
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3200 | Invalid account type. | 500 |
+| 3201 | Username already taken. | 500 |
+| 3203 | Internal server error registering the account. | 500 |
+
+---
 
 ### Accounts
 
@@ -91,6 +160,17 @@ Not implemented
 
 Returns an array of `Experience`s.
 
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4001 | Internal server error. | 500 |
+| 4002 | User not found, is this the correct account type? | 404 |
+
 #### Get Organization's Opportunities
 
 `GET /v1/accounts/:id/opportunities`
@@ -119,6 +199,8 @@ Not implemented
 
 `GET /v1/connection-requests`
 
+---
+
 ### Experiences
 
 #### Get the current authenticated user's experiences
@@ -129,6 +211,18 @@ This query requires authentication.<br/>
 This query only applies to Users.
 
 Returns an array of `Experience`s.
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4000 | Incorrect account type, user account required. | 400 |
+| 4001 | Internal server error. | 500 |
+| 4002 | User not found, is this the correct account type? | 404 |
 
 #### Create an experience
 
@@ -151,6 +245,18 @@ Form Data:
 | `hours` | int | Amount of hours gained from the `experience` |
 
 Note: the `when` field is a json object storing the fields `begin` and `end`.
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4000 | Incorrect account type, user account required. | 400 |
+| 4001 | Internal server error. | 500 |
+| 4002 | Organization not found. | 404 |
 
 #### Replace (update) an experience
 
@@ -181,6 +287,18 @@ Extra Note: This will set the `is_verified` field to false.
 
 This query requires authentication.
 
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4000 | Incorrect account type, user account required. | 400 |
+| 4001 | Internal server error. | 500 |
+| 4002 | Experience not found with supplied ID. | 404 |
+
 #### Get validation requests
 
 `GET /v1/experiences/validations`
@@ -195,6 +313,16 @@ Returns an array of experience validations:
 | `user_id` | string | Username of the user that is requesting theexperience validation. |
 | `experience_id` | string | The id of the `Experience`. |
 
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4000 | Incorrect account type, organization account required. | 400 |
+
 #### Approve or don't approve validation
 
 `GET /v1/experiences/validations/:user/:id`
@@ -207,3 +335,17 @@ Form Data:
 | Field | Type | Description |
 |-------|:----:|-------------|
 | `approve` | bool | Whether or not to approve the validation. |
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 4000 | Incorrect account type, organization account required. | 400 |
+| 4001 | Internal server error. | 500 |
+| 4002 | Experience validation request not found. | 404 |
+| 4003 | User not found. | 400 |
+| 4004 | Experience not found in user object. | 400 |
