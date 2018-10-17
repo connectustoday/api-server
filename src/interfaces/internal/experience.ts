@@ -45,7 +45,7 @@ export const ExperienceSchema = new Schema({
     when: {type: {begin: String, end: String}},
     is_verified: {type: Boolean, required: true},
     created_at: {type: Number, required: true},
-    hours: {type:Number}
+    hours: {type: Number}
 });
 
 //ExperienceSchema.set('autoIndex', false);

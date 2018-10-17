@@ -94,7 +94,7 @@ export class ExperiencesUtil {
 
         // default experience object
 
-        let exp = this.getDefaultExperience(req.body.experience, id);
+        let exp = this.getDefaultExperience(req.body, id);
 
         req.account.experiences.push(exp); // add to user's experiences array
 
