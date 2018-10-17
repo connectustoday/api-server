@@ -18,11 +18,11 @@
  */
 
 import {AccountModel} from "../interfaces/internal/account";
+import {sendError} from "../routes/errors";
+import * as errors from "../routes/errors";
+import IAccountAPI from "../interfaces/api/account";
 
 export class AccountUtil {
-    public static getAccount(req, res) {
-        
-    }
 
     // verifies if the username does not exist in the database
     public static verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
@@ -30,5 +30,25 @@ export class AccountUtil {
             if (err) console.log(err);
             callback(count <= 0);
         });
+    }
+
+    // Account API Route Logic
+
+    public static getAccount(req, res) {
+        AccountModel.findOne({ username: req.params.id }, { password: 0 }, function (err, user) { //TODO switch to id
+            if (err) return sendError(res, 500, errors.internalServerError + " (Problem finding account)", 3002);
+            if (!user) return sendError(res, 404, errors.notFound + " (Account not found)", 3003);
+
+            try {
+                let acc = new IAccountAPI(user.username, user.email, user.avatar, user.header, user.created_at, user.type, user.posts.length, user.liked.length, user.shared.length);
+                res.status(200).send(acc);
+            } catch (error) {
+                //TODO ERROR
+            }
+        });
+    }
+
+    public static getAccountProfile(req: any, res: any) {
+
     }
 }
