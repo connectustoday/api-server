@@ -10,8 +10,9 @@ $ npm install
 $ npm run grunt
 $ npm start
 ```
+
 ## Running (Production)
-Todo.
+It is recommended to use our docker image.
 
 ## API Documentation
 Please see our documentation [here](https://connectustoday.github.io/api-server/).
