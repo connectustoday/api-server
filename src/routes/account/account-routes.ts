@@ -20,6 +20,7 @@
 import * as errors from "../errors";
 import express = require("express");
 import {ExperiencesUtil} from "../../experiences/experiences-util";
+import {AccountUtil} from "../../account/account-util";
 
 // REST API layout inspired by the mastodon API
 
@@ -37,13 +38,10 @@ export class AccountRoutes {
 
         // Fetch an Account's basic information (Global)
 
-        app.get(prefix + "/:id", (req, res) => {
+        app.get(prefix + "/:id", (req, res) => AccountUtil.getAccount(req, res));
 
-        });
-
-        app.get(prefix + "/:id/profile", (req, res) => {
-
-        });
+        // Get the profile of a user
+        app.get(prefix + "/:id/profile", (req, res) => AccountUtil.getAccountProfile(req, res));
 
         app.get(prefix + "/:id/connections", (req, res) => {
 

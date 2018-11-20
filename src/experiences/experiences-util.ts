@@ -94,21 +94,21 @@ export class ExperiencesUtil {
 
         // default experience object
 
-        let exp = this.getDefaultExperience(req.body.experience, id);
+        let exp = this.getDefaultExperience(req.body, id);
 
         req.account.experiences.push(exp); // add to user's experiences array
 
         // verifications for data
 
-        if (req.body.experience.opportunity != undefined && req.body.experience.opportunity != "") {
+        if (req.body.opportunity != undefined && req.body.opportunity != "") {
             // TODO OPPORTUNITY
         }
 
-        if (req.body.experience.organization != undefined && req.body.experience.organization != "") { // check if there is an associated organization on the site (for validations)
+        if (req.body.organization != undefined && req.body.organization != "") { // check if there is an associated organization on the site (for validations)
             // add experience to organization pending validations list
             // TODO NOTIFICATION ON PENDING VALIDATION
             // TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
-            AccountModel.findOne({username: req.body.experience.organization, type: "Organization"}, function (err, org: IOrganization) {
+            AccountModel.findOne({username: req.body.organization, type: "Organization"}, function (err, org: IOrganization) {
                 if (err) {
                     failed = true;
                     if (servers.DEBUG) console.error(err);
