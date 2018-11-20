@@ -1,10 +1,7 @@
 # ConnectUS Backend API Server
 
-This is the web application for ConnectUS. It is written in TypeScript for NodeJS.
-
-## Running (Dev)
+## Running (Development)
 The server software has only been tested on GNU/Linux.
-
 
 ```bash
 $ git clone https://github.com/connectustoday/api-server.git

@@ -1,0 +1,65 @@
+/*
+ *
+ *     Copyright (C) 2018 ConnectUS
+ *
+ *     This program is free software: you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation, either version 3 of the License, or
+ *     (at your option) any later version.
+ *
+ *     This program is distributed in the hope that it will be useful,
+ *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *     GNU General Public License for more details.
+ *
+ *     You should have received a copy of the GNU General Public License
+ *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
+import * as nodemailer from 'nodemailer';
+import * as servers from "../server";
+
+export class Mailer {
+
+    public static mailer: Mailer;
+    // Use SMTP for now
+
+    public transporter;
+    public sender: string; // email to send from
+
+    constructor(username: string, password: string, host: string, port: number, sender: string) {
+        this.transporter = nodemailer.createTransport({
+            pool: true,
+            host: host,
+            port: port,
+            secure: true,
+            auth: {
+                user: username,
+                pass: password
+            }
+        });
+        this.transporter.verify ((err, success) => {
+           if (err) {
+               return console.error(err);
+           }
+           console.log("Verified SMTP configuration!");
+        });
+    }
+
+    public async sendMail(recipient: string, subject: string, text: string, html: string) {
+        let mail = {
+            from: this.sender,
+            to: recipient,
+            subject: subject,
+            text: text,
+            html: html
+        };
+        let err = await this.transporter.sendMail(mail);
+        if (err) {
+            return console.error(err);
+        }
+        if (servers.DEBUG) console.log("Sent mail " + mail);
+    }
+
+}

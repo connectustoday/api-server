@@ -21,6 +21,7 @@
 
 import app from "./app";
 import * as adapter from "./mongo/adapter";
+import {Mailer} from "./mail/mailer";
 
 function getArg(env: string, def: string): string {
     return (env == null) || (env == undefined) ? def : env;
@@ -34,11 +35,18 @@ export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
     DB_NAME: string = getArg(process.env.DB_NAME, "database"),
     SECRET: string = getArg(process.env.SECRET, "defaultsecret"),
     TOKEN_EXPIRY: number = parseInt(getArg(process.env.TOKEN_EXPIRY, "86400"), 10),
+    // Mail Options
+    MAIL_USERNAME: string = getArg(process.env.MAIL_USERNAME, "user"),
+    MAIL_PASSWORD: string = getArg(process.env.MAIL_PASSWORD, "pass"),
+    MAIL_SENDER: string = getArg(process.env.MAIL_SENDER, "user@host.com"),
+    SMTP_HOST: string = getArg(process.env.SMTP_HOST, "host.com"),
+    SMTP_PORT: number = parseInt(getArg(process.env.SMTP_PORT, "587"), 10),
     DEBUG: boolean = JSON.parse(getArg(process.env.DEBUG, "false"));
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 
 adapter.connectDB();  // MongoDB connection
+Mailer.mailer = new Mailer(); // Initialize mailer
 
 app.listen(parseInt(PORT, 10), () => {
     console.log("ConnectUS API Server listening on port " + PORT);

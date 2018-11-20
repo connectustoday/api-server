@@ -22,6 +22,7 @@ import * as express from "express";
 import * as bodyParser from "body-parser";
 import { Routes } from "./routes/routes";
 import { AuthRoutes } from "./routes/auth/auth-routes";
+import {Mailer} from "./mail/mailer";
 
 class App {
 
@@ -32,7 +33,8 @@ class App {
         this.app = express();
         this.config();
 
-        Routes.routes(this.app);
+        Routes.routes(this.app); // Initialize routes
+
     }
 
     private config(): void {
