@@ -119,6 +119,13 @@ Error Codes:
 | 3200 | Invalid account type. | 500 |
 | 3201 | Username already taken. | 500 |
 | 3203 | Internal server error registering the account. | 500 |
+| 3204 | Internal server error sending the verification email. | 500 |
+
+#### Verify Email
+
+`POST /v1/auth/verify-email/:token`
+
+Note: This endpoint does not need to be implemented by your client, since it is called directly when user's attempt to verify their email addresses.
 
 ---
 
