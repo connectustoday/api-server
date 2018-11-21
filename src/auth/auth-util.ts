@@ -59,6 +59,7 @@ export class AuthUtil {
             AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
                 if (err) return sendError(res, 500, errors.internalServerError + " (Problem finding account)", 3002);
                 if (!user) return sendError(res, 404, errors.notFound + " (Account not found)", 3003);
+                if (!user.is_email_verified) return sendError(res, 401, errors.unauthorized + " (Email not verified.)", 3004);
 
                 req.account = user;
                 req.decodedToken = decoded;

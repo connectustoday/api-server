@@ -33,6 +33,8 @@ export function login(req, res) {
             return sendError(res, 401, "Invalid login.", 3101);
         }
 
+        if (!user.is_email_verified) return sendError(res, 401, errors.unauthorized + " (Email not verified.)", 3102);
+
         let token = jwt.sign({ username: user.username }, server.SECRET, {
             expiresIn: server.TOKEN_EXPIRY
         });
