@@ -57,7 +57,8 @@ export class Mailer {
         };
         let err = await this.transporter.sendMail(mail);
         if (err) {
-            return console.log(err);
+            console.log(err);
+            return err;
         }
         if (servers.DEBUG) console.log("Sent mail " + mail);
     }

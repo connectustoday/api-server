@@ -41,6 +41,7 @@ export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
     MAIL_SENDER: string = getArg(process.env.MAIL_SENDER, "user@host.com"),
     SMTP_HOST: string = getArg(process.env.SMTP_HOST, "host.com"),
     SMTP_PORT: number = parseInt(getArg(process.env.SMTP_PORT, "587"), 10),
+    API_DOMAIN: string = getArg(process.env.DOMAIN, "localhost:3000"),
     DEBUG: boolean = JSON.parse(getArg(process.env.DEBUG, "false"));
 
 const PORT: string = getArg(process.env.API_PORT, "3000");

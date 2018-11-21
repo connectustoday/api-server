@@ -69,5 +69,9 @@ export class AuthRoutes {
         */
 
         app.post(prefix + "/login", (req, res) => login.login(req, res));
+
+        // Verify email using jsonwebtoken
+
+        app.get(prefix + "/verify-email/:id", (req, res) => register.verifyEmailRequest(req, res))
     }
 }

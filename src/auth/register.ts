@@ -25,6 +25,7 @@ import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
 import {sendError} from "../routes/errors";
+import {Mailer} from "../mail/mailer";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
@@ -74,12 +75,7 @@ export function registerUserRequest(req, res) {
                 return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
             }
 
-            //console.log(user);
-            // @ts-ignore
-            let token = jwt.sign({username: user.username}, server.SECRET, {
-                expiresIn: server.TOKEN_EXPIRY //TODO token expiry
-            });
-            res.status(200).send({token: token});
+            sendVerificationEmail(req.body.username, req.body.email, res) // code 200 sent in the verification mail
         });
 
     });
@@ -122,11 +118,26 @@ export function registerOrganizationRequest(req, res) {
                 return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
             }
 
-            // @ts-ignore
-            let token = jwt.sign({username: user.username}, server.SECRET, {
-                expiresIn: server.TOKEN_EXPIRY //TODO token expiry
-            });
-            res.status(200).send({token: token});
+            sendVerificationEmail(req.body.username, req.body.email, res) // code 200 sent in the verification mail
         });
     });
+}
+
+// @ts-ignore
+async function sendVerificationEmail(username: string, email: string, res): Promise<void> {
+    let token = jwt.sign({ username: username }, server.SECRET, {
+        expiresIn: 172800
+    });
+    let verifyLink: string = server.API_DOMAIN + "/v1/auth/verify-email/" + token;
+    let err = await Mailer.mailer.sendMail(email, "ConnectUS Account Signup Verification Code", "Thanks for signing up! To finish the setup process, please visit " + verifyLink + ".",
+        "<strong>Thank you for signing up for ConnectUS!</strong> </br> In order to activate your account, please visit the link below: </br><a href='" + verifyLink + "'>" + verifyLink + "</a>")
+    if (err) {
+        console.log("Problem sending mail: " + err);
+        return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email.)", 3204);
+    }
+    res.status(200).send();
+}
+
+export async function verifyEmailRequest(req, res) {
+    //TODO
 }
