@@ -33,7 +33,7 @@ export class Mailer {
             pool: true,
             host: host,
             port: port,
-            secure: true,
+            secure: false,
             auth: {
                 user: username,
                 pass: password
@@ -41,7 +41,7 @@ export class Mailer {
         });
         this.transporter.verify ((err, success) => {
            if (err) {
-               return console.error(err);
+               return console.log(err);
            }
            console.log("Verified SMTP configuration!");
         });
@@ -57,7 +57,7 @@ export class Mailer {
         };
         let err = await this.transporter.sendMail(mail);
         if (err) {
-            return console.error(err);
+            return console.log(err);
         }
         if (servers.DEBUG) console.log("Sent mail " + mail);
     }

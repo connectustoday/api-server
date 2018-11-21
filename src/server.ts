@@ -47,6 +47,7 @@ const PORT: string = getArg(process.env.API_PORT, "3000");
 
 adapter.connectDB();  // MongoDB connection
 Mailer.mailer = new Mailer(MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST, SMTP_PORT, MAIL_SENDER); // Initialize mailer
+Mailer.mailer.sendMail("devinhanlin@gmail.com", "This is a test mail", "This is plain text", "<strong> This is strong html text.</strong>");
 
 app.listen(parseInt(PORT, 10), () => {
     console.log("ConnectUS API Server listening on port " + PORT);
