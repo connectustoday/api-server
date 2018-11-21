@@ -79,6 +79,7 @@ Error Codes:
 |-------------------|---------------|------------------|
 | 3100 | Internal server error. | 500 |
 | 3101 | Invalid login. | 401 |
+| 3102 | Email not verified. | 401 |
 
 #### Register
 
@@ -109,9 +110,7 @@ Organization specific form data fields:
 
 Returns (if successful):
 
-| Field | Type | Description |
-|-------|:----:|-------------|
-| `token` | string | The authentication token for the account. |
+HTTP Code 200 (successful).
 
 Error Codes:
 
@@ -169,6 +168,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4001 | Internal server error. | 500 |
 | 4002 | User not found, is this the correct account type? | 404 |
 
@@ -221,6 +221,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | User not found, is this the correct account type? | 404 |
@@ -255,6 +256,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Organization not found. | 404 |
@@ -296,6 +298,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Experience not found with supplied ID. | 404 |
@@ -322,6 +325,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4000 | Incorrect account type, organization account required. | 400 |
 
 #### Approve or don't approve validation
@@ -345,6 +349,7 @@ Error Codes:
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
 | 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
 | 4000 | Incorrect account type, organization account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Experience validation request not found. | 404 |
