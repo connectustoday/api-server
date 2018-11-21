@@ -35,5 +35,6 @@ EXPOSE ${PORT}
 COPY . /usr/src/server
 WORKDIR /usr/src/server
 
+RUN npm install
 RUN npm run grunt
 CMD npm start
