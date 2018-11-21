@@ -1,4 +1,4 @@
-FROM node:latest-alpine
+FROM node:10.13.0-alpine
 
 MAINTAINER EstiNet
 
