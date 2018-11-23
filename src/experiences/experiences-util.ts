@@ -28,7 +28,7 @@ import * as mongoose from "mongoose";
 import IUser from "../interfaces/internal/user";
 import IExperienceAPI from "../interfaces/api/experience";
 import IAddressAPI from "../interfaces/api/address";
-import IValidationsAPI from "../interfaces/api/organization";
+import IValidationsAPI from "../interfaces/api/validations";
 import {sendError} from "../routes/errors";
 
 export class ExperiencesUtil {
