@@ -72,6 +72,6 @@ export class AuthRoutes {
 
         // Verify email using jsonwebtoken
 
-        app.get(prefix + "/verify-email/:id", (req, res) => register.verifyEmailRequest(req, res))
+        app.get(prefix + "/verify-email/:token", (req, res) => register.verifyEmailRequest(req, res))
     }
 }

@@ -25,8 +25,8 @@ import IAccountAPI from "../interfaces/api/account";
 export class AccountUtil {
 
     // verifies if the username does not exist in the database
-    public static verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
-        AccountModel.count({username: username}, function (err, count) {
+    public static async verifyUniqueUsername(username: string, callback) { //TODO CASE INSENSITIVE
+        return AccountModel.count({username: username}, function (err, count) {
             if (err) console.log(err);
             callback(count <= 0);
         });

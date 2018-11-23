@@ -29,7 +29,7 @@ export class Routes {
     public static authRoutes: AuthRoutes = new AuthRoutes();
 
     static routes(app: express.Application): void {
-        app.get("/", (req, res) => res.send("ConnectUS Backend API Server - Working!")); // Default (root) route.
+        app.get("/", (req, res) => res.status(200).send()); // Default (root) route.
 
         // TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 

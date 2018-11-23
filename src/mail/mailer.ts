@@ -47,6 +47,7 @@ export class Mailer {
         });
     }
 
+    // @ts-ignore
     public async sendMail(recipient: string, subject: string, text: string, html: string) {
         let mail = {
             from: this.sender,
@@ -55,12 +56,13 @@ export class Mailer {
             text: text,
             html: html
         };
-        let err = await this.transporter.sendMail(mail);
-        if (err) {
-            console.log(err);
-            return err;
+        try {
+            await this.transporter.sendMail(mail);
+        } catch (err) {
+            throw err;
         }
-        if (servers.DEBUG) console.log("Sent mail " + mail);
+        if (servers.DEBUG) console.log("Sent mail " + mail.subject);
+        return;
     }
 
 }

@@ -37,10 +37,11 @@ export function registerRequest(req, res) {
     }
 }
 
-export function registerUserRequest(req, res) {
+// @ts-ignore
+export async function registerUserRequest(req, res): Promise<void> {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-    AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
+    AccountUtil.verifyUniqueUsername(req.body.username, async function (isUnique: boolean) {
         if (!isUnique) return sendError(res, 500, errors.internalServerError + " (Username taken)", 3201);
 
         const defUser = new UserModel({ // Default user
@@ -69,22 +70,28 @@ export function registerUserRequest(req, res) {
             }
         });
 
-        defUser.save(function (err, user) {
-            if (err) {
-                if (server.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
-            }
+        try {
+            await sendVerificationEmail(req.body.username, req.body.email, res);
+        } catch (err) {
+            console.error("Problem sending mail: " + err);
+            return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204);
+        }
 
-            sendVerificationEmail(req.body.username, req.body.email, res) // code 200 sent in the verification mail
-        });
-
+        try {
+            await defUser.save();
+        } catch (err) {
+            if (server.DEBUG) console.error(err);
+            return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
+        }
+        res.status(200).send();
     });
 }
 
-export function registerOrganizationRequest(req, res) {
+// @ts-ignore
+export async function registerOrganizationRequest(req, res): Promise<void> {
     let hashedPassword = bcrypt.hashSync(req.body.password, 8);
 
-    AccountUtil.verifyUniqueUsername(req.body.username, function (isUnique: boolean) {
+    AccountUtil.verifyUniqueUsername(req.body.username, async function (isUnique: boolean) {
         if (!isUnique) return sendError(res, 500, errors.internalServerError + " (Username taken)", 3201);
 
         const defOrganization = new OrganizationModel({ // Default organization
@@ -112,32 +119,41 @@ export function registerOrganizationRequest(req, res) {
             }
         });
 
-        defOrganization.save(function (err, user) {
-            if (err) {
-                if (server.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
-            }
+        try {
+            await sendVerificationEmail(req.body.username, req.body.email, res);
+        } catch (err) {
+            console.error("Problem sending mail: " + err);
+            return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204);
+        }
 
-            sendVerificationEmail(req.body.username, req.body.email, res) // code 200 sent in the verification mail
-        });
+        try {
+            await defOrganization.save();
+        } catch (err) {
+            if (server.DEBUG) console.error(err);
+            return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
+        }
+        res.status(200).send();
     });
 }
 
 // @ts-ignore
-async function sendVerificationEmail(username: string, email: string, res): Promise<void> {
+async function sendVerificationEmail(username: string, email: string, res) {
     let token = jwt.sign({ username: username }, server.SECRET, {
-        expiresIn: 172800
+        expiresIn: 172800 // 2 days
     });
     let verifyLink: string = server.API_DOMAIN + "/v1/auth/verify-email/" + token;
-    let err = await Mailer.mailer.sendMail(email, "ConnectUS Account Signup Verification Code", "Thanks for signing up! To finish the setup process, please visit " + verifyLink + ".",
-        "<strong>Thank you for signing up for ConnectUS!</strong> </br> In order to activate your account, please visit the link below: </br><a href='" + verifyLink + "'>" + verifyLink + "</a>")
-    if (err) {
-        console.log("Problem sending mail: " + err);
-        return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email.)", 3204);
+    try {
+        await Mailer.mailer.sendMail(email, "ConnectUS Account Signup Verification Code", "Thanks for signing up! To finish the setup process, please visit " + verifyLink + ".",
+            "<strong>Thank you for signing up for ConnectUS!</strong> </br> In order to activate your account, please visit the link below: </br><a href='" + verifyLink + "'>" + verifyLink + "</a>")
+    } catch (err) {
+        throw err;
     }
-    res.status(200).send();
+    return;
 }
 
 export async function verifyEmailRequest(req, res) {
+    jwt.verify(req.params.token, server.SECRET, function (err, decoded) {
+        if (err) res.status(500).send("Failed to verify token. Please contact support");
+    });
     //TODO
 }
