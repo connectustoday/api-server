@@ -26,6 +26,7 @@ import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
 import {sendError} from "../routes/errors";
 import {Mailer} from "../mail/mailer";
+import {AccountModel} from "../interfaces/internal/account";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
@@ -71,7 +72,7 @@ export async function registerUserRequest(req, res): Promise<void> {
         });
 
         try {
-            await sendVerificationEmail(req.body.username, req.body.email, res);
+            await sendVerificationEmail(req.body.username, req.body.email);
         } catch (err) {
             console.error("Problem sending mail: " + err);
             return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204);
@@ -120,7 +121,7 @@ export async function registerOrganizationRequest(req, res): Promise<void> {
         });
 
         try {
-            await sendVerificationEmail(req.body.username, req.body.email, res);
+            await sendVerificationEmail(req.body.username, req.body.email);
         } catch (err) {
             console.error("Problem sending mail: " + err);
             return sendError(res, 500, errors.internalServerError + " (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204);
@@ -137,7 +138,7 @@ export async function registerOrganizationRequest(req, res): Promise<void> {
 }
 
 // @ts-ignore
-async function sendVerificationEmail(username: string, email: string, res) {
+async function sendVerificationEmail(username: string, email: string) {
     let token = jwt.sign({ username: username }, server.SECRET, {
         expiresIn: 172800 // 2 days
     });
@@ -152,8 +153,23 @@ async function sendVerificationEmail(username: string, email: string, res) {
 }
 
 export async function verifyEmailRequest(req, res) {
+    res.set('Content-Type', 'text/html');
     jwt.verify(req.params.token, server.SECRET, function (err, decoded) {
-        if (err) res.status(500).send("Failed to verify token. Please contact support");
+        if (err) return res.status(404).send("Invalid verification link. Perhaps it's expired?");
+        AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
+            if (err) {
+                if (server.DEBUG) console.error(err);
+                return res.status(500).send("Internal server error. Problem finding account.");
+            }
+            if (!user) return res.status(500).send("Account not found. Please try registering again.");
+            user.is_email_verified = true;
+            user.save(function (err) {
+                if (err) {
+                    if (server.DEBUG) console.error(err);
+                    return res.status(500).send("Internal server error.");
+                }
+                return res.status(200).send("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + server.SITE_DOMAIN + "/auth/login.php')}, 2000)</script>")
+            });
+        });
     });
-    //TODO
 }
