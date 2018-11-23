@@ -16,6 +16,10 @@ https://github.com/expressjs/multer
 ## Error Handling
 
 When checking for errors, check if the `error` field in the JSON object exists. If there is an error, the JSON object will not have any other fields. Otherwise, the server will return with code `200` if the query was successful.
+</br>
+error.code = error code
+</br>
+error.message = description of error
 
 ## Resource Types
 
@@ -32,11 +36,12 @@ When checking for errors, check if the `error` field in the JSON object exists. 
 | `location` | `Address` | Location that the event had taken place. |
 | `id` | string | ID of the `Experience`. The IDs are specific to the user. |
 | `name` | string | The name of the `Experience`. |
-| `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site. |
+| `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site, or the email if it is using email verification. |
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when` | 2 strings (array of 2) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
-| `is_verified` | bool | Whether  or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
+| `is_verified` | bool | Whether or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
+| `email_bound` | bool | Whether or not the experience is using email verification instead of account verification for the organization. |
 | `created_at` | number | Timestamp of when the `Experience` was created. |
 | `hours` | number | Number of hours gained from the `Experience`. |
 
@@ -246,12 +251,13 @@ Form Data:
 |-------|:----:|-------------|
 | `location` | `Address` | Location that the event had taken place. |
 | `name` | string | The name of the `Experience`. |
-| `organization` | string | `Organization` username if the experience is being tied to an `Organization` on the site. |
+| `organization` | string | `Organization` username if the experience is being tied to an `Organization` on the site, or email if it is being tied to an email verification. |
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when.begin` | string | When the `Experience` started (ex. Sept. 2015) |
 | `when.end` | string | When the `Experience ended (ex. Aug. 2016) |
 | `hours` | int | Amount of hours gained from the `experience` |
+| `email_verify` | bool | Whether or not the experience is being bound to email. |
 
 Note: the `when` field is a json object storing the fields `begin` and `end`.
 

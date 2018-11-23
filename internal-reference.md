@@ -175,7 +175,8 @@ specific opportunity. `Experience`s are stored under the corresponding user’s 
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when` | 2 strings (tuple) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
-| `is_verified` | bool | Whether  or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
+| `is_verified` | bool | Whether or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
+| `email_bound` | bool | Whether or not this experience is being verified by email (instead of account). |
 | `created_at` | int64 | Timestamp of when the `Experience` was created. |
 
 ### Notification
