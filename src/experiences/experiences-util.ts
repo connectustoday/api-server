@@ -106,7 +106,7 @@ export class ExperiencesUtil {
         }
 
         if (req.body.organization != undefined && req.body.organization != "") { // check if there is an associated organization on the site (for validations)
-            // add experience to organization pending validations list
+            // add experience to organization pending validations list TODO IN PROGRESS RIGHT NOW AAAAAAAA DO IGNORE EMAIL BOUND CHECKING
             // TODO NOTIFICATION ON PENDING VALIDATION
             // TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
             AccountModel.findOne({username: req.body.organization, type: "Organization"}, function (err, org: IOrganization) {
@@ -171,7 +171,7 @@ export class ExperiencesUtil {
         if (experience.opportunity != undefined && experience.opportunity != "") {
             //TODO OPPORTUNITY
         }
-        if (experience.organization != undefined && experience.organization != "") { // remove pending requests for experience
+        if (experience.organization != undefined && experience.organization != "" && !experience.email_bound) { // remove pending requests for experience
             AccountModel.findOne({username: experience.organization, type: "Organization"}, function (err, org: IOrganization) {
                 if (err) {
                     if (servers.DEBUG) console.error(err);
