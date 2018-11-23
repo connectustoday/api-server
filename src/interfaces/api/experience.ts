@@ -29,9 +29,10 @@ export default class IExperienceAPI {
     description: string;
     when: [string, string];
     is_verified: boolean;
+    email_verify: boolean;
     created_at: number;
     hours: number;
-    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, created_at: number, hours: number) {
+    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, email_verify: boolean, created_at: number, hours: number) {
         this.location = location;
         this.id = id;
         this.name = name;
@@ -40,6 +41,7 @@ export default class IExperienceAPI {
         this.description = description;
         this.when = when;
         this.is_verified = is_verified;
+        this.email_verify = email_verify;
         this.created_at = created_at;
         this.hours = hours;
     }

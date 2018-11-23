@@ -152,6 +152,7 @@ async function sendVerificationEmail(username: string, email: string) {
     return;
 }
 
+// @ts-ignore
 export async function verifyEmailRequest(req, res) {
     res.set('Content-Type', 'text/html');
     jwt.verify(req.params.token, server.SECRET, function (err, decoded) {

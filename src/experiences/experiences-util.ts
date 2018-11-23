@@ -56,7 +56,7 @@ export class ExperiencesUtil {
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
-                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.created_at, element.hours));
+                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_bound, element.created_at, element.hours));
             });
             res.status(200).send(object);
         });
@@ -77,6 +77,7 @@ export class ExperiencesUtil {
             },
             hours: experience.hours,
             is_verified: false,
+            email_bound: experience.email_verify,
             created_at: (new Date).getTime()
         });
     }
@@ -259,7 +260,9 @@ export class ExperiencesUtil {
                     found = true;
                 }
             }
+
             if (!found) return sendError(res, 400, errors.internalServerError + " (Experience not found in user object)", 4004);
+
             await user.save(); // save user object
             res.status(200).send({message: errors.ok});
         } catch (err) {
