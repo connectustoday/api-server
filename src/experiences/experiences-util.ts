@@ -103,31 +103,36 @@ export class ExperiencesUtil {
             // TODO OPPORTUNITY
         }
 
-        if (req.body.organization != undefined && req.body.organization != "") { // check if there is an associated organization on the site (for validations)
+        if (req.body.organization != undefined && req.body.organization != "") {
+            if (req.body.email_verify) { // send email request to associated organization on site (for validations)
 
-            // add experience to organization pending validations list TODO WORK ON THIS EMAIL VERIFY
-            // TODO NOTIFICATION ON PENDING VALIDATION
-            // TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
+            } else { // check if there is an associated organization on the site (for validations)
 
-            let org: IOrganization;
-            try {
-                // @ts-ignore
-                org = await AccountModel.findOne({username: req.body.organization, type: "Organization"});// TODO CASE INSENSITIVE LOOKUPS
-            } catch (err) {
-                if (servers.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError, 4001);
-            }
-            if (!org) {
-                return sendError(res, 404, errors.badRequest + " (Organization not found.)", 4002);
-            }
+                // add experience to organization pending validations list
+                // TODO NOTIFICATION ON PENDING VALIDATION
+                // TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
 
-            org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
+                let org: IOrganization;
+                try {
+                    // @ts-ignore
+                    org = await AccountModel.findOne({username: req.body.organization, type: "Organization"});// TODO CASE INSENSITIVE LOOKUPS
+                } catch (err) {
+                    if (servers.DEBUG) console.error(err);
+                    return sendError(res, 500, errors.internalServerError, 4001);
+                }
+                if (!org) {
+                    return sendError(res, 404, errors.badRequest + " (Organization not found.)", 4002);
+                }
 
-            try {
-                await org.save(); // save to db
-            } catch (err) {
-                if (servers.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError, 4001);
+                org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
+
+                try {
+                    await org.save(); // save to db
+                } catch (err) {
+                    if (servers.DEBUG) console.error(err);
+                    return sendError(res, 500, errors.internalServerError, 4001);
+                }
+
             }
         }
         // finish adding experience to database

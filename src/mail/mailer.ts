@@ -19,6 +19,7 @@
 
 import * as nodemailer from 'nodemailer';
 import * as servers from "../server";
+import * as fs from "fs";
 
 export class Mailer {
 
@@ -63,6 +64,15 @@ export class Mailer {
         }
         if (servers.DEBUG) console.log("Sent mail " + mail.subject);
         return;
+    }
+
+    // @ts-ignore
+    public static async getMailTemplate(replace: Array<[string, string]>, template: string): string {
+        let string = fs.readFileSync(__dirname + '/src/mail/templates/' + template + '.html', 'utf8');
+        for (let i = 0; i < replace.length; i++) {
+            string.replace("${" + replace[i][0] + "}", replace[i][1]);
+        }
+        return string;
     }
 
 }
