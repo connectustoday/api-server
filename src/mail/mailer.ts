@@ -18,9 +18,11 @@
  */
 
 import * as nodemailer from 'nodemailer';
+import * as hbs from 'nodemailer-express-handlebars';
 import * as servers from "../server";
 import * as fs from "fs";
 import * as sanitizeHTML from 'sanitize-html';
+import * as path from "path";
 
 export class Mailer {
 
@@ -47,10 +49,15 @@ export class Mailer {
            }
            console.log("Verified SMTP configuration!");
         });
+        this.transporter.use('compile', hbs({
+            viewEngine: 'handlebars',
+            viewPath: path.resolve('./templates'),
+            extName: '.html'
+        }));
     }
 
     // @ts-ignore
-    public async sendMail(recipient: string, subject: string, text: string, html: string) {
+    public async sendSimpleMail(recipient: string, subject: string, text: string, html: string) {
         let mail = {
             from: this.sender,
             to: recipient,
@@ -64,10 +71,28 @@ export class Mailer {
             throw err;
         }
         if (servers.DEBUG) console.log("Sent mail " + mail.subject);
-        return;
     }
 
     // @ts-ignore
+    public async sendMail(recipient: string, subject: string, text: string, templateName: string, context) {
+        let mail = {
+            from: this.sender,
+            to: recipient,
+            subject: subject,
+            text: text,
+            template: templateName,
+            context: context
+        };
+        try {
+            await this.transporter.sendMail(mail);
+        } catch (err) {
+            throw err;
+        }
+        if (servers.DEBUG) console.log("Sent mail " + mail.subject);
+    }
+
+    // @ts-ignore
+    // NOT USED
     // Retrieve mail template from folder and return it, while replacing the variables and sanitizing the data.
     public static getMailTemplate(replace: Array<[string, string]>, template: string): string {
         let string = fs.readFileSync(__dirname + '/templates/' + template + '.html', 'utf8');

@@ -83,10 +83,9 @@ export class ExperiencesUtil {
         });
     }
 
-    public static updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
-        this.deleteExperience(req, res, false, () => {
-            if (!res.headersSent) this.createExperience(req, res, req.params.id, true);
-        });
+    public static async updateExperience(req, res) { //TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
+        await this.deleteExperience(req, res, false);
+        if (!res.headersSent) await this.createExperience(req, res, req.params.id, true);
     }
 
     public static async createExperience(req, res, id, save: boolean) {
@@ -112,14 +111,21 @@ export class ExperiencesUtil {
                 });
                 let verifyLink = servers.API_DOMAIN + "/v1/experiences/email_approve/" + exp.emailjwt; // generate verification link with code
 
-                let options: Array<[string, string]> = [["verifyLink", verifyLink], ["website", servers.SITE_DOMAIN], ["email", req.account.email], ["userName", req.account.username],
-                ["fullName", req.account.first_name + " " + req.account.middle_name + " " + req.account.last_name], ["expName", exp.name], ["expHours", "" + exp.hours],
-                ["expStart", exp.when[0]], ["expEnd", exp.when[1]], ["expDesc", exp.description]];
-
                 try {
                     await Mailer.mailer.sendMail(req.body.organization, "Volunteer or Work Experience Validation Request",
                         "A user from ConnectUS is requesting validation for their experience! You can approve the submission here: " + verifyLink,
-                        Mailer.getMailTemplate(options, "validate_experience_without_account"));
+                        "validate_experience_without_account", {
+                            verifyLink: verifyLink,
+                            website: servers.SITE_DOMAIN,
+                            email: req.account.email,
+                            userName: req.account.username,
+                            fullName: (req.account.first_name ? req.account.first_name + " " : "") + (req.account.middle_name ? req.account.middle_name + " " : "") + (req.account.last_name ? req.account.last_name + " " : ""),
+                            expName: exp.name,
+                            expHours: exp.hours,
+                            expStart: exp.when[0],
+                            expEnd: exp.when[1],
+                            expDesc: exp.description
+                        });
                 } catch (err) {
                     if (servers.DEBUG) console.error(err);
                     return sendError(res, 500, errors.internalServerError + " (Issue sending mail)", 4003);
@@ -155,26 +161,26 @@ export class ExperiencesUtil {
             }
         }
         // finish adding experience to database
-        if (save) ExperiencesUtil.saveAccountMongo(req, res);
+        if (save) await ExperiencesUtil.saveAccountMongo(req, res);
     }
 
     /*
      * Save the account
      */
 
-    private static saveAccountMongo(req, res, call?) {
+    private static async saveAccountMongo(req, res, call?) {
         if (call) call();
-        req.account.save(function (err) {
-            if (err) {
-                if (servers.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError, 4001);
-            }
-            if (!res.headersSent) return res.status(200).send({message: errors.ok}); // send ok header if all is good
-        }); // save to db
+        try {
+            await req.account.save(); // save to db
+        } catch (err) {
+            if (servers.DEBUG) console.error(err);
+            return sendError(res, 500, errors.internalServerError, 4001);
+        }
+        if (!res.headersSent) return res.status(200).send({message: errors.ok}); // send ok header if all is good
     }
 
-    // TODO BUG IF ORGANIZATION IS REMOVED
-    public static deleteExperience(req, res, save: boolean, callback?) {
+    // TODO BUG IF ORGANIZATION IS REMOVED ALREADY
+    public static async deleteExperience(req, res, save: boolean) {
         if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
 
         let experience, index = -1;
@@ -194,44 +200,41 @@ export class ExperiencesUtil {
             //TODO OPPORTUNITY
         }
         if (experience.organization != undefined && experience.organization != "" && !experience.email_verify) { // remove pending requests for experience
-            AccountModel.findOne({username: experience.organization, type: "Organization"}, function (err, org: IOrganization) {
-                if (err) {
+            let org: IOrganization;
+
+            try {
+                // @ts-ignore
+                org = await AccountModel.findOne({username: experience.organization, type: "Organization"});
+            } catch (err) {
+                if (servers.DEBUG) console.error(err);
+                return sendError(res, 500, errors.internalServerError, 4001);
+            }
+
+            if (!org) {
+                if (save) return await ExperiencesUtil.saveAccountMongo(req, res, func);
+            }
+
+            let index = -1; // get index of experience validation request
+
+            for (let i = 0; i < org.experience_validations.length; i++) { // remove all entries with the same id and user (duplicates as well)
+                if (req.account.username == org.experience_validations[i].user_id && experience._id == org.experience_validations[i].experience_id) {
+                    index = i;
+                    org.experience_validations.splice(i, 1); // remove from array
+                    i--;
+                }
+            }
+
+            if (index > -1) { // if it exists
+                try {
+                    await org.save(); // save to db
+                } catch (err) {
                     if (servers.DEBUG) console.error(err);
                     return sendError(res, 500, errors.internalServerError, 4001);
                 }
-                if (!org) {
-                    if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
-                    if (callback) callback();
-                }
+            }
 
-                let index = -1; // get index of experience validation request
-
-                for (let i = 0; i < org.experience_validations.length; i++) { // remove all entries with the same id and user (duplicates as well)
-                    if (req.account.username == org.experience_validations[i].user_id && experience._id == org.experience_validations[i].experience_id) {
-                        index = i;
-                        org.experience_validations.splice(i, 1); // remove from array
-                        i--;
-                    }
-                }
-
-                if (index > -1) { // if it exists
-                    org.save(function (err) { // save to db
-                        if (err) {
-                            if (servers.DEBUG) console.error(err);
-                            return sendError(res, 500, errors.internalServerError, 4001);
-                        }
-                        if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
-                        if (callback) callback();
-                    }); // save to db
-                } else { // if it doesn't exist
-                    if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
-                    if (callback) callback();
-                }
-            });
-        } else {
-            if (save) ExperiencesUtil.saveAccountMongo(req, res, func);
-            if (callback) callback();
         }
+        if (save) return await ExperiencesUtil.saveAccountMongo(req, res, func);
     }
 
     public static getExperienceValidations(req, res) {

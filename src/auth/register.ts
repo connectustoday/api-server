@@ -145,7 +145,9 @@ async function sendVerificationEmail(username: string, email: string) {
     let verifyLink: string = server.API_DOMAIN + "/v1/auth/verify-email/" + token;
     try {
         await Mailer.mailer.sendMail(email, "ConnectUS Account Signup Verification Code", "Thanks for signing up! To finish the setup process, please visit " + verifyLink + ".",
-            Mailer.getMailTemplate([["verifyLink", verifyLink]], "register_verify"));
+            "register_verify", {
+                verifyLink: verifyLink
+            });
     } catch (err) {
         throw err;
     }

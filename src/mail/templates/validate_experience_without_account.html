@@ -1,31 +1,40 @@
-Hello,
-<br>
-A user on <a href="${website}">ConnectUS</a> has requested for a work/volunteer experience validation!
-<br>
-These are the details of the request:
-<br>
-<br>
-<br>
-<strong>Email:</strong> ${email}
-<br>
-<strong>UserName:</strong> ${userName}
-<br>
-<strong>Full Name:</strong> ${fullName}
-<br>
-<strong>Name of Experience:</strong> ${expName}
-<br>
-<strong>Hours:</strong> ${expHours}
-<br>
-<strong>When it occurred:</strong> ${expStart} - ${expEnd}
-<br>
-<strong>Description:</strong>
-<br>
-${expDesc}
-<br>
-<hr>
-If you would like to approve this request, you can click the button below. Otherwise, you can safely disregard this email.
-<br>
-<a href="${verifyLink}" style="padding: 10px 15px 10px 15px; text-decoration: none; box-shadow: 0 6px 20px 0 rgba(255, 248, 225, 0.5); background: #c5e1a5; background: -webkit-linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%); background: linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%);">Approve</a>
-<br>
-Thank you!
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+    Hello,
+    <br>
+    A user on <a href="{{website}}">ConnectUS</a> has requested for a work/volunteer experience validation!
+    <br>
+    These are the details of the request:
+    <br>
+    <br>
+    <br>
+    <strong>Email:</strong> {{email}}
+    <br>
+    <strong>Username:</strong> {{userName}
+    <br>
+    <strong>Full Name:</strong> {{fullName}}
+    <br>
+    <strong>Name of Experience:</strong> {{expName}}
+    <br>
+    <strong>Hours:</strong> {{expHours}}
+    <br>
+    <strong>When it occurred:</strong> {{expStart}} - {{expEnd}
+    <br>
+    <strong>Description:</strong>
+    <br>
+    {{expDesc}}
+    <br>
+    <hr>
+    If you would like to approve this request, you can click the button below. Otherwise, you can safely disregard this email.
+    <br><br>
+    <a href="{{verifyLink}}"
+    style="padding: 10px 15px 10px 15px; text-decoration: none; color: white; box-shadow: 0 6px 20px 0 rgba(255, 248, 225, 0.5); background: #c5e1a5; background: -webkit-linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%); background: linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%);">Approve</a>
+    <br><br>
+    Thank you!
+</body>
+</html>
 
