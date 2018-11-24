@@ -20,6 +20,7 @@
 import * as nodemailer from 'nodemailer';
 import * as servers from "../server";
 import * as fs from "fs";
+import * as sanitizeHTML from 'sanitize-html';
 
 export class Mailer {
 
@@ -67,10 +68,14 @@ export class Mailer {
     }
 
     // @ts-ignore
+    // Retrieve mail template from folder and return it, while replacing the variables and sanitizing the data.
     public static async getMailTemplate(replace: Array<[string, string]>, template: string): string {
         let string = fs.readFileSync(__dirname + '/src/mail/templates/' + template + '.html', 'utf8');
         for (let i = 0; i < replace.length; i++) {
-            string.replace("${" + replace[i][0] + "}", replace[i][1]);
+            string.replace("${" + replace[i][0] + "}", sanitizeHTML(replace[i][1], {
+                allowedTags: [],
+                allowedAttributes: {}
+            }));
         }
         return string;
     }

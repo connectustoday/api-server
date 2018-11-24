@@ -45,6 +45,7 @@
     "passport-local": "^1.0.0",
     "passport-local-mongoose": "^5.0.1",
     "reflect-metadata": "^0.1.12",
+    "sanitize-html": "^1.19.1",
     "tslint": "^5.11.0",
     "typings": "^2.1.1"
   }

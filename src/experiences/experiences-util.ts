@@ -24,12 +24,13 @@ import * as servers from "../server";
 import IOrganization from "../interfaces/internal/organization";
 import IValidations from "../interfaces/internal/organization";
 import {ExperienceModel} from "../interfaces/internal/experience";
-import * as mongoose from "mongoose";
+import * as jwt from "jsonwebtoken";
 import IUser from "../interfaces/internal/user";
 import IExperienceAPI from "../interfaces/api/experience";
 import IAddressAPI from "../interfaces/api/address";
 import IValidationsAPI from "../interfaces/api/validations";
 import {sendError} from "../routes/errors";
+import {Mailer} from "../mail/mailer";
 
 export class ExperiencesUtil {
 
@@ -103,8 +104,26 @@ export class ExperiencesUtil {
             // TODO OPPORTUNITY
         }
 
-        if (req.body.organization != undefined && req.body.organization != "") {
-            if (req.body.email_verify) { // send email request to associated organization on site (for validations)
+        if (req.body.organization != undefined && req.body.organization != "") { // if the organization field is not empty
+            if (req.body.email_verify) { // send email request to organization not on site (for validations)
+
+                exp.emailjwt = jwt.sign({ username: req.account.username, ms: Date.now() }, servers.SECRET, {
+                    expiresIn: 604800 // 1 week
+                });
+                let verifyLink = servers.API_DOMAIN + "/v1/experiences/email_approve/" + exp.emailjwt; // generate verification link with code
+
+                let options: Array<[string, string]> = [["verifyLink", verifyLink], ["website", servers.SITE_DOMAIN], ["email", req.account.email], ["userName", req.account.username],
+                ["fullName", req.account.first_name + " " + req.account.middle_name + " " + req.account.last_name], ["expName", exp.name], ["expHours", "" + exp.hours],
+                ["expStart", exp.when[0]], ["expEnd", exp.when[1]], ["expDesc", exp.description]];
+
+                try {
+                    await Mailer.mailer.sendMail(req.body.email_verify, "Volunteer or Work Experience Validation Request",
+                        "A user from ConnectUS is requesting validation for their experience! You can approve the submission here: " + verifyLink,
+                        Mailer.getMailTemplate(options, "validate_experience_without_account"));
+                } catch (err) {
+                    if (servers.DEBUG) console.error(err);
+                    return sendError(res, 500, errors.internalServerError + " (Issue sending mail)", 4003);
+                }
 
             } else { // check if there is an associated organization on the site (for validations)
 

@@ -140,7 +140,7 @@ export async function registerOrganizationRequest(req, res): Promise<void> {
 // @ts-ignore
 async function sendVerificationEmail(username: string, email: string) {
     let token = jwt.sign({ username: username }, server.SECRET, {
-        expiresIn: 172800 // 2 days
+        expiresIn: 43200 // 12 hours
     });
     let verifyLink: string = server.API_DOMAIN + "/v1/auth/verify-email/" + token;
     try {
