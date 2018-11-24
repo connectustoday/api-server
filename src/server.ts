@@ -34,6 +34,8 @@ export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
     DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"),
     DB_NAME: string = getArg(process.env.DB_NAME, "database"),
     SECRET: string = getArg(process.env.SECRET, "defaultsecret"),
+    REGISTER_VERIFY_SECRET: string = getArg(process.env.REGISTER_VERIFY_SECRET, "defaultsecret"),
+    APPROVAL_VERIFY_SECRET: string = getArg(process.env.APPROVAL_VERIFY_SECRET, "defaultsecret"),
     TOKEN_EXPIRY: number = parseInt(getArg(process.env.TOKEN_EXPIRY, "86400"), 10),
     // Mail Options
     MAIL_USERNAME: string = getArg(process.env.MAIL_USERNAME, "user"),

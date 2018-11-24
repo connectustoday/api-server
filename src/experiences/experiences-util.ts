@@ -46,21 +46,24 @@ export class ExperiencesUtil {
     }
 
     // Get all experiences of any user
-    public static getExperiences(req, res) {
-        AccountModel.findOne({username: req.params.id, type: "User"}, function (err, user: IUser) { // TODO CASE INSENSITIVE QUERY
-            if (err) {
-                if (servers.DEBUG) console.error(err);
-                return sendError(res, 500, errors.internalServerError, 4001);
-            }
-            if (!user) {
-                return sendError(res, 404, errors.notFound + " (User not found? Is this the correct account type?)", 4002);
-            }
-            let object: Array<IExperienceAPI> = [];
-            user.experiences.forEach((element) => {
-                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_verify, element.created_at, element.hours));
-            });
-            res.status(200).send(object);
+    // @ts-ignore
+    public static async getExperiences(req, res) {
+        let user: IUser;
+        try {
+            // @ts-ignore
+            user = await AccountModel.findOne({username: req.params.id, type: "User"}); // TODO CASE INSENSITIVE QUERY
+        } catch (err) {
+            if (servers.DEBUG) console.error(err);
+            return sendError(res, 500, errors.internalServerError, 4001);
+        }
+        if (!user) {
+            return sendError(res, 404, errors.notFound + " (User not found? Is this the correct account type?)", 4002);
+        }
+        let object: Array<IExperienceAPI> = [];
+        user.experiences.forEach((element) => {
+            object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_verify, element.created_at, element.hours));
         });
+        res.status(200).send(object);
     }
 
     private static getDefaultExperience(experience, id) {
@@ -106,9 +109,9 @@ export class ExperiencesUtil {
         if (req.body.organization != undefined && req.body.organization != "") { // if the organization field is not empty
             if (req.body.email_verify) { // send email request to organization not on site (for validations)
 
-                exp.emailjwt = jwt.sign({ username: req.account.username, ms: Date.now() }, servers.SECRET, {
+                exp.emailjwt = jwt.sign({ username: req.account.username, ms: Date.now() }, servers.APPROVAL_VERIFY_SECRET, {
                     expiresIn: 604800 // 1 week
-                });
+                }); // create token for validation
                 let verifyLink = servers.API_DOMAIN + "/v1/experiences/email_approve/" + exp.emailjwt; // generate verification link with code
 
                 try {
@@ -125,7 +128,7 @@ export class ExperiencesUtil {
                             expStart: exp.when[0],
                             expEnd: exp.when[1],
                             expDesc: exp.description
-                        });
+                        }); // send validation request by email
                 } catch (err) {
                     if (servers.DEBUG) console.error(err);
                     return sendError(res, 500, errors.internalServerError + " (Issue sending mail)", 4003);
@@ -204,7 +207,7 @@ export class ExperiencesUtil {
 
             try {
                 // @ts-ignore
-                org = await AccountModel.findOne({username: experience.organization, type: "Organization"});
+                org = await AccountModel.findOne({username: experience.organization, type: "Organization"}); // get organization from db
             } catch (err) {
                 if (servers.DEBUG) console.error(err);
                 return sendError(res, 500, errors.internalServerError, 4001);
@@ -294,5 +297,40 @@ export class ExperiencesUtil {
             if (servers.DEBUG) console.error(err);
             return sendError(res, 500, errors.internalServerError, 4001);
         }
+    }
+
+    public static async emailApproveExperienceValidation(req, res) {
+        res.set('Content-Type', 'text/html');
+        jwt.verify(req.params.token, servers.APPROVAL_VERIFY_SECRET, async function (err, decoded) {
+            if (err) return res.status(404).send("Invalid approval link. Perhaps it has expired?");
+
+            let user: IUser;
+            try {
+                // @ts-ignore
+                user = await AccountModel.findOne({username: decoded.username}, {password: 0}); // TODO switch to id
+            } catch (err) {
+                if (servers.DEBUG) console.error(err);
+                return res.status(500).send("Internal server error. Problem finding account.");
+            }
+
+            if (!user) return res.status(500).send("Account not found. Perhaps the user has been removed?");
+
+            let found = false;
+            for (let i = 0; i < user.experiences.length; i++) {
+                if (user.experiences[i].emailjwt == req.params.token) {
+                    found = true;
+                    user.experiences[i].is_verified = true; // verify experience
+                }
+            }
+            if (!found) return res.status(500).send("Could not find experience to validate. Perhaps the user has removed it?");
+
+            try {
+                await user.save();
+            } catch (err) {
+                if (servers.DEBUG) console.error(err);
+                return res.status(500).send("Internal server error.");
+            }
+            return res.status(200).send("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + server.SITE_DOMAIN + "/auth/login.php')}, 2000)</script>")
+        });
     }
 }

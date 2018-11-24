@@ -51,7 +51,7 @@ export class Mailer {
         });
         this.transporter.use('compile', hbs({
             viewEngine: 'handlebars',
-            viewPath: path.resolve('./templates'),
+            viewPath: path.resolve('./dist/mail/templates'),
             extName: '.html'
         }));
     }

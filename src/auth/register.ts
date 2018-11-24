@@ -26,7 +26,7 @@ import * as jwt from "jsonwebtoken";
 import {AccountUtil} from "../account/account-util";
 import {sendError} from "../routes/errors";
 import {Mailer} from "../mail/mailer";
-import {AccountModel} from "../interfaces/internal/account";
+import IAccount, {AccountModel} from "../interfaces/internal/account";
 
 export function registerRequest(req, res) {
     if (req.body.type == "organization") {
@@ -84,7 +84,7 @@ export async function registerUserRequest(req, res): Promise<void> {
             if (server.DEBUG) console.error(err);
             return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
         }
-        res.status(200).send();
+        res.status(200).send({message: errors.ok});
     });
 }
 
@@ -133,13 +133,13 @@ export async function registerOrganizationRequest(req, res): Promise<void> {
             if (server.DEBUG) console.error(err);
             return sendError(res, 500, errors.internalServerError + " (There was a problem registering the account.)", 3203);
         }
-        res.status(200).send();
+        res.status(200).send({message: errors.ok});
     });
 }
 
 // @ts-ignore
 async function sendVerificationEmail(username: string, email: string) {
-    let token = jwt.sign({ username: username }, server.SECRET, {
+    let token = jwt.sign({ username: username }, server.REGISTER_VERIFY_SECRET, {
         expiresIn: 43200 // 12 hours
     });
     let verifyLink: string = server.API_DOMAIN + "/v1/auth/verify-email/" + token;
@@ -156,22 +156,27 @@ async function sendVerificationEmail(username: string, email: string) {
 // @ts-ignore
 export async function verifyEmailRequest(req, res) {
     res.set('Content-Type', 'text/html');
-    jwt.verify(req.params.token, server.SECRET, function (err, decoded) {
+    jwt.verify(req.params.token, server.REGISTER_VERIFY_SECRET, async function (err, decoded) {
         if (err) return res.status(404).send("Invalid verification link. Perhaps it's expired?");
-        AccountModel.findOne({ username: decoded.username }, { password: 0 }, function (err, user) { //TODO switch to id
-            if (err) {
-                if (server.DEBUG) console.error(err);
-                return res.status(500).send("Internal server error. Problem finding account.");
-            }
-            if (!user) return res.status(500).send("Account not found. Please try registering again.");
-            user.is_email_verified = true;
-            user.save(function (err) {
-                if (err) {
-                    if (server.DEBUG) console.error(err);
-                    return res.status(500).send("Internal server error.");
-                }
-                return res.status(200).send("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + server.SITE_DOMAIN + "/auth/login.php')}, 2000)</script>")
-            });
-        });
+        let acc: IAccount;
+
+        try {
+            acc = await AccountModel.findOne({username: decoded.username}, {password: 0}); // TODO switch to id
+        } catch (err) {
+            if (server.DEBUG) console.error(err);
+            return res.status(500).send("Internal server error. Problem finding account.");
+        }
+
+        if (!acc) return res.status(500).send("Account not found. Please try registering again.");
+        acc.is_email_verified = true; // set the field to true for email verified
+
+        try {
+            await acc.save(); // save account
+        } catch (err) {
+            if (server.DEBUG) console.error(err);
+            return res.status(500).send("Internal server error.");
+        }
+
+        return res.status(200).send("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + server.SITE_DOMAIN + "/auth/login.php')}, 2000)</script>")
     });
 }

@@ -1,7 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            color: black;
+            font-size: 20px;
+        }
+        .approve {
+            padding: 10px 20px 10px 20px;
+            text-decoration: none;
+            color: white;
+            box-shadow: 0 6px 20px 0 rgba(255, 248, 225, 0.5);
+            border-radius: 5px;
+        }
+        .gradient-45deg-green-teal {
+            background: #43A047;
+            background: -webkit-linear-gradient(45deg, #43A047 0%, #1de9b6 100%);
+            background: linear-gradient(45deg, #43A047 0%, #1de9b6 100%);
+        }
 
+        .gradient-45deg-green-teal.gradient-shadow {
+            box-shadow: 0 6px 20px 0 rgba(77, 182, 172, 0.5);
+        }
+        .gradient-45deg-cyan-light-green {
+            background: #00e5ff;
+            background: -webkit-linear-gradient(45deg, #00e5ff 0%, #ccff90 100%);
+            background: linear-gradient(45deg, #00e5ff 0%, #ccff90 100%);
+        }
+
+        .gradient-45deg-cyan-light-green.gradient-shadow {
+            box-shadow: 0 6px 20px 0 rgba(204, 255, 144, 0.5);
+        }
+    </style>
 </head>
 <body>
     Hello,
@@ -11,10 +44,9 @@
     These are the details of the request:
     <br>
     <br>
-    <br>
     <strong>Email:</strong> {{email}}
     <br>
-    <strong>Username:</strong> {{userName}
+    <strong>Username:</strong> {{userName}}
     <br>
     <strong>Full Name:</strong> {{fullName}}
     <br>
@@ -22,7 +54,7 @@
     <br>
     <strong>Hours:</strong> {{expHours}}
     <br>
-    <strong>When it occurred:</strong> {{expStart}} - {{expEnd}
+    <strong>When it occurred:</strong> {{expStart}} - {{expEnd}}
     <br>
     <strong>Description:</strong>
     <br>
@@ -30,10 +62,9 @@
     <br>
     <hr>
     If you would like to approve this request, you can click the button below. Otherwise, you can safely disregard this email.
-    <br><br>
-    <a href="{{verifyLink}}"
-    style="padding: 10px 15px 10px 15px; text-decoration: none; color: white; box-shadow: 0 6px 20px 0 rgba(255, 248, 225, 0.5); background: #c5e1a5; background: -webkit-linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%); background: linear-gradient(45deg, #c5e1a5 0%, #fff8e1 100%);">Approve</a>
-    <br><br>
+    <br><br><br>
+    <a href="{{verifyLink}}" class="gradient-45deg-green-teal approve">Approve</a>
+    <br><br><br>
     Thank you!
 </body>
 </html>
