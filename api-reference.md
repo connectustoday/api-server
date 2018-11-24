@@ -41,7 +41,7 @@ error.message = description of error
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when` | 2 strings (array of 2) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
 | `is_verified` | bool | Whether or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
-| `email_bound` | bool | Whether or not the experience is using email verification instead of account verification for the organization. |
+| `email_verify` | bool | Whether or not the experience is using email verification instead of account verification for the organization. |
 | `created_at` | number | Timestamp of when the `Experience` was created. |
 | `hours` | number | Number of hours gained from the `Experience`. |
 
@@ -369,3 +369,8 @@ Error Codes:
 | 4003 | User not found. | 400 |
 | 4004 | Experience not found in user object. | 400 |
  
+#### Approve Validation (From email instead of account)
+
+`POST /v1/experiences/email_approve/:token`
+
+Note: This endpoint does not need to be implemented by your client, since it is accessed directly by the organization.
