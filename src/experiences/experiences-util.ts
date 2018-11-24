@@ -61,7 +61,7 @@ export class ExperiencesUtil {
         }
         let object: Array<IExperienceAPI> = [];
         user.experiences.forEach((element) => {
-            object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_verify, element.created_at, element.hours));
+            object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, JSON.parse(element.when), element.is_verified, element.email_verify, element.created_at, element.hours));
         });
         res.status(200).send(object);
     }
@@ -75,10 +75,10 @@ export class ExperiencesUtil {
             organization: experience.organization,
             opportunity: experience.opportunity,
             description: experience.description,
-            when: {
-              begin: experience.begin,
-              end: experience.end
-            },
+            when: JSON.stringify({
+              begin: experience.when.begin,
+              end: experience.when.end
+            }),
             hours: experience.hours,
             is_verified: false,
             email_verify: experience.email_verify,
@@ -123,10 +123,12 @@ export class ExperiencesUtil {
                             fullName: (req.account.first_name ? req.account.first_name + " " : "") + (req.account.middle_name ? req.account.middle_name + " " : "") + (req.account.last_name ? req.account.last_name + " " : ""),
                             expName: exp.name,
                             expHours: exp.hours,
-                            expStart: exp.when[0],
-                            expEnd: exp.when[1],
-                            expDesc: exp.description
+                            expStart: JSON.parse(exp.when).begin,
+                            expEnd: JSON.parse(exp.when).end,
+                            expDesc: exp.description,
+                            random: Math.random()
                         }); // send validation request by email
+                    console.log("string:" + JSON.stringify(exp));
                 } catch (err) {
                     if (servers.DEBUG) console.error(err);
                     return sendError(res, 500, errors.internalServerError + " (Issue sending mail)", 4003);
@@ -317,7 +319,6 @@ export class ExperiencesUtil {
 
             let found = false;
             for (let i = 0; i < user.experiences.length; i++) {
-                console.log(user.experiences[i].emailjwt);
                 if (user.experiences[i].emailjwt && jwt.verify(user.experiences[i].emailjwt, servers.APPROVAL_VERIFY_SECRET).ms == decoded.ms) { // compare timestamp
                     found = true;
                     user.experiences[i].is_verified = true; // verify experience

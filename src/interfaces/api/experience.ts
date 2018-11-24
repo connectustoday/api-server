@@ -20,6 +20,11 @@
 
 import IAddressAPI from "./address";
 
+interface When {
+    begin: string;
+    end: string;
+}
+
 export default class IExperienceAPI {
     location: IAddressAPI;
     id: string;
@@ -27,12 +32,12 @@ export default class IExperienceAPI {
     organization: string;
     opportunity: string;
     description: string;
-    when: [string, string];
+    when: When;
     is_verified: boolean;
     email_verify: boolean;
     created_at: number;
     hours: number;
-    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: [string, string], is_verified: boolean, email_verify: boolean, created_at: number, hours: number) {
+    public constructor(location: IAddressAPI, id: string, name: string, organization: string, opportunity: string, description: string, when: When, is_verified: boolean, email_verify: boolean, created_at: number, hours: number) {
         this.location = location;
         this.id = id;
         this.name = name;

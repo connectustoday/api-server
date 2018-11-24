@@ -29,13 +29,14 @@ export default interface IExperience extends Document {
     organization?: string;
     opportunity?: string;
     description?: string;
-    when?: [string, string];
+    when?: string;
     is_verified: boolean;
     email_verify: boolean;
     created_at: number;
     hours: number;
     emailjwt?: string;
 }
+
 
 export const ExperienceSchema = new Schema({
     schema_version: {type: Number, required: true},
@@ -44,7 +45,7 @@ export const ExperienceSchema = new Schema({
     organization: {type: String, index: true},
     opportunity: {type: String, index: true},
     description: {type: String},
-    when: {type: {begin: String, end: String}},
+    when: {type: String},
     is_verified: {type: Boolean, required: true},
     email_verify: {type: Boolean, required: true},
     created_at: {type: Number, required: true},
