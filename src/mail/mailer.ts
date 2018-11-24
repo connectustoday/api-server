@@ -69,10 +69,10 @@ export class Mailer {
 
     // @ts-ignore
     // Retrieve mail template from folder and return it, while replacing the variables and sanitizing the data.
-    public static async getMailTemplate(replace: Array<[string, string]>, template: string): string {
-        let string = fs.readFileSync(__dirname + '/src/mail/templates/' + template + '.html', 'utf8');
+    public static getMailTemplate(replace: Array<[string, string]>, template: string): string {
+        let string = fs.readFileSync(__dirname + '/templates/' + template + '.html', 'utf8');
         for (let i = 0; i < replace.length; i++) {
-            string.replace("${" + replace[i][0] + "}", sanitizeHTML(replace[i][1], {
+            string = string.replace(new RegExp(("${" + replace[i][0] + "}").replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1"), 'g'), sanitizeHTML(replace[i][1], {
                 allowedTags: [],
                 allowedAttributes: {}
             }));

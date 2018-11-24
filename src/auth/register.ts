@@ -149,7 +149,6 @@ async function sendVerificationEmail(username: string, email: string) {
     } catch (err) {
         throw err;
     }
-    return;
 }
 
 // @ts-ignore

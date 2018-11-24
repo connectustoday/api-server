@@ -117,7 +117,7 @@ export class ExperiencesUtil {
                 ["expStart", exp.when[0]], ["expEnd", exp.when[1]], ["expDesc", exp.description]];
 
                 try {
-                    await Mailer.mailer.sendMail(req.body.email_verify, "Volunteer or Work Experience Validation Request",
+                    await Mailer.mailer.sendMail(req.body.organization, "Volunteer or Work Experience Validation Request",
                         "A user from ConnectUS is requesting validation for their experience! You can approve the submission here: " + verifyLink,
                         Mailer.getMailTemplate(options, "validate_experience_without_account"));
                 } catch (err) {
