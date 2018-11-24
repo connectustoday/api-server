@@ -39,10 +39,10 @@ export class ExperiencesUtil {
      */
 
     // Get experiences of personal user (username found from token)
-    public static getPersonalExperiences(req, res) {
+    public static async getPersonalExperiences(req, res) {
         if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
         req.params.id = req.account.username;
-        this.getExperiences(req, res);
+        await this.getExperiences(req, res);
     }
 
     // Get all experiences of any user
@@ -97,8 +97,6 @@ export class ExperiencesUtil {
         // default experience object
 
         let exp = this.getDefaultExperience(req.body, id);
-
-        req.account.experiences.push(exp); // add to user's experiences array
 
         // verifications for data
 
@@ -163,6 +161,8 @@ export class ExperiencesUtil {
 
             }
         }
+
+        req.account.experiences.push(exp); // add to user's experiences array
         // finish adding experience to database
         if (save) await ExperiencesUtil.saveAccountMongo(req, res);
     }
@@ -317,12 +317,15 @@ export class ExperiencesUtil {
 
             let found = false;
             for (let i = 0; i < user.experiences.length; i++) {
-                if (user.experiences[i].emailjwt == req.params.token) {
+                console.log(user.experiences[i].emailjwt);
+                if (user.experiences[i].emailjwt && jwt.verify(user.experiences[i].emailjwt, servers.APPROVAL_VERIFY_SECRET).ms == decoded.ms) { // compare timestamp
                     found = true;
                     user.experiences[i].is_verified = true; // verify experience
+                    user.experiences[i].emailjwt = undefined;
+                    break;
                 }
             }
-            if (!found) return res.status(500).send("Could not find experience to validate. Perhaps the user has removed it?");
+            if (!found) return res.status(500).send("Could not find experience to validate. Perhaps the user has removed it, or the experience was already validated?");
 
             try {
                 await user.save();
@@ -330,7 +333,7 @@ export class ExperiencesUtil {
                 if (servers.DEBUG) console.error(err);
                 return res.status(500).send("Internal server error.");
             }
-            return res.status(200).send("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + server.SITE_DOMAIN + "/auth/login.php')}, 2000)</script>")
+            return res.status(200).send("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + servers.SITE_DOMAIN + "/auth/login.php')}, 5000)</script>")
         });
     }
 }

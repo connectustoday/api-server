@@ -1,13 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style>
-        body {
+        /* latin */
+        @font-face {
+            font-family: 'Nunito';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Nunito Regular'), local('Nunito-Regular'), url(https://fonts.gstatic.com/s/nunito/v9/XRXV3I6Li01BKofINeaB.woff2) format('woff2');
+            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+        }
+        .box {
             font-family: 'Nunito', sans-serif;
             color: black;
-            font-size: 20px;
+            font-size: 18px;
         }
         .approve {
             padding: 10px 20px 10px 20px;
@@ -25,18 +31,10 @@
         .gradient-45deg-green-teal.gradient-shadow {
             box-shadow: 0 6px 20px 0 rgba(77, 182, 172, 0.5);
         }
-        .gradient-45deg-cyan-light-green {
-            background: #00e5ff;
-            background: -webkit-linear-gradient(45deg, #00e5ff 0%, #ccff90 100%);
-            background: linear-gradient(45deg, #00e5ff 0%, #ccff90 100%);
-        }
-
-        .gradient-45deg-cyan-light-green.gradient-shadow {
-            box-shadow: 0 6px 20px 0 rgba(204, 255, 144, 0.5);
-        }
     </style>
 </head>
 <body>
+    <div class="box">
     Hello,
     <br>
     A user on <a href="{{website}}">ConnectUS</a> has requested for a work/volunteer experience validation!
@@ -63,9 +61,10 @@
     <hr>
     If you would like to approve this request, you can click the button below. Otherwise, you can safely disregard this email.
     <br><br><br>
-    <a href="{{verifyLink}}" class="gradient-45deg-green-teal approve">Approve</a>
+    <a href="{{verifyLink}}" class="gradient-45deg-green-teal approve" style="color: white">Approve</a>
     <br><br><br>
     Thank you!
+    </div>
 </body>
 </html>
 

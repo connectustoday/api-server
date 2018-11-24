@@ -30,22 +30,22 @@ function getArg(env: string, def: string): string {
 console.log("Starting ConnectUS API Server...");
 
 // MongoDB runtime flags
-export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"),
-    DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"),
-    DB_NAME: string = getArg(process.env.DB_NAME, "database"),
-    SECRET: string = getArg(process.env.SECRET, "defaultsecret"),
-    REGISTER_VERIFY_SECRET: string = getArg(process.env.REGISTER_VERIFY_SECRET, "defaultsecret"),
-    APPROVAL_VERIFY_SECRET: string = getArg(process.env.APPROVAL_VERIFY_SECRET, "defaultsecret"),
-    TOKEN_EXPIRY: number = parseInt(getArg(process.env.TOKEN_EXPIRY, "86400"), 10),
+export const DB_PORT: string = getArg(process.env.DB_PORT, "27017"), // port for mongodb
+    DB_ADDRESS: string = getArg(process.env.DB_ADDRESS, "localhost"), // address of mongodb
+    DB_NAME: string = getArg(process.env.DB_NAME, "database"), // name of database to be used in mongodb
+    SECRET: string = getArg(process.env.SECRET, "defaultsecret"), // secret used for token generation of users (can be refreshed often)
+    REGISTER_VERIFY_SECRET: string = getArg(process.env.REGISTER_VERIFY_SECRET, "defaultsecret"), // secret used for token generation during email verification
+    APPROVAL_VERIFY_SECRET: string = getArg(process.env.APPROVAL_VERIFY_SECRET, "defaultsecret"), // secret used for token generation during experience email validation
+    TOKEN_EXPIRY: number = parseInt(getArg(process.env.TOKEN_EXPIRY, "86400"), 10), // amount of time it takes for login tokens to expire
     // Mail Options
-    MAIL_USERNAME: string = getArg(process.env.MAIL_USERNAME, "user"),
-    MAIL_PASSWORD: string = getArg(process.env.MAIL_PASSWORD, "pass"),
-    MAIL_SENDER: string = getArg(process.env.MAIL_SENDER, "user@host.com"),
-    SMTP_HOST: string = getArg(process.env.SMTP_HOST, "host.com"),
-    SMTP_PORT: number = parseInt(getArg(process.env.SMTP_PORT, "587"), 10),
-    API_DOMAIN: string = getArg(process.env.API_DOMAIN, "localhost:3000"),
-    SITE_DOMAIN: string = getArg(process.env.SITE_DOMAIN, "localhost:3000"),
-    DEBUG: boolean = JSON.parse(getArg(process.env.DEBUG, "false"));
+    MAIL_USERNAME: string = getArg(process.env.MAIL_USERNAME, "user"), // SMTP username
+    MAIL_PASSWORD: string = getArg(process.env.MAIL_PASSWORD, "pass"), // SMTP password
+    MAIL_SENDER: string = getArg(process.env.MAIL_SENDER, "user@host.com"), // SMTP sending email
+    SMTP_HOST: string = getArg(process.env.SMTP_HOST, "host.com"), // SMTP host
+    SMTP_PORT: number = parseInt(getArg(process.env.SMTP_PORT, "587"), 10), // SMTP port
+    API_DOMAIN: string = getArg(process.env.API_DOMAIN, "localhost:3000"), // Web address for the api (http://localhost:3000/api)
+    SITE_DOMAIN: string = getArg(process.env.SITE_DOMAIN, "localhost:3000"), // Web address for the main site (http://localhost:3000)
+    DEBUG: boolean = JSON.parse(getArg(process.env.DEBUG, "false")); // Turn on debug messages
 
 const PORT: string = getArg(process.env.API_PORT, "3000");
 

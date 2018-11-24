@@ -55,6 +55,6 @@ export class ExperienceRoutes {
         app.post(prefix + "/validations/:user/:id", AuthUtil.verifyAccount, (req, res) => ExperiencesUtil.reviewExperienceValidations(req, res));
 
         // Approve validation (from email)
-        app.post(prefix + "/email_approve/:token", (req, res) => ExperiencesUtil.emailApproveExperienceValidation(req, res));
+        app.get(prefix + "/email_approve/:token", (req, res) => ExperiencesUtil.emailApproveExperienceValidation(req, res));
     }
 }

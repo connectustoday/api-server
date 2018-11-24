@@ -34,7 +34,7 @@ export default interface IExperience extends Document {
     email_verify: boolean;
     created_at: number;
     hours: number;
-    emailjwt: string;
+    emailjwt?: string;
 }
 
 export const ExperienceSchema = new Schema({
