@@ -47,8 +47,7 @@ export class AuthRoutes {
          * - is_nonprofit
          * - preferred_name
          * ------------------------------------
-         * Returns 200 + auth=true + token if SUCCESSFUL
-         * TODO EMAIL VERIFICATION
+         * Returns 200 if SUCCESSFUL
          */
 
         app.post(prefix + "/register", (req, res) => register.registerRequest(req, res));

@@ -56,7 +56,7 @@ export class ExperiencesUtil {
             }
             let object: Array<IExperienceAPI> = [];
             user.experiences.forEach((element) => {
-                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_bound, element.created_at, element.hours));
+                object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when, element.is_verified, element.email_verify, element.created_at, element.hours));
             });
             res.status(200).send(object);
         });
@@ -77,7 +77,7 @@ export class ExperiencesUtil {
             },
             hours: experience.hours,
             is_verified: false,
-            email_bound: experience.email_verify,
+            email_verify: experience.email_verify,
             created_at: (new Date).getTime()
         });
     }
@@ -88,10 +88,8 @@ export class ExperiencesUtil {
         });
     }
 
-    public static createExperience(req, res, id, save: boolean) {
+    public static async createExperience(req, res, id, save: boolean) {
         if (req.accountType != "User") return sendError(res, 400, errors.badRequest + " (Incorrect account type! User account type required.)", 4000);
-
-        let failed = false;
 
         // default experience object
 
@@ -106,34 +104,34 @@ export class ExperiencesUtil {
         }
 
         if (req.body.organization != undefined && req.body.organization != "") { // check if there is an associated organization on the site (for validations)
-            // add experience to organization pending validations list TODO IN PROGRESS RIGHT NOW AAAAAAAA DO IGNORE EMAIL BOUND CHECKING
+
+            // add experience to organization pending validations list TODO WORK ON THIS EMAIL VERIFY
             // TODO NOTIFICATION ON PENDING VALIDATION
             // TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
-            AccountModel.findOne({username: req.body.organization, type: "Organization"}, function (err, org: IOrganization) {
-                if (err) {
-                    failed = true;
-                    if (servers.DEBUG) console.error(err);
-                    return sendError(res, 500, errors.internalServerError, 4001);
-                }
-                if (!org) {
-                    failed = true;
-                    return sendError(res, 404, errors.badRequest + " (Organization not found.)", 4002);
-                }
 
-                org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
+            let org: IOrganization;
+            try {
+                // @ts-ignore
+                org = await AccountModel.findOne({username: req.body.organization, type: "Organization"});// TODO CASE INSENSITIVE LOOKUPS
+            } catch (err) {
+                if (servers.DEBUG) console.error(err);
+                return sendError(res, 500, errors.internalServerError, 4001);
+            }
+            if (!org) {
+                return sendError(res, 404, errors.badRequest + " (Organization not found.)", 4002);
+            }
 
-                org.save(function (err) {
-                    if (err) {
-                        if (servers.DEBUG) console.error(err);
-                        return sendError(res, 500, errors.internalServerError, 4001);
-                    }
-                    if (!failed && save) ExperiencesUtil.saveAccountMongo(req, res);
-                }); // save to db
-            });// TODO CASE INSENSITIVE LOOKUPS
-        } else {
-            // finish adding experience to database
-            if (save) ExperiencesUtil.saveAccountMongo(req, res);
+            org.experience_validations.push(new IValidations(req.account.username, exp._id)); // add validation entry to organization
+
+            try {
+                await org.save(); // save to db
+            } catch (err) {
+                if (servers.DEBUG) console.error(err);
+                return sendError(res, 500, errors.internalServerError, 4001);
+            }
         }
+        // finish adding experience to database
+        if (save) ExperiencesUtil.saveAccountMongo(req, res);
     }
 
     /*
@@ -171,7 +169,7 @@ export class ExperiencesUtil {
         if (experience.opportunity != undefined && experience.opportunity != "") {
             //TODO OPPORTUNITY
         }
-        if (experience.organization != undefined && experience.organization != "" && !experience.email_bound) { // remove pending requests for experience
+        if (experience.organization != undefined && experience.organization != "" && !experience.email_verify) { // remove pending requests for experience
             AccountModel.findOne({username: experience.organization, type: "Organization"}, function (err, org: IOrganization) {
                 if (err) {
                     if (servers.DEBUG) console.error(err);
