@@ -273,7 +273,8 @@ Error Codes:
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Organization not found. | 404 |
-
+| 4003 | Issue sending verification email. | 500 |
+ 
 #### Replace (update) an experience
 
 `PUT /v1/experiences/:id`

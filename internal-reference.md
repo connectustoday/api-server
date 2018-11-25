@@ -178,6 +178,8 @@ specific opportunity. `Experience`s are stored under the corresponding user’s 
 | `is_verified` | bool | Whether or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
 | `email_verify` | bool | Whether or not this experience is being verified by email (instead of account). |
 | `created_at` | int64 | Timestamp of when the `Experience` was created. |
+| `hours` | int64 | Number of hours spent on the experience. |
+| `emailjwt` | string | JWT for email verification. |
 
 ### Notification
 
