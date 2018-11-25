@@ -61,7 +61,7 @@ export class ExperiencesUtil {
         }
         let object: Array<IExperienceAPI> = [];
         user.experiences.forEach((element) => {
-            object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, JSON.parse(element.when), element.is_verified, element.email_verify, element.created_at, element.hours));
+            object.push(new IExperienceAPI(new IAddressAPI(element.location), element._id, element.name, element.organization, element.opportunity, element.description, element.when ? JSON.parse(element.when) : undefined, element.is_verified, element.email_verify, element.created_at, element.hours));
         });
         res.status(200).send(object);
     }
@@ -125,10 +125,8 @@ export class ExperiencesUtil {
                             expHours: exp.hours,
                             expStart: JSON.parse(exp.when).begin,
                             expEnd: JSON.parse(exp.when).end,
-                            expDesc: exp.description,
-                            random: Math.random()
+                            expDesc: exp.description
                         }); // send validation request by email
-                    console.log("string:" + JSON.stringify(exp));
                 } catch (err) {
                     if (servers.DEBUG) console.error(err);
                     return sendError(res, 500, errors.internalServerError + " (Issue sending mail)", 4003);
@@ -255,8 +253,8 @@ export class ExperiencesUtil {
     // Approve or don't approve an experience validation request
     public static async reviewExperienceValidations(req, res) {
         if (req.accountType != "Organization") return sendError(res, 400, errors.badRequest + " (Incorrect account type! Organization account type required.)", 4000);
-        if (!req.body.approved) return res.status(400).send({message: errors.badRequest + " (Bad query; no \"approved\" field)"}); //TODO REMOVE
-        let found = false, accepted = req.body.approved;
+        if (!req.body.approved) return res.status(400).send({message: errors.badRequest + " (Bad query; no \"approved\" field)"});
+        let found = false, accepted: boolean = req.body.approved == "true";
 
         // Remove the experience validation request from the organization object
         for (let i = 0; i < req.account.experience_validations.length; i++) {
@@ -280,11 +278,10 @@ export class ExperiencesUtil {
             found = false;
             for (let i = 0; i < user.experiences.length; i++) {
                 if (user.experiences[i]._id == req.params.id) {
-                    console.log(accepted); //TODO
-                    if (accepted) user.experiences[i].is_verified = accepted; // verify experience object if approved
-                    else {
+                    if (accepted) {
+                        user.experiences[i].is_verified = accepted; // verify experience object if approved
+                    } else {
                         user.experiences.splice(i, 1); // delete experience object if not approved
-                        console.log("delete " + i); //TODO bug with removal (not working)
                         i--;
                     }
                     found = true;

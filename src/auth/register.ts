@@ -108,7 +108,7 @@ export async function registerOrganizationRequest(req, res): Promise<void> {
             header: "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
             created_at: (new Date).getTime(),
             settings: {
-                is_nonprofit: req.body.is_nonprofit,
+                is_nonprofit: req.body.is_nonprofit == "true",
                 allow_messages_from_unknown: true,
                 email_notifications: true,
                 type: "OrganizationSettings"
