@@ -255,7 +255,7 @@ Form Data:
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when.begin` | string | When the `Experience` started (ex. Sept. 2015) |
-| `when.end` | string | When the `Experience ended (ex. Aug. 2016) |
+| `when.end` | string | When the `Experience` ended (ex. Aug. 2016) |
 | `hours` | int | Amount of hours gained from the `experience` |
 | `email_verify` | bool | Whether or not the experience is being bound to email. |
 
