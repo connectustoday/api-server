@@ -1,4 +1,4 @@
-package main
+package api_server
 
 import (
 	"context"
