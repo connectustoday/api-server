@@ -104,12 +104,10 @@ func connectDB(ctx context.Context) {
 	mongo_cli, err = mongo.NewClient("mongodb://" + DB_ADDRESS + ":" + DB_PORT + "/" + DB_NAME)
 	if err != nil {
 		log.Fatalf("Could not connect to mongo: %v", err)
-		os.Exit(1)
 	}
 	err = mongo_cli.Connect(ctx)
 	if err != nil {
 		log.Fatalf("Could not connect to mongo: %v", err)
-		os.Exit(1)
 	}
 	mongo_db = mongo_cli.Database(DB_NAME)
 }
