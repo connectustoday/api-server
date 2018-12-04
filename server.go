@@ -7,9 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"routes/accounts"
-	"routes/auth"
-	"routes/experiences"
 	"strconv"
 )
 
@@ -89,14 +86,14 @@ func startRouter() {
 
 	// TODO USE BEST PRACTICES: https://www.owasp.org/index.php/OWASP_Cheat_Sheet_Series
 
-	// v1 Routes
-	auth.Routes("/v1/auth", router)
-	accounts.AccountRoutes("/v1/accounts", router)
-	accounts.PersonalAccountsRoutes("/v1", router)
-	experiences.ExperienceRoutes("/v1/experiences", router)
-	experiences.OpportunityRoutes("/v1/opportunities", router)
+	// v1 API Routes
+	AuthRoutes("/v1/auth", router)
+	AccountRoutes("/v1/accounts", router)
+	PersonalAccountsRoutes("/v1", router)
+	ExperienceRoutes("/v1/experiences", router)
+	OpportunityRoutes("/v1/opportunities", router)
 
-	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(int(PORT)), router))
+	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(int(PORT)), router)) // Start and serve API
 }
 
 func connectDB(ctx context.Context) {

@@ -6,9 +6,10 @@ The server software has only been tested on GNU/Linux.
 ```bash
 $ git clone https://github.com/connectustoday/api-server.git
 $ cd api-server
-$ npm install
-$ npm run grunt
-$ npm start
+$ go get -t github.com/julienschmidt/httprouter
+$ go get -t github.com/mongodb/mongo-go-driver/mongo
+$ ./build.sh
+
 ```
 
 ## Running (Production)
