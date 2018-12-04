@@ -2,8 +2,10 @@ package api_server
 
 import (
 	"github.com/globalsign/mgo/bson"
+	"github.com/julienschmidt/httprouter"
 	"interfaces-internal"
 	"log"
+	"net/http"
 )
 
 func VerifyUniqueUsername(username string) bool {
@@ -13,4 +15,8 @@ func VerifyUniqueUsername(username string) bool {
 		log.Print(err)
 	}
 	return len(results) == 0
+}
+
+func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 }

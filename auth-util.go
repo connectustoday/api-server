@@ -1,6 +1,7 @@
 package api_server
 
 import (
+	"context"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
@@ -8,6 +9,10 @@ import (
 	"interfaces-internal"
 	"net/http"
 )
+
+func GetAccountFromContext(ctx context.Context) interfaces_internal.IAccount {
+	return ctx.Value("account").(interfaces_internal.IAccount) // Low possibility of nil (should've been addressed by middleware)
+}
 
 // Account middleware
 
@@ -64,4 +69,8 @@ func WithAccountVerify(next httprouter.Handle) httprouter.Handle {
 		}
 		SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3002)
 	}
+}
+
+func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 }
