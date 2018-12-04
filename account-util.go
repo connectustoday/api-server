@@ -1,15 +1,16 @@
 package api_server
 
 import (
-	"github.com/julienschmidt/httprouter"
-	"interfaces_internal"
-	"net/http"
+	"github.com/globalsign/mgo/bson"
+	"interfaces-internal"
+	"log"
 )
 
-func verifyUniqueUsername(username string) {
+func VerifyUniqueUsername(username string) bool {
 	var results []interfaces_internal.IAccount
-}
-
-func getAccount(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	
+	err := IAccountCollection.Find(bson.M{"username": username}).All(&results)
+	if err != nil {
+		log.Print(err)
+	}
+	return len(results) == 0
 }

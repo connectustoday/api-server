@@ -30,6 +30,9 @@ var (
 
 	Database *mgo.Database
 
+	IAccountCollection *mgo.Collection
+	IExperienceCollection *mgo.Collection
+
 	router *httprouter.Router
 )
 
@@ -99,4 +102,7 @@ func ConnectMongoDB() {
 	session.SetMode(mgo.Monotonic, true)
 
 	Database = session.DB(DB_NAME)
+
+	IAccountCollection = Database.C("AccountModel")
+	IExperienceCollection = Database.C("ExperienceModel")
 }
