@@ -25,4 +25,5 @@ type IAccount struct {
 	Shared               []ICom           `bson:"shared"`
 	Settings             IAccountSettings `bson:"settings"`
 	AdminNote            string           `bson:"admin_note"`
+	Type                 string           `bson:"type"`
 }
