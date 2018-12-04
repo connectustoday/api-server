@@ -119,7 +119,7 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 
 func AccountRoutes(prefix string, router *httprouter.Router) {
 	router.GET(prefix, func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		//TODO
+		_, _ = w.Write([]byte(badRequest))
 	})
 
 	/*
@@ -134,7 +134,18 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 
 	router.GET(prefix+"/:id", GetAccountRoute)
 
-	
+	// Get the profile of a user
+
+	router.GET(prefix + "/:id/profile", GetAccountProfileRoute)
+
+	// Get the connections of a user
+
+	router.GET(prefix + "/:id/connections", GetAccountConnectionsRoute)
+
+	// Get the experiences list of a user
+
+	router.GET(prefix + "/:id/experiences", GetExperiencesRoute)
+
 }
 
 func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {

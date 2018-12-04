@@ -9,6 +9,10 @@ func GetPersonalExperiencesRoute(w http.ResponseWriter, r *http.Request, p httpr
 
 }
 
+func GetExperiencesRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
+
 func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }
