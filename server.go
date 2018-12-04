@@ -1,9 +1,8 @@
 package api_server
 
 import (
-	"context"
+	"github.com/globalsign/mgo"
 	"github.com/julienschmidt/httprouter"
-	"github.com/mongodb/mongo-go-driver/mongo"
 	"log"
 	"net/http"
 	"os"
@@ -29,8 +28,7 @@ var (
 
 	PORT uint64
 
-	mongo_cli *mongo.Client
-	mongo_db *mongo.Database
+	Database *mgo.Database
 
 	router *httprouter.Router
 )
@@ -66,15 +64,11 @@ func init() {
 func main() {
 	log.Println("Starting ConnectUS API Server...")
 
-	mongoctx := context.Background()
-	mongoctx, cancel := context.WithCancel(mongoctx)
-	defer cancel()
-	connectDB(mongoctx)
-
-	startRouter()
+	ConnectMongoDB()
+	StartRouter()
 }
 
-func startRouter() {
+func StartRouter() {
 	router = httprouter.New()
 	router.OPTIONS("/*all", func(w http.ResponseWriter, _ *http.Request, params httprouter.Params) {
 		w.WriteHeader(404)
@@ -96,15 +90,13 @@ func startRouter() {
 	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(int(PORT)), router)) // Start and serve API
 }
 
-func connectDB(ctx context.Context) {
-	var err error
-	mongo_cli, err = mongo.NewClient("mongodb://" + DB_ADDRESS + ":" + DB_PORT + "/" + DB_NAME)
+func ConnectMongoDB() {
+	session, err := mgo.Dial(DB_ADDRESS + ":" + DB_PORT)
 	if err != nil {
-		log.Fatalf("Could not connect to mongo: %v", err)
+		log.Fatal(err)
 	}
-	err = mongo_cli.Connect(ctx)
-	if err != nil {
-		log.Fatalf("Could not connect to mongo: %v", err)
-	}
-	mongo_db = mongo_cli.Database(DB_NAME)
+
+	session.SetMode(mgo.Monotonic, true)
+
+	Database = session.DB(DB_NAME)
 }
