@@ -20,3 +20,11 @@ func VerifyUniqueUsername(username string) bool {
 func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 }
+
+func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
+
+func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
