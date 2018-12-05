@@ -7,7 +7,9 @@ import (
 	"net/http"
 	"net/smtp"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 )
 
 var (
@@ -73,10 +75,24 @@ func init() {
 
 func main() {
 	log.Println("Starting ConnectUS API Server...")
+	sigs := make(chan os.Signal, 1)
+	done := make(chan bool, 1)
+
+	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+
+	go func() {
+		sig := <-sigs
+		println("Received signal " + sig.String() + " from host")
+		done <- true
+	}()
 
 	ConnectMongoDB()
 	InitMailer()
-	StartRouter()
+	go StartRouter() // i love goroutines a lot
+
+	println("Completed initialization of api-server.")
+	<-done
+	println("Exiting api-server...")
 }
 
 func StartRouter() {

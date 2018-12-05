@@ -13,13 +13,12 @@ import (
 )
 
 func VerifyUniqueUsername(username string) bool {
-	var results []interfaces_internal.IAccount
-	err := IAccountCollection.Find(bson.M{"username": username}).All(&results)
+	count, err := IAccountCollection.Find(bson.M{"username": username}).Count()
 	if err != nil {
 		log.Print(err)
 		return false
 	}
-	return len(results) == 0
+	return count == 0
 }
 
 /*
@@ -70,7 +69,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 
 	// Send email verification email
-
+	// TODO ACTUALLY DO EMAIL
 
 	if *req.Type == "user" {
 
@@ -213,18 +212,18 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
  */
 
 func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	query := IAccountCollection.Find(bson.M{"username": p.ByName("id")})
-	count, err := query.Count()
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-		return
-	}
-	if count == 0 {
-		SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
-		return
-	}
 	account := interfaces_internal.IAccount{}
-	err = query.One(&account)
+	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
+
+	if err != nil {
+		if err.Error() == "not found" {
+			SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
+		} else {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		}
+		return
+	}
+
 	accountapi := interfaces_api.ConvertToIAccountAPI(account)
 
 	b, err := json.Marshal(accountapi)

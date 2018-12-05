@@ -7,6 +7,8 @@ import (
 	"strconv"
 )
 
+func SendMail(recipient string, subject string, templateName string)
+
 func InitMailer() {
 	auth := smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST)
 	tlsconfig := &tls.Config {
@@ -18,20 +20,18 @@ func InitMailer() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer c.Close()
 
 	Mailer, err = smtp.NewClient(c, SMTP_HOST)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer Mailer.Close()
 
 	if err = Mailer.Auth(auth); err != nil {
 		log.Fatal(err)
 	}
 
 	if err = Mailer.Mail(MAIL_SENDER); err != nil {
-		
+		log.Fatal(err)
 	}
 
 }
