@@ -122,9 +122,11 @@ Error Codes:
 | Error Code | Message | HTTP Code |
 |-------------------|---------------|------------------|
 | 3200 | Invalid account type. | 500 |
-| 3201 | Username already taken. | 500 |
+| 3201 | Username already taken. | 400 |
 | 3203 | Internal server error registering the account. | 500 |
 | 3204 | Internal server error sending the verification email. | 500 |
+| 3205 | There was a problem reading the request. | 500 |
+| 3206 | Bad request. | 500 |
 
 #### Verify Email
 
