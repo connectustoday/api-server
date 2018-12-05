@@ -58,6 +58,7 @@ func WithAccountVerify(next httprouter.Handle) httprouter.Handle {
 				r.Context().Value("account") = result // coolest thing about golang :OO
 				r.Context().Value("accountType") = result.Type
 
+
 				next(w, r, params) // call next middleware or main router function
 				return
 			}
