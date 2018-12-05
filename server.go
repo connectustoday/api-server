@@ -53,7 +53,7 @@ func init() {
 	SECRET = os.Getenv("SECRET")
 	REGISTER_VERIFY_SECRET = os.Getenv("REGISTER_VERIFY_SECRET")
 	APPROVAL_VERIFY_SECRET = os.Getenv("APPROVAL_VERIFY_SECRET")
-	TOKEN_EXPIRY, err = strconv.ParseUint(os.Getenv("TOKEN_EXPIRY"), 10, 64)
+	TOKEN_EXPIRY, err = strconv.ParseInt(os.Getenv("TOKEN_EXPIRY"), 10, 64)
 	if err != nil {
 		panic(err)
 	}

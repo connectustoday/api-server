@@ -2,12 +2,16 @@ package api_server
 
 import (
 	"crypto/tls"
+	"html/template"
 	"log"
 	"net/smtp"
 	"strconv"
 )
 
-func SendMail(recipient string, subject string, templateName string)
+func SendMail(recipient string, subject string, templateName string) {
+	t, err := template.ParseFiles(templateName)
+	// TODO html templating with go
+}
 
 func InitMailer() {
 	auth := smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST)
