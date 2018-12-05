@@ -20,7 +20,7 @@ var (
 	SECRET                 string
 	REGISTER_VERIFY_SECRET string
 	APPROVAL_VERIFY_SECRET string
-	TOKEN_EXPIRY           uint64
+	TOKEN_EXPIRY           int64
 	MAIL_USERNAME          string
 	MAIL_PASSWORD          string
 	MAIL_SENDER            string

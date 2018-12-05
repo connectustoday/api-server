@@ -7,8 +7,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/crypto/bcrypt"
 	"interfaces-internal"
 	"net/http"
+	"time"
 )
 
 func GetAccountFromContext(ctx context.Context) interfaces_internal.IAccount {
@@ -26,7 +28,7 @@ func WithAccountVerify(next httprouter.Handle) httprouter.Handle {
 		}
 
 		checkToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
 				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 			}
 			return []byte(SECRET), nil
@@ -82,14 +84,50 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	if !VerifyFieldsExist(req, FormOmit([]string{})) { // Check request for correct fields
-		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3100)
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3103)
 		return
 	}
 
 	var account interfaces_internal.IAccount
-	err = IAccountCollection.Find(bson.M{"username": req.username}).One(&account)
+	err = IAccountCollection.Find(bson.M{"username": req.username}).One(&account) // find user in database
 
 	if err != nil {
+		if err.Error() == "not found" {
+			SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
+		} else {
+			SendError(w, http.StatusInternalServerError, internalServerError, 3100)
+		}
+		return
+	}
 
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(req.password))
+	if err != nil { // check if password is valid
+		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
+		return
+	}
+
+	if !account.IsEmailVerified { // check if email is verified
+		SendError(w, http.StatusBadRequest, badRequest + " (Email not verified.)", 3102)
+		return
+	}
+
+	// generate jwt for client
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := make(jwt.MapClaims)
+	claims["username"] = account.UserName
+	claims["exp"] = time.Now().Unix() + TOKEN_EXPIRY
+	token.Claims = claims
+	tokenString, err := token.SignedString(SECRET) // sign with secret
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, 3100)
+		return
+	}
+
+	_, err = w.Write([]byte(`{"token": ` + tokenString + `}`)) // return token to client
+
+	if err != nil {
+		println(err)
+		w.WriteHeader(500)
 	}
 }
