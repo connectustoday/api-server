@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
+	"golang.org/x/crypto/bcrypt"
 	"interfaces-api"
 	"interfaces-internal"
 	"log"
 	"net/http"
+	"time"
 )
 
 func VerifyUniqueUsername(username string) bool {
@@ -15,12 +17,174 @@ func VerifyUniqueUsername(username string) bool {
 	err := IAccountCollection.Find(bson.M{"username": username}).All(&results)
 	if err != nil {
 		log.Print(err)
+		return false
 	}
 	return len(results) == 0
 }
 
+/*
+ * Account registration route
+ * https://connectustoday.github.io/api-server/api-reference#register
+ */
+
 func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
+	type requestForm struct {
+		// Global account fields
+		UserName *string `json:"username"`
+		Email    *string `json:"email"`
+		Password *string `json:"password"`
+		Type     *string `json:"type"`
+
+		// User specific fields
+		FirstName *string `json:"first_name"`
+		Birthday  *string `json:"string"`
+
+		// Organization specific fields
+		IsNonProfit   *bool   `json:"is_nonprofit"`
+		PreferredName *string `json:"preferred_name"`
+	}
+
+	decoder := json.NewDecoder(r.Body)
+	var req requestForm
+	err := decoder.Decode(&req)
+	if err != nil { // Check decoding error
+		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
+		return
+	}
+	if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"})) { // Check request for correct fields
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+		return
+	}
+	if !VerifyUniqueUsername(*req.UserName) { // Check if username is unique
+		SendError(w, http.StatusBadRequest, badRequest+" (Username already taken.)", 3201)
+		return
+	}
+
+	// Get hashed bcrypt password
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), 14)
+	if err != nil { // check for bcrypt error
+		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
+		return
+	}
+
+	if *req.Type == "user" {
+
+		err = IAccountCollection.Insert(interfaces_internal.IUser{ // Default User
+			IAccount: &interfaces_internal.IAccount{
+				SchemaVersion:        0,
+				UserName:             *req.UserName,
+				Email:                *req.Email,
+				Password:             string(hashedPassword), // TODO verify if this is how it works or [:]
+				OAuthToken:           "",
+				OAuthService:         "",
+				IsEmailVerified:      false,
+				LastLogin:            0,
+				Notifications:        []interfaces_internal.INotification{},
+				Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", // TODO default images
+				Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+				CreatedAt:            time.Now().Unix(),
+				PendingConnections:   []string{},
+				RequestedConnections: []string{},
+				Posts:                []string{},
+				Liked:                []interfaces_internal.ICom{},
+				Shared:               []interfaces_internal.ICom{},
+				Settings: interfaces_internal.IUserSettings{
+					IAccountSettings: &interfaces_internal.IAccountSettings{
+						AllowMessagesFromUnknown: true,
+						EmailNotifications:       false,
+					},
+					IsFullNameVisible: true,
+					BlockedUsers:      []string{},
+				},
+				AdminNote: "",
+				Type:      "user",
+			},
+			FirstName:  *req.FirstName,
+			MiddleName: "",
+			LastName:   "",
+			Birthday:   *req.Birthday,
+			Gender:     "",
+			PersonalInfo: interfaces_internal.IUserProfile{
+				SchemaVersion:    0,
+				Interests:        []string{},
+				Biography:        "",
+				Education:        "",
+				Quote:            "",
+				CurrentResidence: "",
+				Certifications:   "",
+			},
+			Experiences: []interfaces_internal.IExperience{},
+		})
+
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
+		} else {
+			err = WriteOK(w)
+			if err != nil {
+				println(err)
+			}
+		}
+	} else if *req.Type == "organization" {
+		err = IAccountCollection.Insert(interfaces_internal.IOrganization{
+			IAccount: &interfaces_internal.IAccount{
+				SchemaVersion:        0,
+				UserName:             *req.UserName,
+				Email:                *req.Email,
+				Password:             string(hashedPassword),
+				OAuthToken:           "",
+				OAuthService:         "",
+				IsEmailVerified:      false,
+				LastLogin:            0,
+				Notifications:        []interfaces_internal.INotification{},
+				Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+				Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+				CreatedAt:            time.Now().Unix(),
+				PendingConnections:   nil,
+				RequestedConnections: nil,
+				Posts:                nil,
+				Liked:                nil,
+				Shared:               nil,
+				Settings:             nil,
+				AdminNote:            "",
+				Type:                 "",
+			},
+			PreferredName: "",
+			IsVerified:    false,
+			Opportunities: nil,
+			OrgInfo: interfaces_internal.IOrganizationProfile{
+				SchemaVersion: "",
+				Mission:       "",
+				Quote:         "",
+				Address: interfaces_internal.IAddress{
+					SchemaVersion: 0,
+					Street:        "",
+					City:          "",
+					Province:      "",
+					Country:       "",
+					PostalCode:    "",
+					AptNumber:     "",
+					GeoJSON: interfaces_internal.IPoint{
+						Type:        "",
+						Coordinates: nil,
+					},
+				},
+				AffiliatedOrgs: nil,
+				Interests:      nil,
+			},
+			ExperienceValidations: nil,
+		})
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
+		} else {
+			err = WriteOK(w)
+			if err != nil {
+				println(err)
+			}
+		}
+	} else {
+		SendError(w, http.StatusBadRequest, badRequest+" (Invalid account type)", 3200)
+	}
 }
 
 func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -31,16 +195,29 @@ func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params
 	query := IAccountCollection.Find(bson.M{"username": p.ByName("id")})
 	count, err := query.Count()
 	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError + " (Problem finding account)", 3002)
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		return
 	}
 	if count == 0 {
-		SendError(w, http.StatusNotFound, notFound + " (Account not found)", 3003)
+		SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
+		return
 	}
 	account := interfaces_internal.IAccount{}
 	err = query.One(&account)
 	accountapi := interfaces_api.ConvertToIAccountAPI(account)
 
-	w.Write([]byte())
+	b, err := json.Marshal(accountapi)
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		return
+	}
+
+	_, err = w.Write([]byte(b))
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func GetAccountProfileRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
@@ -50,4 +227,3 @@ func GetAccountProfileRoute(w http.ResponseWriter, r *http.Request, p httprouter
 func GetAccountConnectionsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }
-

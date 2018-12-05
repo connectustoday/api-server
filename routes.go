@@ -52,7 +52,7 @@ func OpportunityRoutes(prefix string, router *httprouter.Router) {
 }
 
 /*
- * Routes for authentication and account creationg
+ * Routes for authentication and account creation
  */
 
 func AuthRoutes(prefix string, router *httprouter.Router) {
@@ -64,25 +64,22 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 		}
 	})
 
-	/*
-         * Register Endpoint Required Fields
-         * - username
-         * - email
-         * - password
-         * - type ("organization", "user")
-         * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         * User Required Fields
-         * - first_name
-         * - birthday
-         * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-         * Organization Required Fields
-         * - is_nonprofit
-         * - preferred_name
-         * ------------------------------------
-         * Returns 200 if SUCCESSFUL
-         */
+	// Register Account API Endpoint
+	// https://connectustoday.github.io/api-server/api-reference#register
 
 	router.POST(prefix+"/register", WithAccountVerify(RegisterRoute))
+
+	/*
+	 * Login API Endpoint
+	 * https://connectustoday.github.io/api-server/api-reference#login
+     * TODO EMAIL LOGIN (RATHER THAN USERNAME)
+     */
+
+	router.POST(prefix+"/login", LoginRoute)
+
+	// Verify email using jsonwebtoken
+
+	router.GET(prefix+"/verify-email/:token", VerifyEmailRequestRoute)
 
 	/*
 	 * Test utility to check if logged in
@@ -101,20 +98,6 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 			}
 		}))
 	}
-
-	/*
-	 * Login Endpoint Required Fields
-	 * - username
-  	 * - password
-	 * Returns 200 + token if SUCCESSFUL
-     * TODO EMAIL LOGIN (RATHER THAN USERNAME)
-     */
-
-	router.POST(prefix+"/login", LoginRoute)
-
-	// Verify email using jsonwebtoken
-
-	router.GET(prefix+"/verify-email/:token", VerifyEmailRequestRoute)
 }
 
 func AccountRoutes(prefix string, router *httprouter.Router) {
