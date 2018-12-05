@@ -3,8 +3,11 @@ package api_server
 import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
+	"interfaces-internal"
 	"net/http"
 )
+
+type accountPassRoute func(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interfaces_internal.IAccount)
 
 /*
  * Routes for experiences
@@ -67,7 +70,7 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	// Register Account API Endpoint
 	// https://connectustoday.github.io/api-server/api-reference#register
 
-	router.POST(prefix+"/register", WithAccountVerify(RegisterRoute))
+	router.POST(prefix+"/register", RegisterRoute)
 
 	/*
 	 * Login API Endpoint
@@ -86,8 +89,8 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	 */
 
 	if DEBUG {
-		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-			vjson, err := json.Marshal(GetAccountFromContext(request.Context()))
+		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account interfaces_internal.IAccount) {
+			vjson, err := json.Marshal(account)
 			if err != nil {
 				println(err)
 			}

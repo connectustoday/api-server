@@ -1,7 +1,6 @@
 package api_server
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -13,13 +12,9 @@ import (
 	"time"
 )
 
-func GetAccountFromContext(ctx context.Context) interfaces_internal.IAccount {
-	return ctx.Value("account").(interfaces_internal.IAccount) // Low possibility of nil (should've been addressed by middleware)
-}
-
 // Account middleware
 
-func WithAccountVerify(next httprouter.Handle) httprouter.Handle {
+func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 		token := r.Header.Get("x-access-token")
 		if token == "" {
@@ -55,11 +50,7 @@ func WithAccountVerify(next httprouter.Handle) httprouter.Handle {
 					return
 				}
 
-				r.Context().Value("account") = result // coolest thing about golang :OO
-				r.Context().Value("accountType") = result.Type
-
-
-				next(w, r, params) // call next middleware or main router function
+				next(w, r, params, result) // call next middleware or main router function
 				return
 			}
 		}

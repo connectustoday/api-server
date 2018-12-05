@@ -2,14 +2,13 @@ package api_server
 
 import (
 	"crypto/tls"
-	"html/template"
 	"log"
 	"net/smtp"
 	"strconv"
 )
 
 func SendMail(recipient string, subject string, templateName string) {
-	t, err := template.ParseFiles(templateName)
+	//t, err := template.ParseFiles(templateName)
 	// TODO html templating with go
 }
 
