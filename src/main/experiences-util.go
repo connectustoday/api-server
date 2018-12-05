@@ -1,4 +1,4 @@
-package api_server
+package main
 
 import (
 	"github.com/julienschmidt/httprouter"
