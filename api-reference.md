@@ -83,8 +83,9 @@ Error Codes:
 | Error Code | Message | HTTP Code |
 |-------------------|---------------|------------------|
 | 3100 | Internal server error. | 500 |
-| 3101 | Invalid login. | 401 |
-| 3102 | Email not verified. | 401 |
+| 3101 | Invalid login. | 400 |
+| 3102 | Email not verified. | 400 |
+| 3103 | Bad request. | 400 |
 
 #### Register
 
