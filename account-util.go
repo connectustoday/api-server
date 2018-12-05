@@ -24,6 +24,7 @@ func VerifyUniqueUsername(username string) bool {
 
 /*
  * Account registration route
+ * POST /v1/auth/register
  * https://connectustoday.github.io/api-server/api-reference#register
  */
 
@@ -68,9 +69,12 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 
+	// Send email verification email
+
+
 	if *req.Type == "user" {
 
-		err = IAccountCollection.Insert(interfaces_internal.IUser{ // Default User
+		err = IAccountCollection.Insert(interfaces_internal.IUser{ // Add Default User
 			IAccount: &interfaces_internal.IAccount{
 				SchemaVersion:        0,
 				UserName:             *req.UserName,
@@ -117,6 +121,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			Experiences: []interfaces_internal.IExperience{},
 		})
 
+		// Check for successful insert to database
+
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		} else {
@@ -126,7 +132,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			}
 		}
 	} else if *req.Type == "organization" {
-		err = IAccountCollection.Insert(interfaces_internal.IOrganization{
+
+		err = IAccountCollection.Insert(interfaces_internal.IOrganization{ // Add Default Organization
 			IAccount: &interfaces_internal.IAccount{
 				SchemaVersion:        0,
 				UserName:             *req.UserName,
@@ -140,20 +147,26 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 				Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
 				Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
 				CreatedAt:            time.Now().Unix(),
-				PendingConnections:   nil,
-				RequestedConnections: nil,
-				Posts:                nil,
-				Liked:                nil,
-				Shared:               nil,
-				Settings:             nil,
+				PendingConnections:   []string{},
+				RequestedConnections: []string{},
+				Posts:                []string{},
+				Liked:                []interfaces_internal.ICom{},
+				Shared:               []interfaces_internal.ICom{},
+				Settings:             interfaces_internal.IOrganizationSettings{
+					IAccountSettings: &interfaces_internal.IAccountSettings{
+						AllowMessagesFromUnknown: true,
+						EmailNotifications:       true,
+					},
+					IsNonprofit: *req.IsNonProfit,
+				},
 				AdminNote:            "",
 				Type:                 "",
 			},
-			PreferredName: "",
+			PreferredName: *req.PreferredName,
 			IsVerified:    false,
-			Opportunities: nil,
+			Opportunities: []string{},
 			OrgInfo: interfaces_internal.IOrganizationProfile{
-				SchemaVersion: "",
+				SchemaVersion: 0,
 				Mission:       "",
 				Quote:         "",
 				Address: interfaces_internal.IAddress{
@@ -169,11 +182,13 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 						Coordinates: nil,
 					},
 				},
-				AffiliatedOrgs: nil,
-				Interests:      nil,
+				AffiliatedOrgs: []string{},
+				Interests:      []string{},
 			},
-			ExperienceValidations: nil,
+			ExperienceValidations: []interfaces_internal.IValidations{},
 		})
+
+		// Check for successful insert to database
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		} else {
@@ -190,6 +205,12 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }
+
+/*
+ * Get account route
+ * GET /v1/accounts/:id
+ * https://connectustoday.github.io/api-server/api-reference#accounts
+ */
 
 func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	query := IAccountCollection.Find(bson.M{"username": p.ByName("id")})

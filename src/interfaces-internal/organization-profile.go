@@ -1,7 +1,7 @@
 package interfaces_internal
 
 type IOrganizationProfile struct {
-	SchemaVersion  string   `bson:"schema_version"`
+	SchemaVersion  uint32   `bson:"schema_version"`
 	Mission        string   `bson:"mission"`
 	Quote          string   `bson:"quote"`
 	Address        IAddress `bson:"address"`

@@ -5,38 +5,45 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
+	"net/smtp"
 	"os"
 	"strconv"
 )
 
 var (
-	DB_PORT string
-	DB_ADDRESS string
-	DB_NAME string
-	SECRET string
+	// ENV
+	DB_PORT                string
+	DB_ADDRESS             string
+	DB_NAME                string
+	SECRET                 string
 	REGISTER_VERIFY_SECRET string
 	APPROVAL_VERIFY_SECRET string
-	TOKEN_EXPIRY uint64
-	MAIL_USERNAME string
-	MAIL_PASSWORD string
-	MAIL_SENDER string
-	SMTP_HOST string
-	SMTP_PORT uint64
-	API_DOMAIN string
-	SITE_DOMAIN string
-	DEBUG bool
+	TOKEN_EXPIRY           uint64
+	MAIL_USERNAME          string
+	MAIL_PASSWORD          string
+	MAIL_SENDER            string
+	SMTP_HOST              string
+	SMTP_PORT              int
+	API_DOMAIN             string
+	SITE_DOMAIN            string
+	DEBUG                  bool
 
 	PORT uint64
 
+	// Global ref
+
+	Mailer *smtp.Client
+
 	Database *mgo.Database
 
-	IAccountCollection *mgo.Collection
+	IAccountCollection    *mgo.Collection
 	IExperienceCollection *mgo.Collection
 
 	router *httprouter.Router
 )
 
 func init() {
+	// Obtain environment variables
 	var err error
 	DB_PORT = os.Getenv("DB_PORT")
 	DB_ADDRESS = os.Getenv("DB_ADDRESS")
@@ -52,7 +59,7 @@ func init() {
 	MAIL_PASSWORD = os.Getenv("MAIL_PASSWORD")
 	MAIL_SENDER = os.Getenv("MAIL_SENDER")
 	SMTP_HOST = os.Getenv("SMTP_HOST")
-	SMTP_PORT, err = strconv.ParseUint(os.Getenv("SMTP_PORT"), 10, 64)
+	SMTP_PORT, err = strconv.Atoi(os.Getenv("SMTP_PORT"))
 	if err != nil {
 		panic(err)
 	}
@@ -68,6 +75,7 @@ func main() {
 	log.Println("Starting ConnectUS API Server...")
 
 	ConnectMongoDB()
+	InitMailer()
 	StartRouter()
 }
 
@@ -90,7 +98,7 @@ func StartRouter() {
 	ExperienceRoutes("/v1/experiences", router)
 	OpportunityRoutes("/v1/opportunities", router)
 
-	log.Fatal(http.ListenAndServe(":" + strconv.Itoa(int(PORT)), router)) // Start and serve API
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(int(PORT)), router)) // Start and serve API
 }
 
 func ConnectMongoDB() {
