@@ -6,11 +6,8 @@ The server software has only been tested on GNU/Linux.
 ```bash
 $ git clone https://github.com/connectustoday/api-server.git
 $ cd api-server
-$ go get -t github.com/julienschmidt/httprouter
-$ go get -t github.com/globalsign/mgo
-$ go get -t github.com/dgrijalva/jwt-go
-$ go get -t golang.org/x/crypto/bcrypt
 $ ./build.sh
+$ ./run.sh
 
 ```
 
