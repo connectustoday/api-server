@@ -1,4 +1,5 @@
 #!/bin/bash
+mkdir bin
 cd src/main
 go get -t github.com/julienschmidt/httprouter
 go get -t github.com/globalsign/mgo

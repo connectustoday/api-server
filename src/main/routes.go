@@ -28,11 +28,11 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 
 	// Update experience
 	// Use IExperienceAPI object as "experience" field for the new replacing experience
-	router.PUT(prefix+"/:id", WithAccountVerify(UpdateExperienceRoute))
+	router.PUT(prefix+"/resolve/:id", WithAccountVerify(UpdateExperienceRoute))
 
 	// Delete experience
 	// No parameters required (except header token)
-	router.DELETE(prefix+"/:id", WithAccountVerify(DeleteExperienceRoute))
+	router.DELETE(prefix+"/resolve/:id", WithAccountVerify(DeleteExperienceRoute))
 
 	// List pending experience validations (for organization)
 	// No parameters required (except header token)
@@ -112,10 +112,6 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 	 * Global Account Routes
 	 */
 
-	router.GET(prefix+"/search", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-
-	})
-
 	// Fetch an Account's basic information (Global)
 
 	router.GET(prefix+"/:id", GetAccountRoute)
@@ -135,5 +131,7 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 }
 
 func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
+	router.GET(prefix+"/search", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
+	})
 }
