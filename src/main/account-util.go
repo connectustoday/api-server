@@ -9,6 +9,7 @@ import (
 	"interfaces-internal"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"time"
 )
 
@@ -31,7 +32,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	type requestForm struct {
 		// Global account fields
-		UserName *string `json:"username"`
+		UserName *string `json:"username,omitempty"`
 		Email    *string `json:"email"`
 		Password *string `json:"password"`
 		Type     *string `json:"type"`
@@ -45,10 +46,20 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		PreferredName *string `json:"preferred_name"`
 	}
 
-	decoder := json.NewDecoder(r.Body)
 	var req requestForm
-	err := decoder.Decode(&req)
+
+	//body, _ := ioutil.ReadAll(r.Body)
+	//r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
+	// TODO SWITCH TO GENERAL UTIL FUNCTION FOR DECODING
+
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil { // Check decoding error
+		if DEBUG {
+			output, _ := httputil.DumpRequest(r, true)
+			println(string(output))
+			log.Println(err.Error() + " ")
+		}
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
 		return
 	}

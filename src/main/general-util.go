@@ -25,6 +25,7 @@ import (
 )
 
 func FormOmit(omitFields []string) (ret map[string]bool) {
+	ret = make(map[string]bool)
 	for _, e := range omitFields {
 		ret[e] = true
 	}
@@ -34,7 +35,7 @@ func FormOmit(omitFields []string) (ret map[string]bool) {
 func VerifyFieldsExist(obj interface{}, omitFields map[string]bool) bool {
 	v := reflect.ValueOf(obj)
 	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).Interface() == nil && !omitFields[v.Field(i).Interface().(string)] {
+		if v.Field(i).IsNil() && !omitFields[v.Type().Field(i).Name] {
 			return false
 		}
 	}
@@ -45,3 +46,7 @@ func WriteOK(w http.ResponseWriter) (err error) {
 	_, err = w.Write([]byte(`{"message": ` + ok + `}`))
 	return
 }
+
+//func DecodeRequest(r *http.Request, obj *interface{}) error {
+	//TODO USE "github.com/gorilla/schema"
+//}

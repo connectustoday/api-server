@@ -41,7 +41,8 @@ ENV DEBUG ${DEBUG}
 
 EXPOSE ${PORT}
 
-COPY ./bin/api-server /usr/src/server/api-server
+COPY ./bin /usr/src/server
 WORKDIR /usr/src/server
 
-CMD ./api-server
+RUN chmod +x api-server
+CMD sh

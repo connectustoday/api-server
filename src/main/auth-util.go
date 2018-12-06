@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -8,6 +9,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"interfaces-internal"
+	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -16,6 +18,9 @@ import (
 
 func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		body, _ := ioutil.ReadAll(r.Body)
+		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
+
 		token := r.Header.Get("x-access-token")
 		if token == "" {
 			SendError(w, http.StatusUnauthorized, "No token provided.", 3000)
@@ -68,9 +73,8 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		password string
 	}
 
-	decoder := json.NewDecoder(r.Body)
 	var req requestForm
-	err := decoder.Decode(&req)
+	err := json.NewDecoder(r.Body).Decode(&req)
 	if err != nil { // Check decoding error
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3100)
 		return

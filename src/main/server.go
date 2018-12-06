@@ -86,7 +86,7 @@ func main() {
 
 	go func() {
 		sig := <-sigs
-		println("Received signal " + sig.String() + " from host")
+		log.Println("Received signal " + sig.String() + " from host")
 		done <- true
 	}()
 
@@ -94,13 +94,13 @@ func main() {
 	//InitMailer()
 	go StartRouter() // i love goroutines a lot
 
-	println("Completed initialization of api-server.")
+	log.Println("Completed initialization of api-server.")
 	<-done
-	println("Exiting api-server...")
+	log.Println("Exiting api-server...")
 }
 
 func StartRouter() {
-	println("Starting API router...")
+	log.Println("Starting API router...")
 	router = httprouter.New()
 	router.OPTIONS("/*all", func(w http.ResponseWriter, _ *http.Request, params httprouter.Params) {
 		w.WriteHeader(404)
@@ -119,12 +119,12 @@ func StartRouter() {
 	ExperienceRoutes("/v1/experiences", router)
 	OpportunityRoutes("/v1/opportunities", router)
 
-	println("Initialized router on port " + strconv.Itoa(int(PORT)) + ".")
+	log.Println("Initialized router on port " + strconv.Itoa(int(PORT)) + ".")
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(int(PORT)), router)) // Start and serve API
 }
 
 func ConnectMongoDB() {
-	println("Connecting to MongoDB at " + DB_ADDRESS + ":" + DB_PORT)
+	log.Println("Connecting to MongoDB at " + DB_ADDRESS + ":" + DB_PORT)
 	session, err := mgo.Dial(DB_ADDRESS + ":" + DB_PORT)
 	if err != nil {
 		log.Fatal(err)
@@ -132,7 +132,7 @@ func ConnectMongoDB() {
 
 	session.SetMode(mgo.Monotonic, true)
 
-	println("Successfully connected.")
+	log.Println("Successfully connected.")
 
 	Database = session.DB(DB_NAME)
 
