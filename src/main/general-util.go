@@ -54,7 +54,7 @@ func VerifyFieldsExist(obj interface{}, omitFields map[string]bool) bool {
 }
 
 func WriteOK(w http.ResponseWriter) (err error) {
-	_, err = w.Write([]byte(`{"message": ` + ok + `}`))
+	_, err = w.Write([]byte(`{"message": "` + ok + `"}`))
 	return
 }
 

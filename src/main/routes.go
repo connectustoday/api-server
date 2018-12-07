@@ -89,8 +89,8 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	 */
 
 	if DEBUG {
-		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account interfaces_internal.IAccount) {
-			vjson, err := json.Marshal(account)
+		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account interface{}) {
+			vjson, err := json.Marshal(account.(interfaces_internal.IAccount))
 			if err != nil {
 				println(err)
 			}
