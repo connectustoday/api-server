@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-type accountPassRoute func(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interfaces_internal.IAccount)
+type accountPassRoute func(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interface{})
 
 /*
  * Routes for experiences

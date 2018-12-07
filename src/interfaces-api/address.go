@@ -1,7 +1,8 @@
 package interfaces_api
 
+import "interfaces-internal"
+
 type IAddressAPI struct {
-	SchemaVersion uint32    `json:"schema_version"`
 	Street        string    `json:"street"`
 	City          string    `json:"city"`
 	Province      string    `json:"province"`
@@ -9,4 +10,16 @@ type IAddressAPI struct {
 	PostalCode    string    `json:"postal_code"`
 	AptNumber     string    `json:"apt_number"`
 	GeoJSON       IPointAPI `json:"geojson"`
+}
+
+func ConvertToIAddressAPI(address interfaces_internal.IAddress) IAddressAPI {
+	return IAddressAPI{
+		Street: address.Street,
+		City: address.City,
+		Province: address.Province,
+		Country: address.Country,
+		PostalCode: address.PostalCode,
+		AptNumber: address.AptNumber,
+		GeoJSON: ConvertToIPointAPI(address.GeoJSON),
+	}
 }

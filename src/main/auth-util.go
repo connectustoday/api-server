@@ -32,7 +32,7 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 		if err == nil && checkToken.Valid {
 			if claims, ok := checkToken.Claims.(jwt.MapClaims); ok {
 
-				result := interfaces_internal.IAccount{} // Get account
+				var result interface{} // Get account
 				err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&result)
 				if err != nil {
 					if err.Error() == "not found" { // Check if account exists
@@ -45,7 +45,8 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 					}
 					return
 				}
-				if !result.IsEmailVerified { // Check for Email Verification
+				acc, _ := result.(interfaces_internal.IAccount)
+				if !acc.IsEmailVerified { // Check for Email Verification
 					SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)
 					return
 				}
