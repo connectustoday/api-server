@@ -43,11 +43,15 @@ func FormOmit(omitFields []string) (ret map[string]bool) {
 	return
 }
 
-func VerifyFieldsExist(obj interface{}, omitFields map[string]bool) bool {
+func VerifyFieldsExist(obj interface{}, omitFields map[string]bool, fillEmpty bool) bool {
 	v := reflect.ValueOf(obj)
 	for i := 0; i < v.NumField(); i++ {
-		if v.Field(i).IsNil() && !omitFields[v.Type().Field(i).Name] {
-			return false
+		if v.Field(i).IsNil() {
+			if !omitFields[v.Type().Field(i).Name] {
+				return false
+			} else if fillEmpty {
+				v.Field(i).Set(reflect.Zero(v.Field(i).Type())) // zero the value if needed to fill empty
+			}
 		}
 	}
 	return true

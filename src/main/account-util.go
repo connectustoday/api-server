@@ -32,7 +32,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	type requestForm struct {
 		// Global account fields
-		UserName *string `json:"username,omitempty" schema:"username"`
+		UserName *string `json:"username" schema:"username"`
 		Email    *string `json:"email" schema:"email"`
 		Password *string `json:"password" schema:"password"`
 		Type     *string `json:"type" schema:"type"`
@@ -58,7 +58,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
 		return
 	}
-	if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"})) { // Check request for correct fields
+	if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), false) { // Check request for correct fields
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 		return
 	}
@@ -79,7 +79,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	if *req.Type == "user" {
 
-		if !VerifyFieldsExist(req, FormOmit([]string{"IsNonProfit", "PreferredName"})) { // Check request for correct fields
+		if !VerifyFieldsExist(req, FormOmit([]string{"IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
 			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 			return
 		}
@@ -140,7 +140,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		}
 	} else if *req.Type == "organization" {
 
-		if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday"})) { // Check request for correct fields
+		if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday"}), true) { // Check request for correct fields
 			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 			return
 		}

@@ -77,7 +77,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3100)
 		return
 	}
-	if !VerifyFieldsExist(req, FormOmit([]string{})) { // Check request for correct fields
+	if !VerifyFieldsExist(req, FormOmit([]string{}), false) { // Check request for correct fields
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3103)
 		return
 	}
