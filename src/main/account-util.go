@@ -102,15 +102,13 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			Liked:                []interfaces_internal.ICom{},
 			Shared:               []interfaces_internal.ICom{},
 			Settings: interfaces_internal.IUserSettings{
-				IAccountSettings: &interfaces_internal.IAccountSettings{
-					AllowMessagesFromUnknown: true,
-					EmailNotifications:       false,
-				},
-				IsFullNameVisible: true,
-				BlockedUsers:      []string{},
+				AllowMessagesFromUnknown: true,
+				EmailNotifications:       false,
+				IsFullNameVisible:        true,
+				BlockedUsers:             []string{},
 			},
-			AdminNote:  "",
-			Type:       "user",
+			AdminNote: "",
+			Type:      "user",
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -165,14 +163,12 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			Liked:                []interfaces_internal.ICom{},
 			Shared:               []interfaces_internal.ICom{},
 			Settings: interfaces_internal.IOrganizationSettings{
-				IAccountSettings: &interfaces_internal.IAccountSettings{
-					AllowMessagesFromUnknown: true,
-					EmailNotifications:       true,
-				},
-				IsNonprofit: *req.IsNonProfit,
+				AllowMessagesFromUnknown: true,
+				EmailNotifications:       true,
+				IsNonprofit:              *req.IsNonProfit,
 			},
-			AdminNote:     "",
-			Type:          "",
+			AdminNote: "",
+			Type:      "",
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,

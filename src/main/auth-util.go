@@ -94,7 +94,6 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return
 	}
-
 	if !account.IsEmailVerified { // check if email is verified
 		SendError(w, http.StatusBadRequest, badRequest + " (Email not verified.)", 3102)
 		return
