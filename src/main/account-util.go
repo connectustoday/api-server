@@ -9,7 +9,6 @@ import (
 	"interfaces-internal"
 	"log"
 	"net/http"
-	"net/http/httputil"
 	"time"
 )
 
@@ -32,33 +31,28 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	type requestForm struct {
 		// Global account fields
-		UserName *string `json:"username,omitempty"`
-		Email    *string `json:"email"`
-		Password *string `json:"password"`
-		Type     *string `json:"type"`
+		UserName *string `json:"username,omitempty" schema:"username"`
+		Email    *string `json:"email" schema:"email"`
+		Password *string `json:"password" schema:"password"`
+		Type     *string `json:"type" schema:"type"`
 
 		// User specific fields
-		FirstName *string `json:"first_name"`
-		Birthday  *string `json:"string"`
+		FirstName *string `json:"first_name" schema:"first_name"`
+		Birthday  *string `json:"string" schema:"birthday"`
 
 		// Organization specific fields
-		IsNonProfit   *bool   `json:"is_nonprofit"`
-		PreferredName *string `json:"preferred_name"`
+		IsNonProfit   *bool   `json:"is_nonprofit" schema:"is_non_profit"`
+		PreferredName *string `json:"preferred_name" schema:"preferred_name"`
 	}
 
 	var req requestForm
 
-	//body, _ := ioutil.ReadAll(r.Body)
-	//r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-	// TODO SWITCH TO GENERAL UTIL FUNCTION FOR DECODING
-
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
 		if DEBUG {
-			output, _ := httputil.DumpRequest(r, true)
-			println(string(output))
-			log.Println(err.Error() + " ")
+			//output, _ := httputil.DumpRequest(r, true)
+			//println(string(output))
+			log.Println(err.Error())
 		}
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
 		return
@@ -84,36 +78,40 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	if *req.Type == "user" {
 
-		err = IAccountCollection.Insert(interfaces_internal.IUser{ // Add Default User
-			IAccount: &interfaces_internal.IAccount{
-				SchemaVersion:        0,
-				UserName:             *req.UserName,
-				Email:                *req.Email,
-				Password:             string(hashedPassword), // TODO verify if this is how it works or [:]
-				OAuthToken:           "",
-				OAuthService:         "",
-				IsEmailVerified:      false,
-				LastLogin:            0,
-				Notifications:        []interfaces_internal.INotification{},
-				Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", // TODO default images
-				Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
-				CreatedAt:            time.Now().Unix(),
-				PendingConnections:   []string{},
-				RequestedConnections: []string{},
-				Posts:                []string{},
-				Liked:                []interfaces_internal.ICom{},
-				Shared:               []interfaces_internal.ICom{},
-				Settings: interfaces_internal.IUserSettings{
-					IAccountSettings: &interfaces_internal.IAccountSettings{
-						AllowMessagesFromUnknown: true,
-						EmailNotifications:       false,
-					},
-					IsFullNameVisible: true,
-					BlockedUsers:      []string{},
+		if !VerifyFieldsExist(req, FormOmit([]string{"IsNonProfit", "PreferredName"})) { // Check request for correct fields
+			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+			return
+		}
+
+		err = IAccountCollection.Insert(&interfaces_internal.IUser{ // Add Default User
+			SchemaVersion:        0,
+			UserName:             *req.UserName,
+			Email:                *req.Email,
+			Password:             string(hashedPassword), // TODO verify if this is how it works or [:]
+			OAuthToken:           "",
+			OAuthService:         "",
+			IsEmailVerified:      false,
+			LastLogin:            0,
+			Notifications:        []interfaces_internal.INotification{},
+			Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg", // TODO default images
+			Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+			CreatedAt:            time.Now().Unix(),
+			PendingConnections:   []string{},
+			RequestedConnections: []string{},
+			Posts:                []string{},
+			Liked:                []interfaces_internal.ICom{},
+			Shared:               []interfaces_internal.ICom{},
+			Settings: interfaces_internal.IUserSettings{
+				IAccountSettings: &interfaces_internal.IAccountSettings{
+					AllowMessagesFromUnknown: true,
+					EmailNotifications:       false,
 				},
-				AdminNote: "",
-				Type:      "user",
+				IsFullNameVisible: true,
+				BlockedUsers:      []string{},
 			},
+			AdminNote:  "",
+			Type:       "user",
+			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
 			LastName:   "",
@@ -143,35 +141,39 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		}
 	} else if *req.Type == "organization" {
 
-		err = IAccountCollection.Insert(interfaces_internal.IOrganization{ // Add Default Organization
-			IAccount: &interfaces_internal.IAccount{
-				SchemaVersion:        0,
-				UserName:             *req.UserName,
-				Email:                *req.Email,
-				Password:             string(hashedPassword),
-				OAuthToken:           "",
-				OAuthService:         "",
-				IsEmailVerified:      false,
-				LastLogin:            0,
-				Notifications:        []interfaces_internal.INotification{},
-				Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
-				Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
-				CreatedAt:            time.Now().Unix(),
-				PendingConnections:   []string{},
-				RequestedConnections: []string{},
-				Posts:                []string{},
-				Liked:                []interfaces_internal.ICom{},
-				Shared:               []interfaces_internal.ICom{},
-				Settings:             interfaces_internal.IOrganizationSettings{
-					IAccountSettings: &interfaces_internal.IAccountSettings{
-						AllowMessagesFromUnknown: true,
-						EmailNotifications:       true,
-					},
-					IsNonprofit: *req.IsNonProfit,
+		if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday"})) { // Check request for correct fields
+			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+			return
+		}
+
+		err = IAccountCollection.Insert(&interfaces_internal.IOrganization{ // Add Default Organization
+			SchemaVersion:        0,
+			UserName:             *req.UserName,
+			Email:                *req.Email,
+			Password:             string(hashedPassword),
+			OAuthToken:           "",
+			OAuthService:         "",
+			IsEmailVerified:      false,
+			LastLogin:            0,
+			Notifications:        []interfaces_internal.INotification{},
+			Avatar:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+			Header:               "https://pbs.twimg.com/profile_images/1017516299143041024/fLFdcGsl_400x400.jpg",
+			CreatedAt:            time.Now().Unix(),
+			PendingConnections:   []string{},
+			RequestedConnections: []string{},
+			Posts:                []string{},
+			Liked:                []interfaces_internal.ICom{},
+			Shared:               []interfaces_internal.ICom{},
+			Settings: interfaces_internal.IOrganizationSettings{
+				IAccountSettings: &interfaces_internal.IAccountSettings{
+					AllowMessagesFromUnknown: true,
+					EmailNotifications:       true,
 				},
-				AdminNote:            "",
-				Type:                 "",
+				IsNonprofit: *req.IsNonProfit,
 			},
+			AdminNote:     "",
+			Type:          "",
+			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,
 			Opportunities: []string{},

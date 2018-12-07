@@ -20,9 +20,20 @@
 package main
 
 import (
+	"encoding/json"
+	"github.com/gorilla/schema"
 	"net/http"
 	"reflect"
+	"strings"
 )
+
+var (
+	schemaDecoder = schema.NewDecoder()
+)
+
+func init() {
+	schemaDecoder.IgnoreUnknownKeys(true)
+}
 
 func FormOmit(omitFields []string) (ret map[string]bool) {
 	ret = make(map[string]bool)
@@ -47,6 +58,15 @@ func WriteOK(w http.ResponseWriter) (err error) {
 	return
 }
 
-//func DecodeRequest(r *http.Request, obj *interface{}) error {
-	//TODO USE "github.com/gorilla/schema"
-//}
+func DecodeRequest(r *http.Request, obj interface{}) error {
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	if strings.EqualFold(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") || strings.EqualFold(r.Header.Get("Content-Type"), "application/form-data") {
+		return schemaDecoder.Decode(obj, r.PostForm)
+	} else {
+		return json.NewDecoder(r.Body).Decode(&obj)
+	}
+}

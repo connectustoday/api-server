@@ -1,15 +1,12 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"interfaces-internal"
-	"io/ioutil"
 	"net/http"
 	"time"
 )
@@ -18,8 +15,6 @@ import (
 
 func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
-		body, _ := ioutil.ReadAll(r.Body)
-		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 		token := r.Header.Get("x-access-token")
 		if token == "" {
@@ -69,12 +64,11 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 
 func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	type requestForm struct {
-		username string
-		password string
+		Username *string `json:"username" schema:"username"`
+		Password *string `json:"password" schema:"password"`
 	}
-
 	var req requestForm
-	err := json.NewDecoder(r.Body).Decode(&req)
+	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3100)
 		return
@@ -85,8 +79,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var account interfaces_internal.IAccount
-	err = IAccountCollection.Find(bson.M{"username": req.username}).One(&account) // find user in database
-
+	err = IAccountCollection.Find(bson.M{"username": *req.Username}).One(&account) // find user in database
 	if err != nil {
 		if err.Error() == "not found" {
 			SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
@@ -96,7 +89,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(req.password))
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password))
 	if err != nil { // check if password is valid
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return
