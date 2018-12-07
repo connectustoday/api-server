@@ -63,10 +63,13 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 // https://connectustoday.github.io/api-server/api-reference#login
 
 func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type requestForm struct {
 		Username *string `json:"username" schema:"username"`
 		Password *string `json:"password" schema:"password"`
 	}
+
 	var req requestForm
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
@@ -89,7 +92,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password)) // 1 second delay to prevent brute force
 	if err != nil { // check if password is valid
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return

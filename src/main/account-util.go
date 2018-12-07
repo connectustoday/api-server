@@ -28,6 +28,7 @@ func VerifyUniqueUsername(username string) bool {
  */
 
 func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
 		// Global account fields
@@ -108,7 +109,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 				BlockedUsers:             []string{},
 			},
 			AdminNote: "",
-			Type:      "user",
+			Type:      "User",
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -168,7 +169,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 				IsNonprofit:              *req.IsNonProfit,
 			},
 			AdminNote: "",
-			Type:      "",
+			Type:      "Organization",
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,
@@ -221,6 +222,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
  */
 
 func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
 	account := interfaces_internal.IAccount{}
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
