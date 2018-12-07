@@ -68,7 +68,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 
 	// Get hashed bcrypt password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), 14)
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), BCRYPT_COST)
 	if err != nil { // check for bcrypt error
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		return

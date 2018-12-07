@@ -30,7 +30,8 @@ var (
 	SITE_DOMAIN            string
 	DEBUG                  bool
 
-	PORT int
+	PORT        int
+	BCRYPT_COST int
 
 	// Global ref
 
@@ -44,34 +45,46 @@ var (
 	router *httprouter.Router
 )
 
+func getEnv(key string, def string) string {
+	e := os.Getenv(key)
+	if e == "" {
+		return def
+	}
+	return key
+}
+
 func init() {
 	// Obtain environment variables
 	var err error
-	DB_PORT = os.Getenv("DB_PORT")
-	DB_ADDRESS = os.Getenv("DB_ADDRESS")
-	DB_NAME = os.Getenv("DB_NAME")
-	SECRET = os.Getenv("SECRET")
-	REGISTER_VERIFY_SECRET = os.Getenv("REGISTER_VERIFY_SECRET")
-	APPROVAL_VERIFY_SECRET = os.Getenv("APPROVAL_VERIFY_SECRET")
-	TOKEN_EXPIRY, err = strconv.ParseInt(os.Getenv("TOKEN_EXPIRY"), 10, 64)
+	DB_PORT = getEnv("DB_PORT", "27017")
+	DB_ADDRESS = getEnv("DB_ADDRESS", "localhost")
+	DB_NAME = getEnv("DB_NAME", "api-server")
+	SECRET = getEnv("SECRET", "secret")
+	REGISTER_VERIFY_SECRET = getEnv("REGISTER_VERIFY_SECRET", "secret")
+	APPROVAL_VERIFY_SECRET = getEnv("APPROVAL_VERIFY_SECRET", "secret")
+	TOKEN_EXPIRY, err = strconv.ParseInt(getEnv("TOKEN_EXPIRY", "86400"), 10, 64)
 	if err != nil {
 		panic(err)
 	}
-	MAIL_USERNAME = os.Getenv("MAIL_USERNAME")
-	MAIL_PASSWORD = os.Getenv("MAIL_PASSWORD")
-	MAIL_SENDER = os.Getenv("MAIL_SENDER")
-	SMTP_HOST = os.Getenv("SMTP_HOST")
-	SMTP_PORT, err = strconv.Atoi(os.Getenv("SMTP_PORT"))
+	MAIL_USERNAME = getEnv("MAIL_USERNAME", "test@test.com")
+	MAIL_PASSWORD = getEnv("MAIL_PASSWORD", "pass")
+	MAIL_SENDER = getEnv("MAIL_SENDER", "test@test.com")
+	SMTP_HOST = getEnv("SMTP_HOST", "test.com")
+	SMTP_PORT, err = strconv.Atoi(getEnv("SMTP_PORT", "587"))
 	if err != nil {
 		panic(err)
 	}
-	API_DOMAIN = os.Getenv("API_DOMAIN")
-	SITE_DOMAIN = os.Getenv("SITE_DOMAIN")
-	DEBUG, err = strconv.ParseBool(os.Getenv("DEBUG"))
+	API_DOMAIN = getEnv("API_DOMAIN", "localhost/api")
+	SITE_DOMAIN = getEnv("SITE_DOMAIN", "localhost")
+	DEBUG, err = strconv.ParseBool(getEnv("DEBUG", "false"))
 	if err != nil {
 		panic(err)
 	}
-	PORT, err = strconv.Atoi(os.Getenv("PORT"))
+	PORT, err = strconv.Atoi(getEnv("PORT", "3000"))
+	if err != nil {
+		panic(err)
+	}
+	BCRYPT_COST, err = strconv.Atoi(getEnv("BCRYPT_COST",  "10"))
 	if err != nil {
 		panic(err)
 	}
