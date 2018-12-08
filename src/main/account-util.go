@@ -238,7 +238,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
 	w.Header().Set("Content-Type", "text/html")
 
 	checkToken, err := jwt.Parse(p.ByName("token"), func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(REGISTER_VERIFY_SECRET), nil
@@ -274,6 +274,9 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
 			w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
 		}
 	} else {
+		if DEBUG && err != nil {
+			log.Println(err.Error())
+		}
 		w.WriteHeader(404)
 		w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
 	}
