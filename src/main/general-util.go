@@ -22,6 +22,7 @@ package main
 import (
 	"encoding/json"
 	"github.com/gorilla/schema"
+	"log"
 	"net/http"
 	"reflect"
 	"strings"
@@ -57,10 +58,10 @@ func VerifyFieldsExist(obj interface{}, omitFields map[string]bool, fillEmpty bo
 	return true
 }
 
-func WriteOK(w http.ResponseWriter, errorCode int) {
+func WriteOK(w http.ResponseWriter) {
 	_, err := w.Write([]byte(`{"message": "` + ok + `"}`))
 	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError, errorCode)
+		log.Println(err.Error())
 	}
 }
 

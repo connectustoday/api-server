@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"interfaces-api"
@@ -14,7 +15,7 @@ import (
 // GET /v1/experiences
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func GetPersonalExperiencesRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func GetPersonalExperiencesRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	user, ok := account.(interfaces_internal.IUser)
@@ -30,7 +31,7 @@ func GetPersonalExperiencesRoute(w http.ResponseWriter, r *http.Request, p httpr
 // GET /v1/accounts/:id/experiences
 // https://connectustoday.github.io/api-server/api-reference#accounts
 
-func GetExperiencesRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func GetExperiencesRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 
 	var user interfaces_internal.IUser
@@ -79,7 +80,7 @@ func UpdateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 // POST /v1/experiences
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
@@ -137,8 +138,26 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 
 	if exp.Organization != "" { // if the organization field is filled out
 		if *req.EmailVerify { // send email request to organization not on site (for validations)
+			token := jwt.New(jwt.SigningMethodHS256)
 
-		} else {  // check if there is an associated organization on the site (for validations)
+			// create jwt token for organization verification
+			claims := make(jwt.MapClaims)
+			claims["username"] = user.UserName
+			claims["ms"] = time.Now().Unix()
+			claims["exp"] = time.Now().Add(time.Second * time.Duration(604800)).Unix() // expires in one week
+			token.Claims = claims
+			tokenString, err := token.SignedString(SECRET) // sign with secret
+			if err != nil {
+				SendError(w, http.StatusInternalServerError, internalServerError, 3100)
+				return
+			}
+
+			exp.EmailJWT = tokenString
+			verifyLink := API_DOMAIN + "/v1/experiences/email_approve/" + exp.EmailJWT
+
+			// TODO EMAIL
+
+		} else { // check if there is an associated organization on the site (for validations)
 
 			// add validation request to organization pending validations list
 			// TODO NOTIFICATION ON PENDING VALIDATION
@@ -170,14 +189,14 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 		return
 	}
 
-	WriteOK(w, 4001)
+	WriteOK(w)
 }
 
 // Delete experience
 // DELETE /v1/experiences/:id
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func DeleteExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params, account interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of user type and convert
@@ -209,6 +228,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 	}
 
 	if exp.Organization != "" && !exp.EmailVerify { // remove pending validations for experience from organization
+
 		var org interfaces_internal.IOrganization
 		found := false
 		err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
@@ -222,7 +242,8 @@ func DeleteExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 			}
 		}
 
-		if found { // remove all entries with the same id and user (duplicates as well)
+		// remove all entries with the same id and user (duplicates as well) if there is an organization with a request
+		if found {
 			found = false
 			i := 0
 
@@ -252,14 +273,14 @@ func DeleteExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
-	WriteOK(w, 4001)
+	WriteOK(w)
 }
 
 // View experience validations
 // GET /v1/experiences/validations
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func GetExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of organization type and convert
@@ -331,7 +352,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	if !found {
-		SendError(w, http.StatusNotFound, notFound + " (Experience validation not found)", 4002)
+		SendError(w, http.StatusNotFound, notFound+" (Experience validation not found)", 4002)
 		return
 	}
 
@@ -344,7 +365,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	// Update user experience object with approval
 	var user interfaces_internal.IUser
 	err = IAccountCollection.Find(bson.M{"username": p.ByName("user"), "type": "User"}).One(&user)
-	if checkMongoQueryError(w, err, badRequest + " (User not found.)", 4003, 4001) != nil {
+	if checkMongoQueryError(w, err, badRequest+" (User not found.)", 4003, 4001) != nil {
 		return
 	}
 
@@ -354,7 +375,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	for i, ex := range user.Experiences {
 		if ex.ID.String() == p.ByName("id") {
 			if req.Approve {
-				user.Experiences[i].IsVerified = true  // verify experience object if approved
+				user.Experiences[i].IsVerified = true // verify experience object if approved
 			} else {
 				user.Experiences = append(user.Experiences[:i], user.Experiences[i+1:]...) // delete experience object if not approved
 			}
@@ -364,7 +385,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	if !found {
-		SendError(w, http.StatusBadRequest, internalServerError + " (Experience not found in user object)", 4004)
+		SendError(w, http.StatusBadRequest, internalServerError+" (Experience not found in user object)", 4004)
 		return
 	}
 
@@ -373,7 +394,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 		return
 	}
 
-	WriteOK(w, 4001)
+	WriteOK(w)
 }
 
 // Approve Validation (From email instead of account)

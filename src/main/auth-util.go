@@ -94,12 +94,12 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password)) // 1 second delay to prevent brute force
-	if err != nil { // check if password is valid
+	if err != nil {                                                                      // check if password is valid
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return
 	}
 	if !account.IsEmailVerified { // check if email is verified
-		SendError(w, http.StatusBadRequest, badRequest + " (Email not verified.)", 3102)
+		SendError(w, http.StatusBadRequest, badRequest+" (Email not verified.)", 3102)
 		return
 	}
 
@@ -108,7 +108,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	claims := make(jwt.MapClaims)
 	claims["username"] = account.UserName
-	claims["exp"] = time.Now().Unix() + TOKEN_EXPIRY
+	claims["exp"] = time.Now().Add(time.Second * time.Duration(TOKEN_EXPIRY)).Unix()
 	token.Claims = claims
 	tokenString, err := token.SignedString(SECRET) // sign with secret
 	if err != nil {
@@ -119,7 +119,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	_, err = w.Write([]byte(`{"token": ` + tokenString + `}`)) // return token to client
 
 	if err != nil {
-		println(err)
-		w.WriteHeader(500)
+		SendError(w, http.StatusInternalServerError, internalServerError, 3100)
+		return
 	}
 }

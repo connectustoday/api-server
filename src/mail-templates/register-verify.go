@@ -1,3 +1,9 @@
+package mail_templates
+
+var REGISTER_VERIFY string
+
+func init() {
+	REGISTER_VERIFY = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,7 +22,7 @@
             font-size: 18px;
             border-radius: 25px;
             text-align: center;
-            width: 50%;
+            width: 70%;
             margin: auto;
             padding: 30px 40px 30px 40px;
         }
@@ -59,3 +65,6 @@
 </div>
 </body>
 </html>
+
+`
+}

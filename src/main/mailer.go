@@ -1,15 +1,30 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
+	"html/template"
 	"log"
 	"net/smtp"
 	"strconv"
 )
 
-func SendMail(recipient string, subject string, templateName string) {
-	//t, err := template.ParseFiles(templateName)
-	// TODO html templating with go
+func SendMail(recipient string, subject string, fromTemplate string, replace interface{}) error {
+	t := template.Must(template.New("temp").Parse(fromTemplate))
+
+	var body bytes.Buffer
+	if err := t.Execute(&body, replace); err != nil {
+		return err
+	}
+
+	auth := smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST)
+	to := []string{recipient}
+	msg := []byte("To: " + recipient + "\r\n" +
+		"Subject: " + subject + "\r\n" +
+		"\r\n" +
+		body.String() + "\r\n")
+
+	return smtp.SendMail(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT), auth, MAIL_SENDER, to, msg)
 }
 
 func InitMailer() {
@@ -19,12 +34,12 @@ func InitMailer() {
 		ServerName: SMTP_HOST,
 	}
 
-	c, err := tls.Dial("tcp", SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT), tlsconfig)
+	Mailer, err := smtp.Dial(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	Mailer, err = smtp.NewClient(c, SMTP_HOST)
+	err = Mailer.StartTLS(tlsconfig)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -36,5 +51,5 @@ func InitMailer() {
 	if err = Mailer.Mail(MAIL_SENDER); err != nil {
 		log.Fatal(err)
 	}
-
+	log.Println("Verified SMTP configuration!")
 }

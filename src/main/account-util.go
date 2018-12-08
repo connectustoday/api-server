@@ -75,7 +75,9 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 
 	// Send email verification email
-	// TODO ACTUALLY DO EMAIL
+	if sendVerificationEmail(*req.UserName, *req.Email) != nil {
+		return
+	}
 
 	if *req.Type == "user" {
 
@@ -133,10 +135,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		} else {
-			err = WriteOK(w)
-			if err != nil {
-				println(err)
-			}
+			WriteOK(w)
 		}
 	} else if *req.Type == "organization" {
 
@@ -201,14 +200,15 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		} else {
-			err = WriteOK(w)
-			if err != nil {
-				println(err)
-			}
+			WriteOK(w)
 		}
 	} else {
 		SendError(w, http.StatusBadRequest, badRequest+" (Invalid account type)", 3200)
 	}
+}
+
+func sendVerificationEmail(username string, email string) error {
+
 }
 
 func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
