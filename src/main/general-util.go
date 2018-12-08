@@ -57,9 +57,11 @@ func VerifyFieldsExist(obj interface{}, omitFields map[string]bool, fillEmpty bo
 	return true
 }
 
-func WriteOK(w http.ResponseWriter) (err error) {
-	_, err = w.Write([]byte(`{"message": "` + ok + `"}`))
-	return
+func WriteOK(w http.ResponseWriter, errorCode int) {
+	_, err := w.Write([]byte(`{"message": "` + ok + `"}`))
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, errorCode)
+	}
 }
 
 func DecodeRequest(r *http.Request, obj interface{}) error {

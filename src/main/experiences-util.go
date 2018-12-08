@@ -37,7 +37,7 @@ func GetExperiencesRoute(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 
 	// Find and get user object
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id"), "type": "User"}).One(&user)
-	if checkMongoQueryError(err, "  (User not found! Is this the correct account type?)", 4002, 4001) != nil {
+	if checkMongoQueryError(w, err, "  (User not found! Is this the correct account type?)", 4002, 4001) != nil {
 		return
 	}
 
@@ -138,18 +138,27 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 	if exp.Organization != "" { // if the organization field is filled out
 		if *req.EmailVerify { // send email request to organization not on site (for validations)
 
-		} else {
+		} else {  // check if there is an associated organization on the site (for validations)
+
+			// add validation request to organization pending validations list
+			// TODO NOTIFICATION ON PENDING VALIDATION
+			// TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
+
 			var org interfaces_internal.IOrganization
 			err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
-			if checkMongoQueryError(err, " (Organization not found.)", 4002, 4001) != nil {
+			if checkMongoQueryError(w, err, " (Organization not found.)", 4002, 4001) != nil {
 				return
 			}
 
-			// TODO
 			org.ExperienceValidations = append(org.ExperienceValidations, interfaces_internal.IValidations{
 				UserID:       user.UserName,
-				ExperienceID: re, // TODO BSON OBJECT ID
-			})
+				ExperienceID: exp.ID.String(), // TODO BSON OBJECT ID
+			}) // add validation entry to organization
+
+			err = IAccountCollection.Update(bson.M{"username": exp.Organization, "type": "Organization"}, org) // save to db
+			if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+				return
+			}
 		}
 	}
 
@@ -160,11 +169,8 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
-	err = WriteOK(w)
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
-		return
-	}
+
+	WriteOK(w, 4001)
 }
 
 // Delete experience
@@ -246,11 +252,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
-	err = WriteOK(w)
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
-		return
-	}
+	WriteOK(w, 4001)
 }
 
 // View experience validations
@@ -315,13 +317,63 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 		return
 	}
 
-	foundIndex := -1
+	found := false
+	i := 0
 
-	for i, v := range org.ExperienceValidations {
+	// Remove the experience validation request from the organization object
+	for _, v := range org.ExperienceValidations {
 		if v.UserID == p.ByName("user") && v.ExperienceID == p.ByName("id") {
-			foundIndex = 
+			found = true
+			i--
+			org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...)
+		}
+		i++
+	}
+
+	if !found {
+		SendError(w, http.StatusNotFound, notFound + " (Experience validation not found)", 4002)
+		return
+	}
+
+	// Save organization to db
+	err = IAccountCollection.Update(bson.M{"username": org.UserName}, org)
+	if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+		return
+	}
+
+	// Update user experience object with approval
+	var user interfaces_internal.IUser
+	err = IAccountCollection.Find(bson.M{"username": p.ByName("user"), "type": "User"}).One(&user)
+	if checkMongoQueryError(w, err, badRequest + " (User not found.)", 4003, 4001) != nil {
+		return
+	}
+
+	found = false
+
+	// Update user's experience
+	for i, ex := range user.Experiences {
+		if ex.ID.String() == p.ByName("id") {
+			if req.Approve {
+				user.Experiences[i].IsVerified = true  // verify experience object if approved
+			} else {
+				user.Experiences = append(user.Experiences[:i], user.Experiences[i+1:]...) // delete experience object if not approved
+			}
+			found = true
+			break
 		}
 	}
+
+	if !found {
+		SendError(w, http.StatusBadRequest, internalServerError + " (Experience not found in user object)", 4004)
+		return
+	}
+
+	err = IAccountCollection.Update(bson.M{"username": p.ByName("user"), "type": "User"}, user)
+	if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+		return
+	}
+
+	WriteOK(w, 4001)
 }
 
 // Approve Validation (From email instead of account)
@@ -333,7 +385,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, r *http.Reques
 
 }
 
-func checkMongoQueryError(err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {
+func checkMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {
 	if err != nil {
 		if err.Error() == "not found" {
 			SendError(w, http.StatusNotFound, notFound+notFoundMsg, errCodeNotFound)
