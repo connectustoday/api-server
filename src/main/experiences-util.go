@@ -5,6 +5,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
+	"html/template"
 	"interfaces-api"
 	"interfaces-internal"
 	"log"
@@ -104,7 +105,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
-	if !VerifyFieldsExist(req, FormOmit([]string{"Location", "Organization", "Opportunity", "When", "Hours"}), true) { // Check request for correct fields
+	if !VerifyFieldsExist(&req, FormOmit([]string{"Location", "Organization", "Opportunity", "When", "Hours"}), true) { // Check request for correct fields
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4004) // TODO proper error code
 		return
 	}
@@ -159,8 +160,8 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			verifyLink := API_DOMAIN + "/v1/experiences/email_approve/" + exp.EmailJWT
 
 			err = SendMail(exp.Organization, "Volunteer or Work Experience Validation Request", mail_templates.VALIDATE_EXPERIENCE_WITHOUT_ACCOUNT, struct {
-				VerifyLink string
-				Website    string
+				VerifyLink template.URL
+				Website    template.URL
 				Email      string
 				UserName   string
 				FullName   string
@@ -169,8 +170,8 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 				ExpStart   string
 				ExpEnd     string
 				ExpDesc    string
-			}{verifyLink,
-				SITE_DOMAIN,
+			}{template.URL(verifyLink),
+				template.URL(SITE_DOMAIN),
 				user.Email,
 				user.UserName,
 				user.FirstName + " " + user.MiddleName + " " + user.LastName,
@@ -357,7 +358,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
-	if !VerifyFieldsExist(req, FormOmit([]string{}), true) { // Check request for correct fields
+	if !VerifyFieldsExist(&req, FormOmit([]string{}), true) { // Check request for correct fields
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4004) // TODO proper error code
 		return
 	}

@@ -13,28 +13,27 @@ import (
 // Send mail using template
 
 func SendMail(recipient string, subject string, fromTemplate string, replace interface{}) error {
-	t := template.Must(template.New("temp").Parse(fromTemplate))
+	t := template.Must(template.New("_all").Parse(fromTemplate))
 
 	var body bytes.Buffer
 	if err := t.Execute(&body, replace); err != nil {
 		return err
 	}
 
-	to := []string{recipient}
 	msg := []byte("To: " + recipient + "\r\n" +
 		"Subject: " + subject + "\r\n" +
-		"\r\n" +
+		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n\r\n" +
 		body.String() + "\r\n")
 
-	return smtp.SendMail(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT), loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD), MAIL_SENDER, to, msg)
+	return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD), MAIL_SENDER, []string{recipient}, msg)
 }
 
 // Test the SMTP connection
 
 func InitMailer() {
-	tlsconfig := &tls.Config {
+	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
-		ServerName: SMTP_HOST,
+		ServerName:         SMTP_HOST,
 	}
 
 	Mailer, err := smtp.Dial(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT))

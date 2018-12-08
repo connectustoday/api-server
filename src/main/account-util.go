@@ -7,6 +7,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
+	"html/template"
 	"interfaces-api"
 	"interfaces-internal"
 	"log"
@@ -61,7 +62,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
 		return
 	}
-	if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), false) { // Check request for correct fields
+	if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), false) { // Check request for correct fields
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 		return
 	}
@@ -86,7 +87,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	if *req.Type == "user" {
 
-		if !VerifyFieldsExist(req, FormOmit([]string{"IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
+		if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
 			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 			return
 		}
@@ -144,7 +145,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		}
 	} else if *req.Type == "organization" {
 
-		if !VerifyFieldsExist(req, FormOmit([]string{"FirstName", "Birthday"}), true) { // Check request for correct fields
+		if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
 			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
 			return
 		}
@@ -225,9 +226,9 @@ func sendVerificationEmail(username string, email string) error {
 		return err
 	}
 	verifyLink := API_DOMAIN + "/v1/auth/verify-email/" + tokenString
-	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct {
-		VerifyLink string
-	}{verifyLink})
+	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct{
+		VerifyLink template.URL
+	}{VerifyLink: template.URL(verifyLink)})
 }
 
 // Verify email request route

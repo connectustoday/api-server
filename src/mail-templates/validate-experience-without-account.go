@@ -90,6 +90,7 @@ func init() {
     <div style="text-align: center">Thank you!</div>
     <br>
 </div>
+Couldn't render the email? Click <a href="{{.VerifyLink}}">here.</a>
 </body>
 </html>
 `
