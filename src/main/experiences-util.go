@@ -7,7 +7,10 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"interfaces-api"
 	"interfaces-internal"
+	"log"
+	"mail-templates"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -112,7 +115,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		return
 	}
 
-	// convert to experience
+	// convert to internal experience
 
 	exp := interfaces_internal.IExperience{
 		ID:            bson.NewObjectId(),
@@ -137,7 +140,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 	}
 
 	if exp.Organization != "" { // if the organization field is filled out
-		if *req.EmailVerify { // send email request to organization not on site (for validations)
+		if exp.EmailVerify { // send email request to organization not on site (for validations)
 			token := jwt.New(jwt.SigningMethodHS256)
 
 			// create jwt token for organization verification
@@ -155,7 +158,35 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			exp.EmailJWT = tokenString
 			verifyLink := API_DOMAIN + "/v1/experiences/email_approve/" + exp.EmailJWT
 
-			// TODO EMAIL
+			err = SendMail(exp.Organization, "Volunteer or Work Experience Validation Request", mail_templates.VALIDATE_EXPERIENCE_WITHOUT_ACCOUNT, struct {
+				VerifyLink string
+				Website    string
+				Email      string
+				UserName   string
+				FullName   string
+				ExpName    string
+				ExpHours   string
+				ExpStart   string
+				ExpEnd     string
+				ExpDesc    string
+			}{verifyLink,
+				SITE_DOMAIN,
+				user.Email,
+				user.UserName,
+				user.FirstName + " " + user.MiddleName + " " + user.LastName,
+				exp.Name,
+				strconv.Itoa(int(exp.Hours)),
+				exp.When.Begin,
+				exp.When.End,
+				exp.Description})
+
+			if err != nil {
+				if DEBUG {
+					log.Println(err)
+				}
+				SendError(w, http.StatusInternalServerError, internalServerError + " (Issue sending mail)", 4003)
+				return
+			}
 
 		} else { // check if there is an associated organization on the site (for validations)
 

@@ -14,7 +14,7 @@
         .box {
             font-family: 'Nunito', sans-serif;
             color: white;
-            font-size: 18px;
+            font-size: 17px;
             border-radius: 25px;
             width: 70%;
             margin: auto;
@@ -53,22 +53,22 @@
     <div style="text-align: center">Hello,
         <br>
         <br>
-        A user on <a style="text-decoration:none; color: white" href="{{website}}">ConnectUS</a> has requested for a work/volunteer experience validation!</div>
+        A user on <a style="text-decoration:none; color: white" href="{{.Website}}">ConnectUS</a> has requested for a work/volunteer experience validation!</div>
     <br>
     These are the details of the request:
     <br>
     <br>
-    <strong>Email:</strong> {{email}}
+    <strong>Email:</strong> {{.Email}}
     <br>
-    <strong>Username:</strong> {{userName}}
+    <strong>Username:</strong> {{.UserName}}
     <br>
-    <strong>Full Name:</strong> {{fullName}}
+    <strong>Full Name:</strong> {{.FullName}}
     <br>
-    <strong>Name of Experience:</strong> {{expName}}
+    <strong>Name of Experience:</strong> {{.ExpName}}
     <br>
-    <strong>Hours:</strong> {{expHours}}
+    <strong>Hours:</strong> {{.ExpHours}}
     <br>
-    <strong>When it occurred:</strong> {{expStart}} - {{expEnd}}
+    <strong>When it occurred:</strong> {{.ExpStart}} - {{.ExpEnd}}
     <br>
     <strong>Description:</strong>
     <br>
@@ -78,7 +78,7 @@
     If you would like to approve this validation request, you can click the button below. Otherwise, you can safely disregard this email.
     <br><br><br>
     <center>
-        <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{verifyLink}}'> <strong style="font-family: 'Nunito', sans-serif;">Approve</strong></a>
+        <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{.VerifyLink}}'> <strong style="font-family: 'Nunito', sans-serif;">Approve</strong></a>
     </center>
     <br><br><br>
     <div style="text-align: center">Thank you!</div>
