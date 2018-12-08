@@ -60,7 +60,7 @@ func init() {
     <br>
     In order to activate your account, please click the button below:
     <br><br>
-    <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{verifyLink}}'><strong style="font-family: 'Nunito', sans-serif;">Activate</strong></a>
+    <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{.VerifyLink}}'><strong style="font-family: 'Nunito', sans-serif;">Activate</strong></a>
     <br><br>
 </div>
 </body>

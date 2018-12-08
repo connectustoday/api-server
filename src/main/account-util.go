@@ -2,12 +2,15 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"interfaces-api"
 	"interfaces-internal"
 	"log"
+	"mail-templates"
 	"net/http"
 	"time"
 )
@@ -76,6 +79,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	// Send email verification email
 	if sendVerificationEmail(*req.UserName, *req.Email) != nil {
+		log.Printf("Problem sending mail: %s", err.Error())
+		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204)
 		return
 	}
 
@@ -208,11 +213,69 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 }
 
 func sendVerificationEmail(username string, email string) error {
+	token := jwt.New(jwt.SigningMethodHS256)
 
+	// create jwt token for organization verification
+	claims := make(jwt.MapClaims)
+	claims["username"] = username
+	claims["exp"] = time.Now().Add(time.Second * time.Duration(43200)).Unix() // expires in one week
+	token.Claims = claims
+	tokenString, err := token.SignedString(REGISTER_VERIFY_SECRET) // sign with secret
+	if err != nil {
+		return err
+	}
+	verifyLink := API_DOMAIN + "/v1/auth/verify-email/" + tokenString
+	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct {
+		VerifyLink string
+	}{verifyLink})
 }
 
-func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+// Verify email request route
+// https://connectus.github.io/api-server/api-reference#accounts
 
+func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
+
+	checkToken, err := jwt.Parse(p.ByName("token"), func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(REGISTER_VERIFY_SECRET), nil
+	})
+
+	if err == nil && checkToken.Valid {
+		if claims, ok := checkToken.Claims.(jwt.MapClaims); ok {
+
+			var acc interfaces_internal.IAccount
+
+			err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&acc)
+
+			if err != nil {
+				if err.Error() == "not found" {
+					w.WriteHeader(500)
+					w.Write([]byte("Account not found. Please try registering again."))
+				} else {
+					w.WriteHeader(500)
+					w.Write([]byte("Internal server error. Problem finding account."))
+				}
+				return
+			}
+
+			acc.IsEmailVerified = true
+
+			err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
+			if err != nil {
+				w.WriteHeader(500)
+				w.Write([]byte("Internal server error."))
+				return
+			}
+
+			w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
+		}
+	} else {
+		w.WriteHeader(404)
+		w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
+	}
 }
 
 /*
