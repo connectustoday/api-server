@@ -22,7 +22,7 @@ func init() {
             font-size: 18px;
             border-radius: 25px;
             text-align: center;
-            width: 70%;
+            width: 50%;
             margin: auto;
             padding: 30px 40px 30px 40px;
         }
@@ -63,7 +63,8 @@ func init() {
     <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{.VerifyLink}}'><strong style="font-family: 'Nunito', sans-serif;">Activate</strong></a>
     <br><br>
 </div>
-Couldn't render the email? Click <a href="{{.VerifyLink}}">here.</a>
+</br>
+Couldn't render the email? Click <a href="{{.VerifyLink}}">here</a> to verify your account.
 </body>
 </html>
 

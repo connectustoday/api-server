@@ -45,7 +45,11 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 					}
 					return
 				}
+
+				fmt.Printf("%+v\n", result)
+
 				acc, _ := result.(interfaces_internal.IAccount)
+				fmt.Printf("%+v\n", acc)
 				if !acc.IsEmailVerified { // Check for Email Verification
 					SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)
 					return
@@ -116,7 +120,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	_, err = w.Write([]byte(`{"token": ` + tokenString + `}`)) // return token to client
+	_, err = w.Write([]byte(`{"token": "` + tokenString + `"}`)) // return token to client
 
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 3100)
