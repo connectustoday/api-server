@@ -78,8 +78,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 
 	// Send email verification email
-	if sendVerificationEmail(*req.UserName, *req.Email) != nil {
-		log.Printf("Problem sending mail: %s", err.Error())
+	if err = sendVerificationEmail(*req.UserName, *req.Email); err != nil {
+		log.Printf("Problem sending mail or creating verification token: %s", err.Error())
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204)
 		return
 	}
@@ -220,7 +220,7 @@ func sendVerificationEmail(username string, email string) error {
 	claims["username"] = username
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(43200)).Unix() // expires in one week
 	token.Claims = claims
-	tokenString, err := token.SignedString(REGISTER_VERIFY_SECRET) // sign with secret
+	tokenString, err := token.SignedString([]byte(REGISTER_VERIFY_SECRET)) // sign with secret
 	if err != nil {
 		return err
 	}

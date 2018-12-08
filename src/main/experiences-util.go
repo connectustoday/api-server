@@ -149,7 +149,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			claims["ms"] = time.Now().Unix()
 			claims["exp"] = time.Now().Add(time.Second * time.Duration(604800)).Unix() // expires in one week
 			token.Claims = claims
-			tokenString, err := token.SignedString(APPROVAL_VERIFY_SECRET) // sign with secret
+			tokenString, err := token.SignedString([]byte(APPROVAL_VERIFY_SECRET)) // sign with secret
 			if err != nil {
 				SendError(w, http.StatusInternalServerError, internalServerError, 3100)
 				return

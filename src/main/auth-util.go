@@ -110,7 +110,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	claims["username"] = account.UserName
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(TOKEN_EXPIRY)).Unix()
 	token.Claims = claims
-	tokenString, err := token.SignedString(SECRET) // sign with secret
+	tokenString, err := token.SignedString([]byte(SECRET)) // sign with secret
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 3100)
 		return

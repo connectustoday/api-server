@@ -50,7 +50,7 @@ func getEnv(key string, def string) string {
 	if e == "" {
 		return def
 	}
-	return key
+	return e
 }
 
 func init() {
@@ -62,7 +62,7 @@ func init() {
 	SECRET = getEnv("SECRET", "secret")
 	REGISTER_VERIFY_SECRET = getEnv("REGISTER_VERIFY_SECRET", "secret")
 	APPROVAL_VERIFY_SECRET = getEnv("APPROVAL_VERIFY_SECRET", "secret")
-	TOKEN_EXPIRY, err = strconv.ParseInt(getEnv("TOKEN_EXPIRY", "86400"), 10, 64)
+	TOKEN_EXPIRY, err = strconv.ParseInt(getEnv("TOKEN_EXPIRY", "86400"), 0, 64)
 	if err != nil {
 		panic(err)
 	}
@@ -104,7 +104,7 @@ func main() {
 	}()
 
 	ConnectMongoDB()
-	//InitMailer()
+	InitMailer()
 	go StartRouter() // i love goroutines a lot
 
 	log.Println("Completed initialization of api-server.")
