@@ -19,11 +19,11 @@ import (
 // GET /v1/experiences
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func GetPersonalExperiencesRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account interface{}) {
+func GetPersonalExperiencesRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, ok := account.(interfaces_internal.IUser)
-	if !ok || user.Type != "User" { // check if the obtained account is of user type
+	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	if err != nil || user.Type != "User" { // check if the obtained account is of user type
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
 	}
@@ -74,7 +74,7 @@ func GetExperiences(w http.ResponseWriter, user interfaces_internal.IUser) {
 // PUT /v1/experiences/:id
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func UpdateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func UpdateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
 	//TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
 	w.Header().Set("Content-Type", "application/json")
 
@@ -84,7 +84,7 @@ func UpdateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 // POST /v1/experiences
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interface{}) {
+func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
@@ -110,8 +110,8 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		return
 	}
 
-	user, ok := account.(interfaces_internal.IUser)
-	if !ok || user.Type != "User" { // check if the obtained account is of user type
+	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	if err != nil || user.Type != "User" { // check if the obtained account is of user type
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
 	}
@@ -228,7 +228,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 // DELETE /v1/experiences/:id
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params, account interface{}) {
+func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of user type and convert
@@ -312,7 +312,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 // GET /v1/experiences/validations
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account interface{}) {
+func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of organization type and convert
@@ -344,7 +344,7 @@ func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ htt
 // POST /v1/experiences/validations/:user/:id
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
@@ -433,7 +433,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 // POST /v1/experiences/email_approve/:token
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func EmailApproveExperienceValidationRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account interface{}) {
+func EmailApproveExperienceValidationRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
 }

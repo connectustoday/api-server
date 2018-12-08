@@ -2,12 +2,13 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"interfaces-internal"
 	"net/http"
 )
 
-type accountPassRoute func(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account interface{})
+type accountPassRoute func(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account bson.M)
 
 /*
  * Routes for experiences
@@ -89,8 +90,9 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	 */
 
 	if DEBUG {
-		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account interface{}) {
-			vjson, err := json.Marshal(account.(interfaces_internal.IAccount))
+		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account bson.M) {
+			acc, _ := interfaces_internal.ConvertBSONToIAccount(account)
+			vjson, err := json.Marshal(acc)
 			if err != nil {
 				println(err)
 			}

@@ -1,5 +1,7 @@
 package interfaces_internal
 
+import "github.com/globalsign/mgo/bson"
+
 type IUser struct {
 	SchemaVersion        int             `bson:"schema_version"`
 	UserName             string          `bson:"username"`
@@ -29,4 +31,19 @@ type IUser struct {
 	Gender       string       `bson:"gender"`
 	PersonalInfo IUserProfile `bson:"personal_info"`
 	Experiences []IExperience `bson:"experiences"`
+}
+
+func ConvertBSONToIUser(original bson.M) (IUser, error) {
+
+	account := IUser{}
+	bsonBytes, err := bson.Marshal(original)
+	if err != nil {
+		return account, err
+	}
+	err = bson.Unmarshal(bsonBytes, &account)
+	if err != nil {
+		return account, err
+	}
+
+	return account, nil
 }

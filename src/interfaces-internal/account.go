@@ -1,5 +1,9 @@
 package interfaces_internal
 
+import (
+	"github.com/globalsign/mgo/bson"
+)
+
 type ICom struct {
 	Post string `bson:"post"`
 	When int    `bson:"when"`
@@ -26,4 +30,19 @@ type IAccount struct {
 	Settings             interface{}     `bson:"settings" json:"settings"`
 	AdminNote            string          `bson:"admin_note" json:"admin_note"`
 	Type                 string          `bson:"type" json:"type"`
+}
+
+func ConvertBSONToIAccount(original bson.M) (IAccount, error) {
+
+	account := IAccount{}
+	bsonBytes, err := bson.Marshal(original)
+	if err != nil {
+		return account, err
+	}
+	err = bson.Unmarshal(bsonBytes, &account)
+	if err != nil {
+		return account, err
+	}
+
+	return account, nil
 }
