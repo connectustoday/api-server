@@ -6,7 +6,6 @@ import (
 	"interfaces-internal"
 	"log"
 	"net/http"
-	"net/smtp"
 	"os"
 	"os/signal"
 	"strconv"
@@ -36,8 +35,6 @@ var (
 	BCRYPT_COST int
 
 	// Global ref
-
-	Mailer *smtp.Client
 
 	Database *mgo.Database
 

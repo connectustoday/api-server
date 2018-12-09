@@ -8,7 +8,6 @@ import (
 	"log"
 	"net/smtp"
 	"strconv"
-	"time"
 )
 
 // Send mail using template
@@ -21,52 +20,87 @@ func SendMail(recipient string, subject string, fromTemplate string, replace int
 		return err
 	}
 
+	m, err := getMailer()
+	if err != nil {
+		return err
+	}
+
+	defer m.Quit()
+
 	msg := []byte("To: " + recipient + "\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n\r\n" +
 		body.String() + "\r\n")
 
+	if err := m.Rcpt(recipient); err != nil {
+		return err
+	}
+
+	w, err := m.Data()
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Write(msg)
+	if err != nil {
+		return err
+	}
+
+	_ = w.Close()
+	if err != nil {
+		return err
+	}
+
+	return nil
+	/*
 	if SMTP_TLS {
 		return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD), MAIL_SENDER, []string{recipient}, msg)
 	} else {
 		return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST), MAIL_SENDER, []string{recipient}, msg)
-	}
+	}*/
 }
 
-// Test the SMTP connection
-
-func InitMailer(startup bool) {
+func getMailer() (*smtp.Client, error) {
 	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         SMTP_HOST,
 	}
 
-	Mailer, err := smtp.Dial(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT))
+	m, err := smtp.Dial(SMTP_HOST + ":" + strconv.Itoa(SMTP_PORT))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
 	if SMTP_TLS {
-		if err = Mailer.StartTLS(tlsconfig); err != nil {
-			log.Fatal(err)
+		if err = m.StartTLS(tlsconfig); err != nil {
+			return nil, err
 		}
 
-		if err = Mailer.Auth(loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD)); err != nil {
-			log.Fatal(err)
+		if err = m.Auth(loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD)); err != nil {
+			return nil, err
 		}
 	} else {
-		if err = Mailer.Auth(smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST)); err != nil {
-			log.Fatal(err)
+		if err = m.Auth(smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST)); err != nil {
+			return nil, err
 		}
 	}
 
-	if err = Mailer.Mail(MAIL_SENDER); err != nil {
+	if err = m.Mail(MAIL_SENDER); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// Test the SMTP connection
+
+func InitMailer(startup bool) {
+	if _, err := getMailer(); err != nil {
 		log.Fatal(err)
 	}
 
 	if startup {
 		log.Println("Verified SMTP configuration!")
-		go func() { // keeping SMTP connection open forever and ever and ever and ever for some reason (this is probably a bad idea)
+		/*go func() { // keeping SMTP connection open forever and ever and ever and ever for some reason (this is probably a bad idea)
 			time.Sleep(time.Minute * 4)
 			err = Mailer.Noop()
 			log.Println("SMTP NOOP failure: " + err.Error()) // may not work with exchange server
@@ -77,7 +111,7 @@ func InitMailer(startup bool) {
 			err = Mailer.Close()
 
 			InitMailer(false)
-		}()
+		}()*/
 	}
 }
 
