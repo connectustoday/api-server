@@ -88,20 +88,23 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
-		Location     *interfaces_internal.IAddress `json:"location" schema:"location"`
-		Name         *string                       `json:"name" schema:"name"`
-		Organization *string                       `json:"organization" schema:"organization"`
-		Opportunity  *string                       `json:"opportunity" schema:"opportunity"`
-		Description  *string                       `json:"description" schema:"description"`
-		When         *interfaces_internal.When     `json:"when" schema:"when"`
-		Hours        *int64                        `json:"hours" schema:"hours"`
-		EmailVerify  *bool                         `json:"email_verify" schema:"email_verify"`
+		Location     *interfaces_api.IAddressAPI `json:"location" schema:"location"`
+		Name         *string                     `json:"name" schema:"name"`
+		Organization *string                     `json:"organization" schema:"organization"`
+		Opportunity  *string                     `json:"opportunity" schema:"opportunity"`
+		Description  *string                     `json:"description" schema:"description"`
+		When         *interfaces_internal.When   `json:"when" schema:"when"`
+		Hours        *int64                      `json:"hours" schema:"hours"`
+		EmailVerify  *bool                       `json:"email_verify" schema:"email_verify"`
 	}
 
 	var req requestForm
 
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
+		if DEBUG {
+			log.Println(err)
+		}
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
@@ -121,7 +124,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 	exp := interfaces_internal.IExperience{
 		ID:            bson.NewObjectId(),
 		SchemaVersion: 0,
-		Location:      *req.Location,
+		Location:      interfaces_internal.ConvertToIAddressInternal(*req.Location),
 		Name:          *req.Name,
 		Organization:  *req.Organization,
 		Opportunity:   *req.Opportunity,
@@ -185,7 +188,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 				if DEBUG {
 					log.Println(err)
 				}
-				SendError(w, http.StatusInternalServerError, internalServerError + " (Issue sending mail)", 4003)
+				SendError(w, http.StatusInternalServerError, internalServerError+" (Issue sending mail)", 4003)
 				return
 			}
 
@@ -203,7 +206,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 			org.ExperienceValidations = append(org.ExperienceValidations, interfaces_internal.IValidations{
 				UserID:       user.UserName,
-				ExperienceID: exp.ID.String(), // TODO BSON OBJECT ID
+				ExperienceID: exp.ID.Hex(), // TODO BSON OBJECT ID
 			}) // add validation entry to organization
 
 			err = IAccountCollection.Update(bson.M{"username": exp.Organization, "type": "Organization"}, org) // save to db
@@ -232,8 +235,8 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of user type and convert
-	user, ok := account.(interfaces_internal.IUser)
-	if !ok || user.Type != "User" {
+	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	if err != nil || user.Type != "User" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
 	}
@@ -242,8 +245,9 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 	expIndex := -1
 
 	// find experience to delete in array
+
 	for i, ex := range user.Experiences {
-		if ex.ID.String() == p.ByName("id") {
+		if ex.ID.Hex() == p.ByName("id") {
 			exp = ex
 			expIndex = i
 			break
@@ -280,7 +284,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 			i := 0
 
 			for _, v := range org.ExperienceValidations { // remove all entries with the same id and user (duplicates as well)
-				if v.UserID == user.UserName && v.ExperienceID == exp.ID.String() {
+				if v.UserID == user.UserName && v.ExperienceID == exp.ID.Hex() {
 					found = true
 					org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...) // remove from slice
 					i--
@@ -300,7 +304,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 
 	// Save user object
 	user.Experiences = append(user.Experiences[:expIndex], user.Experiences[expIndex+1:]...)
-	err := IAccountCollection.Update(bson.M{"username": user.UserName}, user)
+	err = IAccountCollection.Update(bson.M{"username": user.UserName}, user)
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
@@ -316,8 +320,8 @@ func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ htt
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of organization type and convert
-	org, ok := account.(interfaces_internal.IOrganization)
-	if !ok || org.Type != "Organization" {
+	org, err := interfaces_internal.ConvertBSONToIOrganization(account)
+	if err != nil || org.Type != "Organization" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! Organization account type required.)", 4000)
 		return
 	}
@@ -364,8 +368,8 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	// check if the obtained account is of organization type and convert
-	org, ok := account.(interfaces_internal.IOrganization)
-	if !ok || org.Type != "Organization" {
+	org, err := interfaces_internal.ConvertBSONToIOrganization(account)
+	if err != nil || org.Type != "Organization" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! Organization account type required.)", 4000)
 		return
 	}
@@ -405,7 +409,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	// Update user's experience
 	for i, ex := range user.Experiences {
-		if ex.ID.String() == p.ByName("id") {
+		if ex.ID.Hex() == p.ByName("id") {
 			if req.Approve {
 				user.Experiences[i].IsVerified = true // verify experience object if approved
 			} else {

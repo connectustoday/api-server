@@ -1,7 +1,5 @@
 package interfaces_internal
 
-import "github.com/globalsign/mgo/bson"
-
 type IValidations struct {
 	UserID       string `bson:"user_id"`
 	ExperienceID string `bson:"experience_id"`
@@ -34,19 +32,4 @@ type IOrganization struct {
 	Opportunities         []string             `bson:"opportunities"`
 	OrgInfo               IOrganizationProfile `bson:"org_info"`
 	ExperienceValidations []IValidations       `bson:"experience_validations"`
-}
-
-func ConvertBSONToIOrganization(original bson.M) (IOrganization, error) {
-
-	account := IOrganization{}
-	bsonBytes, err := bson.Marshal(original)
-	if err != nil {
-		return account, err
-	}
-	err = bson.Unmarshal(bsonBytes, &account)
-	if err != nil {
-		return account, err
-	}
-
-	return account, nil
 }

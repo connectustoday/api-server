@@ -1,6 +1,8 @@
 package interfaces_api
 
-import "interfaces-internal"
+import (
+	"encoding/json"
+)
 
 type IAddressAPI struct {
 	Street        string    `json:"street"`
@@ -12,14 +14,18 @@ type IAddressAPI struct {
 	GeoJSON       IPointAPI `json:"geojson"`
 }
 
-func ConvertToIAddressAPI(address interfaces_internal.IAddress) IAddressAPI {
-	return IAddressAPI{
-		Street: address.Street,
-		City: address.City,
-		Province: address.Province,
-		Country: address.Country,
-		PostalCode: address.PostalCode,
-		AptNumber: address.AptNumber,
-		GeoJSON: ConvertToIPointAPI(address.GeoJSON),
-	}
+func (address *IAddressAPI) UnmarshalJSON(data []byte) error {
+	println(string(data))
+	var v []string
+	if err := json.Unmarshal(data, &v); err != nil {
+		return err
+	} // TODO in general
+	address.Street = v[1]
+	address.City = v[2]
+	address.Province = v[3]
+	address.Country = v[4]
+	address.PostalCode = v[5]
+	address.AptNumber = v[6]
+
+	return nil
 }
