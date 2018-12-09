@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
-	"interfaces-internal"
+	"interfaces-conv"
 	"net/http"
 )
 
@@ -44,7 +44,7 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 	router.POST(prefix+"/validations/:user/:id", WithAccountVerify(ReviewExperienceValidationsRoute))
 
 	// Approve validation (from email)
-	router.GET(prefix+"/email_approve/:token", WithAccountVerify(EmailApproveExperienceValidationRoute))
+	router.GET(prefix+"/email_approve/:token", EmailApproveExperienceValidationRoute)
 }
 
 /*
@@ -91,7 +91,7 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 
 	if DEBUG {
 		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account bson.M) {
-			acc, _ := interfaces_internal.ConvertBSONToIAccount(account)
+			acc, _ := interfaces_conv.ConvertBSONToIAccount(account)
 			vjson, err := json.Marshal(acc)
 			if err != nil {
 				println(err)

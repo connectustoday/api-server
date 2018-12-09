@@ -1,4 +1,4 @@
-package interface_conv
+package interfaces_conv
 
 import (
 	"github.com/globalsign/mgo/bson"
@@ -23,6 +23,21 @@ func ConvertBSONToIAccount(original bson.M) (interfaces_internal.IAccount, error
 func ConvertBSONToIOrganization(original bson.M) (interfaces_internal.IOrganization, error) {
 
 	account := interfaces_internal.IOrganization{}
+	bsonBytes, err := bson.Marshal(original)
+	if err != nil {
+		return account, err
+	}
+	err = bson.Unmarshal(bsonBytes, &account)
+	if err != nil {
+		return account, err
+	}
+
+	return account, nil
+}
+
+func ConvertBSONToIUser(original bson.M) (interfaces_internal.IUser, error) {
+
+	account := interfaces_internal.IUser{}
 	bsonBytes, err := bson.Marshal(original)
 	if err != nil {
 		return account, err

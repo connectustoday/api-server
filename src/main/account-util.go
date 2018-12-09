@@ -8,7 +8,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
-	"interfaces-api"
+	"interfaces-conv"
 	"interfaces-internal"
 	"log"
 	"mail-templates"
@@ -302,7 +302,7 @@ func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params
 		return
 	}
 
-	accountapi := interfaces_api.ConvertToIAccountAPI(account)
+	accountapi := interfaces_conv.ConvertToIAccountAPI(account)
 
 	b, err := json.Marshal(accountapi)
 	if err != nil {

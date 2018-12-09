@@ -6,6 +6,7 @@ import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
+	"interfaces-conv"
 	"interfaces-internal"
 	"net/http"
 	"time"
@@ -46,15 +47,11 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 					return
 				}
 
-				fmt.Printf("%+v\n", result) // TODO
-
-				acc, err := interfaces_internal.ConvertBSONToIAccount(result)
+				acc, err := interfaces_conv.ConvertBSONToIAccount(result)
 				if err != nil {
 					SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
 					return
 				}
-
-				fmt.Printf("%+v\n", acc) // TODO
 
 				if !acc.IsEmailVerified { // Check for email verification
 					SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)

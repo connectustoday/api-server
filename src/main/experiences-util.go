@@ -7,6 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"html/template"
 	"interfaces-api"
+	"interfaces-conv"
 	"interfaces-internal"
 	"log"
 	"mail-templates"
@@ -22,7 +23,7 @@ import (
 func GetPersonalExperiencesRoute(w http.ResponseWriter, _ *http.Request, _ httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
 
-	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	user, err := interfaces_conv.ConvertBSONToIUser(account)
 	if err != nil || user.Type != "User" { // check if the obtained account is of user type
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
@@ -54,7 +55,7 @@ func GetExperiencesRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Pa
 func GetExperiences(w http.ResponseWriter, user interfaces_internal.IUser) {
 	ret := make([]interfaces_api.IExperienceAPI, 0)
 	for _, e := range user.Experiences { // add experiences to api array
-		ret = append(ret, interfaces_api.ConvertToIExperienceAPI(e))
+		ret = append(ret, interfaces_conv.ConvertToIExperienceAPI(e))
 	}
 
 	response, err := json.Marshal(ret) // prepare json response
@@ -105,7 +106,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		if DEBUG {
 			log.Println(err)
 		}
-		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError + " when parsing request. Bad input?", 4001)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{"Location", "Organization", "Opportunity", "When", "Hours"}), true) { // Check request for correct fields
@@ -113,7 +114,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		return
 	}
 
-	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	user, err := interfaces_conv.ConvertBSONToIUser(account)
 	if err != nil || user.Type != "User" { // check if the obtained account is of user type
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
@@ -124,7 +125,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 	exp := interfaces_internal.IExperience{
 		ID:            bson.NewObjectId(),
 		SchemaVersion: 0,
-		Location:      interfaces_internal.ConvertToIAddressInternal(*req.Location),
+		Location:      interfaces_conv.ConvertToIAddressInternal(*req.Location),
 		Name:          *req.Name,
 		Organization:  *req.Organization,
 		Opportunity:   *req.Opportunity,
@@ -235,7 +236,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of user type and convert
-	user, err := interfaces_internal.ConvertBSONToIUser(account)
+	user, err := interfaces_conv.ConvertBSONToIUser(account)
 	if err != nil || user.Type != "User" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! User account type required.)", 4000)
 		return
@@ -320,7 +321,7 @@ func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ htt
 	w.Header().Set("Content-Type", "application/json")
 
 	// check if the obtained account is of organization type and convert
-	org, err := interfaces_internal.ConvertBSONToIOrganization(account)
+	org, err := interfaces_conv.ConvertBSONToIOrganization(account)
 	if err != nil || org.Type != "Organization" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! Organization account type required.)", 4000)
 		return
@@ -328,7 +329,7 @@ func GetExperienceValidationsRoute(w http.ResponseWriter, _ *http.Request, _ htt
 
 	ret := make([]interfaces_api.IValidationsAPI, 0)
 	for _, e := range org.ExperienceValidations { // add experiences to api array
-		ret = append(ret, interfaces_api.ConvertToIValidationsAPI(e))
+		ret = append(ret, interfaces_conv.ConvertToIValidationsAPI(e))
 	}
 
 	response, err := json.Marshal(ret) // prepare json response
@@ -359,7 +360,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
-		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError+ " when parsing request. Bad input?", 4001)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), true) { // Check request for correct fields
@@ -368,7 +369,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	// check if the obtained account is of organization type and convert
-	org, err := interfaces_internal.ConvertBSONToIOrganization(account)
+	org, err := interfaces_conv.ConvertBSONToIOrganization(account)
 	if err != nil || org.Type != "Organization" {
 		SendError(w, http.StatusBadRequest, badRequest+"  (Incorrect account type! Organization account type required.)", 4000)
 		return

@@ -1,4 +1,4 @@
-package interface_conv
+package interfaces_conv
 
 import (
 	"interfaces-api"
@@ -15,5 +15,12 @@ func ConvertToIAddressInternal(api interfaces_api.IAddressAPI) interfaces_intern
 		PostalCode: api.PostalCode,
 		AptNumber: api.AptNumber,
 		GeoJSON: ConvertToIPointInternal(api.GeoJSON),
+	}
+}
+
+func ConvertToIPointInternal(api interfaces_api.IPointAPI) interfaces_internal.IPoint {
+	return interfaces_internal.IPoint{
+		Type: api.Type,
+		Coordinates: api.Coordinates,
 	}
 }

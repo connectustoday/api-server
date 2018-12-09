@@ -1,4 +1,4 @@
-package interface_conv
+package interfaces_conv
 
 import (
 	"interfaces-api"
@@ -38,7 +38,7 @@ func ConvertToIExperienceAPI(experience interfaces_internal.IExperience) interfa
 		Name:         experience.Name,
 		Organization: experience.Organization,
 		Opportunity:  experience.Opportunity,
-		When:         When{Begin: experience.When.Begin, End: experience.When.End},
+		When:         interfaces_api.When{Begin: experience.When.Begin, End: experience.When.End},
 		IsVerified:   experience.IsVerified,
 		EmailVerify:  experience.EmailVerify,
 		CreatedAt:    experience.CreatedAt,
