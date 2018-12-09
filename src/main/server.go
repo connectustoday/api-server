@@ -27,6 +27,7 @@ var (
 	MAIL_SENDER            string
 	SMTP_HOST              string
 	SMTP_PORT              int
+	SMTP_TLS               bool
 	API_DOMAIN             string
 	SITE_DOMAIN            string
 	DEBUG                  bool
@@ -76,6 +77,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	SMTP_TLS = getEnv("SMTP_TLS", "true") == "true"
 	API_DOMAIN = getEnv("API_DOMAIN", "localhost/api")
 	SITE_DOMAIN = getEnv("SITE_DOMAIN", "localhost")
 	DEBUG, err = strconv.ParseBool(getEnv("DEBUG", "false"))
@@ -106,7 +108,7 @@ func main() {
 	}()
 
 	ConnectMongoDB()
-	InitMailer()
+	InitMailer(true)
 	go StartRouter() // i love goroutines a lot
 
 	log.Println("Completed initialization of api-server.")

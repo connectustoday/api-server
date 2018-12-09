@@ -12,6 +12,7 @@ type ICom struct {
 
 type IAccount struct {
 	SchemaVersion        int             `bson:"schema_version" json:"schema_version"`
+	//ID                   bson.ObjectId   `bson:"_id" json:"id"`
 	UserName             string          `bson:"username" json:"username"`
 	Email                string          `bson:"email" json:"email"`
 	Password             string          `bson:"password" json:"password"`
@@ -35,7 +36,7 @@ type IAccount struct {
 
 func InitIAccountIndexes(collection *mgo.Collection) {
 	err := collection.EnsureIndex(mgo.Index{
-		Key: []string{"username", "email", "password", "avatar", "admin_note"},
+		Key:        []string{"username", "email", "password", "avatar", "admin_note"},
 		Background: true,
 	})
 	if err != nil {
