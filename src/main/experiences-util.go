@@ -106,7 +106,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		if DEBUG {
 			log.Println(err)
 		}
-		SendError(w, http.StatusInternalServerError, internalServerError + " when parsing request. Bad input?", 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4001)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{"Location", "Organization", "Opportunity", "When", "Hours"}), true) { // Check request for correct fields
@@ -360,7 +360,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
-		SendError(w, http.StatusInternalServerError, internalServerError+ " when parsing request. Bad input?", 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4001)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), true) { // Check request for correct fields
@@ -438,9 +438,54 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 // POST /v1/experiences/email_approve/:token
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
-func EmailApproveExperienceValidationRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
-	w.Header().Set("Content-Type", "application/json")
+func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "text/html")
 
+	claims, err := GetJWTClaims(p.ByName("token"), APPROVAL_VERIFY_SECRET) // verify token authenticity
+
+	if err != nil {
+		w.WriteHeader(404)
+		w.Write([]byte("Invalid approval link. Perhaps it has expired?"))
+		return
+	}
+
+	var user interfaces_internal.IUser
+	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&user)
+	if err != nil {
+		if err.Error() == "not found" {
+			w.WriteHeader(404)
+			w.Write([]byte("Account not found. Perhaps the user has been removed?"))
+		} else {
+			w.WriteHeader(500)
+			w.Write([]byte("Internal server error. Problem finding account."))
+		}
+		return
+	}
+
+	found := false
+	for i := range user.Experiences {
+		if user.Experiences[i].EmailJWT != "" {
+			claims2, _ := GetJWTClaims(user.Experiences[i].EmailJWT, APPROVAL_VERIFY_SECRET)
+			if claims2["ms"] == claims["ms"] {
+				found = true
+			}
+		}
+	}
+
+	if !found {
+		w.WriteHeader(500)
+		w.Write([]byte("Could not find experience to validate. Perhaps the user has removed it, or the experience was already validated?"))
+		return
+	}
+
+	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, user)
+
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Internal server error. :("))
+	}
+
+	w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
 }
 
 func checkMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {

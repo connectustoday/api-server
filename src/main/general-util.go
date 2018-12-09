@@ -21,7 +21,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/schema"
+	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"reflect"
@@ -79,4 +82,28 @@ func DecodeRequest(r *http.Request, obj interface{}) error {
 	} else {
 		return json.NewDecoder(r.Body).Decode(&obj)
 	}
+}
+
+func CheckJWTToken(token string, secret string) (*jwt.Token, error){
+	return jwt.Parse(p.ByName("token"), func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return []byte(secret), nil
+	})
+}
+
+func GetJWTClaims(token string, secret string) (jwt.MapClaims, error) {
+	tok, err := CheckJWTToken(token, secret)
+	if err != nil {
+		return nil, err
+	}
+	if !tok.Valid {
+		return nil, errors.New("invalid token")
+	}
+	claims, ok := tok.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, errors.New("not ok")
+	}
+	return claims, nil
 }
