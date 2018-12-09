@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
@@ -23,46 +22,38 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 			return
 		}
 
-		checkToken, err := jwt.Parse(token, func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-			}
-			return []byte(SECRET), nil
-		})
-
-		if err == nil && checkToken.Valid {
-			if claims, ok := checkToken.Claims.(jwt.MapClaims); ok {
-
-				var result bson.M // Get account
-				err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&result)
-				if err != nil {
-					if err.Error() == "not found" { // Check if account exists
-						SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
-					} else {
-						if DEBUG {
-							println(err)
-						}
-						SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-					}
-					return
-				}
-
-				acc, err := interfaces_conv.ConvertBSONToIAccount(result)
-				if err != nil {
-					SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-					return
-				}
-
-				if !acc.IsEmailVerified { // Check for email verification
-					SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)
-					return
-				}
-
-				next(w, r, params, result) // call next middleware or main router function
-				return
-			}
+		claims, err := GetJWTClaims(token, SECRET) // verify token authenticity
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3002)
+			return
 		}
-		SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3002)
+
+		var result bson.M // Get account
+		err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&result)
+		if err != nil {
+			if err.Error() == "not found" { // Check if account exists
+				SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
+			} else {
+				if DEBUG {
+					println(err)
+				}
+				SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+			}
+			return
+		}
+
+		acc, err := interfaces_conv.ConvertBSONToIAccount(result)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+			return
+		}
+
+		if !acc.IsEmailVerified { // Check for email verification
+			SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)
+			return
+		}
+
+		next(w, r, params, result) // call next middleware or main router function
 	}
 }
 
@@ -101,7 +92,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password)) // 1 second delay to prevent brute force
-	if err != nil {                                                                      // check if password is valid
+	if err != nil { // check if password is valid
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return
 	}

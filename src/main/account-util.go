@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
@@ -226,7 +225,7 @@ func sendVerificationEmail(username string, email string) error {
 		return err
 	}
 	verifyLink := API_DOMAIN + "/v1/auth/verify-email/" + tokenString
-	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct{
+	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct {
 		VerifyLink template.URL
 	}{VerifyLink: template.URL(verifyLink)})
 }
@@ -237,49 +236,38 @@ func sendVerificationEmail(username string, email string) error {
 func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
 
-	checkToken, err := jwt.Parse(p.ByName("token"), func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return []byte(REGISTER_VERIFY_SECRET), nil
-	})
-
-	if err == nil && checkToken.Valid {
-		if claims, ok := checkToken.Claims.(jwt.MapClaims); ok {
-
-			var acc interfaces_internal.IAccount
-
-			err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&acc)
-
-			if err != nil {
-				if err.Error() == "not found" {
-					w.WriteHeader(500)
-					w.Write([]byte("Account not found. Please try registering again."))
-				} else {
-					w.WriteHeader(500)
-					w.Write([]byte("Internal server error. Problem finding account."))
-				}
-				return
-			}
-
-			acc.IsEmailVerified = true
-
-			err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
-			if err != nil {
-				w.WriteHeader(500)
-				w.Write([]byte("Internal server error."))
-				return
-			}
-
-			w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
-		}
-	} else {
-		if DEBUG && err != nil {
-			log.Println(err.Error())
-		}
+	claims, err := GetJWTClaims(p.ByName("token"), REGISTER_VERIFY_SECRET) // verify token authenticity
+	if err != nil {
 		w.WriteHeader(404)
 		w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
+		return
 	}
+
+	var acc interfaces_internal.IAccount
+
+	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&acc)
+
+	if err != nil {
+		if err.Error() == "not found" {
+			w.WriteHeader(500)
+			w.Write([]byte("Account not found. Please try registering again."))
+		} else {
+			w.WriteHeader(500)
+			w.Write([]byte("Internal server error. Problem finding account."))
+		}
+		return
+	}
+
+	acc.IsEmailVerified = true
+
+	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
+	if err != nil {
+		w.WriteHeader(500)
+		w.Write([]byte("Internal server error."))
+		return
+	}
+
+	w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
 }
 
 /*

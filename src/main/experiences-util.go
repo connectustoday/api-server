@@ -488,6 +488,9 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 	w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
 }
 
+// Helper for checking mongodb errors
+// Sends error request body so only an error check is needed
+
 func checkMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {
 	if err != nil {
 		if err.Error() == "not found" {

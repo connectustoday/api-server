@@ -85,7 +85,7 @@ func DecodeRequest(r *http.Request, obj interface{}) error {
 }
 
 func CheckJWTToken(token string, secret string) (*jwt.Token, error){
-	return jwt.Parse(p.ByName("token"), func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
+	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
