@@ -233,13 +233,13 @@ func sendVerificationEmail(username string, email string) error {
 // Verify email request route
 // https://connectus.github.io/api-server/api-reference#accounts
 
-func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "text/html")
 
 	claims, err := GetJWTClaims(p.ByName("token"), REGISTER_VERIFY_SECRET) // verify token authenticity
 	if err != nil {
 		w.WriteHeader(404)
-		w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
+		_, _ = w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
 		return
 	}
 
@@ -250,10 +250,10 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(500)
-			w.Write([]byte("Account not found. Please try registering again."))
+			_, _ = w.Write([]byte("Account not found. Please try registering again."))
 		} else {
 			w.WriteHeader(500)
-			w.Write([]byte("Internal server error. Problem finding account."))
+			_, _ = w.Write([]byte("Internal server error. Problem finding account."))
 		}
 		return
 	}
@@ -263,11 +263,11 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
 	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write([]byte("Internal server error."))
+		_, _ = w.Write([]byte("Internal server error."))
 		return
 	}
 
-	w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
+	_, _ = w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
 }
 
 /*
@@ -276,7 +276,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, r *http.Request, p httproute
  * https://connectustoday.github.io/api-server/api-reference#accounts
  */
 
-func GetAccountRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 	account := interfaces_internal.IAccount{}
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)

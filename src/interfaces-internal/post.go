@@ -1,6 +1,10 @@
 package interfaces_internal
 
-import "github.com/globalsign/mgo/bson"
+import (
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	"log"
+)
 
 type IPost struct {
 	SchemaVersion uint32        `bson:"schema_version"`
@@ -18,4 +22,14 @@ type IPost struct {
 	Comments      []string      `bson:"comments"`
 	Shares        []string      `bson:"shares"`
 	Visibility    []string      `bson:"visibility"`
+}
+
+func InitIPostIndexes(collection *mgo.Collection) {
+	err := collection.EnsureIndex(mgo.Index{
+		Key: []string{"tags", "_id"},
+		Background: true,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

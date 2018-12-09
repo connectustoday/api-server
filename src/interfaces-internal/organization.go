@@ -1,5 +1,10 @@
 package interfaces_internal
 
+import (
+	"github.com/globalsign/mgo"
+	"log"
+)
+
 type IValidations struct {
 	UserID       string `bson:"user_id"`
 	ExperienceID string `bson:"experience_id"`
@@ -32,4 +37,14 @@ type IOrganization struct {
 	Opportunities         []string             `bson:"opportunities"`
 	OrgInfo               IOrganizationProfile `bson:"org_info"`
 	ExperienceValidations []IValidations       `bson:"experience_validations"`
+}
+
+func InitIOrganizationIndexes(collection *mgo.Collection) {
+	err := collection.EnsureIndex(mgo.Index{
+		Key: []string{"preferred_name"},
+		Background: true,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

@@ -1,5 +1,10 @@
 package interfaces_internal
 
+import (
+	"github.com/globalsign/mgo"
+	"log"
+)
+
 type ICom struct {
 	Post string `bson:"post"`
 	When int    `bson:"when"`
@@ -26,4 +31,14 @@ type IAccount struct {
 	Settings             interface{}     `bson:"settings" json:"settings"`
 	AdminNote            string          `bson:"admin_note" json:"admin_note"`
 	Type                 string          `bson:"type" json:"type"`
+}
+
+func InitIAccountIndexes(collection *mgo.Collection) {
+	err := collection.EnsureIndex(mgo.Index{
+		Key: []string{"username", "email", "password", "avatar", "admin_note"},
+		Background: true,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

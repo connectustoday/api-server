@@ -1,6 +1,10 @@
 package interfaces_internal
 
-import "github.com/globalsign/mgo/bson"
+import (
+	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
+	"log"
+)
 
 type IOpportunity struct {
 	SchemaVersion        uint32        `bson:"schema_version"`
@@ -16,4 +20,14 @@ type IOpportunity struct {
 	ShiftTimes           []string      `bson:"shift_times"`
 	MethodOfContact      []string      `bson:"method_of_contact"`
 	CreatedAt            int64         `bson:"created_at"`
+}
+
+func InitIOpportunityIndexes(collection *mgo.Collection) {
+	err := collection.EnsureIndex(mgo.Index{
+		Key: []string{"organization", "name", "is_signups_enabled", "_id"},
+		Background: true,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }

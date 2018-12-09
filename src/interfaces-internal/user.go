@@ -1,5 +1,10 @@
 package interfaces_internal
 
+import (
+	"github.com/globalsign/mgo"
+	"log"
+)
+
 type IUser struct {
 	SchemaVersion        int             `bson:"schema_version"`
 	UserName             string          `bson:"username"`
@@ -31,4 +36,12 @@ type IUser struct {
 	Experiences []IExperience `bson:"experiences"`
 }
 
-
+func InitIUserIndexes(collection *mgo.Collection) {
+	err := collection.EnsureIndex(mgo.Index{
+		Key: []string{"first_name"},
+		Background: true,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+}

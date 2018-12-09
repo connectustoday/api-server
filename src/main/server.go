@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/globalsign/mgo"
 	"github.com/julienschmidt/httprouter"
+	"interfaces-internal"
 	"log"
 	"net/http"
 	"net/smtp"
@@ -39,8 +40,9 @@ var (
 
 	Database *mgo.Database
 
-	IAccountCollection    *mgo.Collection
-	IExperienceCollection *mgo.Collection
+	IAccountCollection     *mgo.Collection
+	IOpportunityCollection *mgo.Collection
+	IPostCollection        *mgo.Collection
 
 	router *httprouter.Router
 )
@@ -84,7 +86,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	BCRYPT_COST, err = strconv.Atoi(getEnv("BCRYPT_COST",  "10"))
+	BCRYPT_COST, err = strconv.Atoi(getEnv("BCRYPT_COST", "10"))
 	if err != nil {
 		panic(err)
 	}
@@ -149,6 +151,19 @@ func ConnectMongoDB() {
 
 	Database = session.DB(DB_NAME)
 
+	// Store collections
+
 	IAccountCollection = Database.C("AccountModel")
-	IExperienceCollection = Database.C("ExperienceModel")
+	IOpportunityCollection = Database.C("OpportunityModel")
+	IPostCollection = Database.C("PostModel")
+
+	// Initialize indexes
+	interfaces_internal.InitIAccountIndexes(IAccountCollection)
+	interfaces_internal.InitIUserIndexes(IAccountCollection)
+	interfaces_internal.InitIOrganizationIndexes(IAccountCollection)
+
+	interfaces_internal.InitIOpportunityIndexes(IOpportunityCollection)
+
+	interfaces_internal.InitIPostIndexes(IPostCollection)
+
 }
