@@ -76,9 +76,10 @@ func GetExperiences(w http.ResponseWriter, user interfaces_internal.IUser) {
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
 func UpdateExperienceRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
-	//TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
+	// TODO REDO THE CODE (MULTIPLE SAVES IN PARALLEL), SAVE AND TRANSFER APPROVAL FROM ORGANIZATION IF ORGANIZATION REMAINS THE SAME
 	w.Header().Set("Content-Type", "application/json")
 
+	// TODO
 }
 
 // Create experience
@@ -267,12 +268,12 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 	if exp.Organization != "" && !exp.EmailVerify { // remove pending validations for experience from organization
 
 		var org interfaces_internal.IOrganization
-		found := false
+		found := true
 		err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
 
 		if err != nil {
 			if err.Error() == "not found" {
-				found = true
+				found = false
 			} else {
 				SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 				return
@@ -284,7 +285,8 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 			found = false
 			i := 0
 
-			for _, v := range org.ExperienceValidations { // remove all entries with the same id and user (duplicates as well)
+			// remove all entries with the same id and user (duplicates as well)
+			for _, v := range org.ExperienceValidations {
 				if v.UserID == user.UserName && v.ExperienceID == exp.ID.Hex() {
 					found = true
 					org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...) // remove from slice
@@ -353,7 +355,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
-		Approve bool `json:"approve" schema:"approve"`
+		Approve *bool `json:"approve" schema:"approve"`
 	}
 
 	var req requestForm
@@ -376,14 +378,13 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	found := false
-	i := 0
 
 	// Remove the experience validation request from the organization object
-	for _, v := range org.ExperienceValidations {
-		if v.UserID == p.ByName("user") && v.ExperienceID == p.ByName("id") {
+	for i := 0; i < len(org.ExperienceValidations); i++ {
+		if org.ExperienceValidations[i].UserID == p.ByName("user") && org.ExperienceValidations[i].ExperienceID == p.ByName("id") {
 			found = true
-			i--
 			org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...)
+			i--
 		}
 		i++
 	}
@@ -411,7 +412,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	// Update user's experience
 	for i, ex := range user.Experiences {
 		if ex.ID.Hex() == p.ByName("id") {
-			if req.Approve {
+			if *req.Approve {
 				user.Experiences[i].IsVerified = true // verify experience object if approved
 			} else {
 				user.Experiences = append(user.Experiences[:i], user.Experiences[i+1:]...) // delete experience object if not approved
@@ -445,7 +446,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 
 	if err != nil {
 		w.WriteHeader(404)
-		w.Write([]byte("Invalid approval link. Perhaps it has expired?"))
+		_, _ = w.Write([]byte("Invalid approval link. Perhaps it has expired?"))
 		return
 	}
 
@@ -454,10 +455,10 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(404)
-			w.Write([]byte("Account not found. Perhaps the user has been removed?"))
+			_, _ = w.Write([]byte("Account not found. Perhaps the user has been removed?"))
 		} else {
 			w.WriteHeader(500)
-			w.Write([]byte("Internal server error. Problem finding account."))
+			_, _ = w.Write([]byte("Internal server error. Problem finding account."))
 		}
 		return
 	}
@@ -476,7 +477,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 
 	if !found {
 		w.WriteHeader(500)
-		w.Write([]byte("Could not find experience to validate. Perhaps the user has removed it, or the experience was already validated?"))
+		_, _ = w.Write([]byte("Could not find experience to validate. Perhaps the user has removed it, or the experience was already validated?"))
 		return
 	}
 
@@ -484,11 +485,11 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 
 	if err != nil {
 		w.WriteHeader(500)
-		w.Write([]byte("Internal server error. :("))
+		_, _ = w.Write([]byte("Internal server error. :("))
 		return
 	}
 
-	w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
+	_, _ = w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
 }
 
 // Helper for checking mongodb errors

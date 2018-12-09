@@ -25,7 +25,6 @@ func SendMail(recipient string, subject string, fromTemplate string, replace int
 		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n\r\n" +
 		body.String() + "\r\n")
 
-	//println(string(msg))
 	return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD), MAIL_SENDER, []string{recipient}, msg)
 }
 

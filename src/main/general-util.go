@@ -39,6 +39,8 @@ func init() {
 	schemaDecoder.IgnoreUnknownKeys(true)
 }
 
+// Create omit fields list for VerifyFieldsExist()
+
 func FormOmit(omitFields []string) (ret map[string]bool) {
 	ret = make(map[string]bool)
 	for _, e := range omitFields {
@@ -64,12 +66,16 @@ func VerifyFieldsExist(obj interface{}, omitFields map[string]bool, fillEmpty bo
 	return true
 }
 
+// Write "ok" to client
+
 func WriteOK(w http.ResponseWriter) {
 	_, err := w.Write([]byte(`{"message": "` + ok + `"}`))
 	if err != nil {
 		log.Println(err.Error())
 	}
 }
+
+// Decode JSON or Form POST request
 
 func DecodeRequest(r *http.Request, obj interface{}) error {
 	err := r.ParseForm()
@@ -84,6 +90,8 @@ func DecodeRequest(r *http.Request, obj interface{}) error {
 	}
 }
 
+// Check validity of JWT token
+
 func CheckJWTToken(token string, secret string) (*jwt.Token, error){
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -92,6 +100,8 @@ func CheckJWTToken(token string, secret string) (*jwt.Token, error){
 		return []byte(secret), nil
 	})
 }
+
+// Get claims of JWT token
 
 func GetJWTClaims(token string, secret string) (jwt.MapClaims, error) {
 	tok, err := CheckJWTToken(token, secret)
