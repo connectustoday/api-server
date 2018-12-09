@@ -15,6 +15,7 @@ import (
 
 func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 	return func(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+		w.Header().Set("Content-Type", "application/json")
 
 		token := r.Header.Get("x-access-token")
 		if token == "" {

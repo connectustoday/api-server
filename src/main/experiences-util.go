@@ -467,6 +467,8 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 		if user.Experiences[i].EmailJWT != "" {
 			claims2, _ := GetJWTClaims(user.Experiences[i].EmailJWT, APPROVAL_VERIFY_SECRET)
 			if claims2["ms"] == claims["ms"] {
+				user.Experiences[i].EmailJWT = ""
+				user.Experiences[i].IsVerified = true
 				found = true
 			}
 		}
@@ -483,6 +485,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 	if err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte("Internal server error. :("))
+		return
 	}
 
 	w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
