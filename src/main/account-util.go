@@ -300,14 +300,54 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 
 	_, err = w.Write([]byte(b))
 	if err != nil {
-		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 }
 
-func GetAccountProfileRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+	var account bson.M
+	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
+	if err != nil {
+		if err.Error() == "not found" {
+			SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
+		} else {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		}
+		return
+	}
+
+	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
+
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		return
+	}
+
+	var b []byte
+	if acc.Type == "User" {
+		d, _ := interfaces_conv.ConvertBSONToIUser(account)
+		b, err = json.Marshal(d.PersonalInfo)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+			return
+		}
+	} else if acc.Type == "Organization" {
+		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
+		b, err = json.Marshal(d.OrgInfo)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+			return
+		}
+	}
+
+	_, err = w.Write([]byte(b))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func GetAccountConnectionsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
