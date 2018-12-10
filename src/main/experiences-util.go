@@ -43,7 +43,7 @@ func GetExperiencesRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Pa
 
 	// Find and get user object
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id"), "type": "User"}).One(&user)
-	if checkMongoQueryError(w, err, "  (User not found! Is this the correct account type?)", 4002, 4001) != nil {
+	if CheckMongoQueryError(w, err, "  (User not found! Is this the correct account type?)", 4002, 4001) != nil {
 		return
 	}
 
@@ -202,7 +202,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 			var org interfaces_internal.IOrganization
 			err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
-			if checkMongoQueryError(w, err, " (Organization not found.)", 4002, 4001) != nil {
+			if CheckMongoQueryError(w, err, " (Organization not found.)", 4002, 4001) != nil {
 				return
 			}
 
@@ -212,7 +212,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			}) // add validation entry to organization
 
 			err = IAccountCollection.Update(bson.M{"username": exp.Organization, "type": "Organization"}, org) // save to db
-			if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+			if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 				return
 			}
 		}
@@ -397,14 +397,14 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	// Save organization to db
 	err = IAccountCollection.Update(bson.M{"username": org.UserName}, org)
-	if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+	if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 		return
 	}
 
 	// Update user experience object with approval
 	var user interfaces_internal.IUser
 	err = IAccountCollection.Find(bson.M{"username": p.ByName("user"), "type": "User"}).One(&user)
-	if checkMongoQueryError(w, err, badRequest+" (User not found.)", 4003, 4001) != nil {
+	if CheckMongoQueryError(w, err, badRequest+" (User not found.)", 4003, 4001) != nil {
 		return
 	}
 
@@ -429,7 +429,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	err = IAccountCollection.Update(bson.M{"username": p.ByName("user"), "type": "User"}, user)
-	if checkMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
+	if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 		return
 	}
 
@@ -491,18 +491,4 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 	}
 
 	_, _ = w.Write([]byte("You have successfully approved the request! Sign up for ConnectUS to approve and manage validations directly from the site...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 5000)</script>"))
-}
-
-// Helper for checking mongodb errors
-// Sends error request body so only an error check is needed
-
-func checkMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {
-	if err != nil {
-		if err.Error() == "not found" {
-			SendError(w, http.StatusNotFound, notFound+notFoundMsg, errCodeNotFound)
-		} else {
-			SendError(w, http.StatusInternalServerError, internalServerError, errCodeError)
-		}
-	}
-	return err
 }

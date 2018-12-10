@@ -117,3 +117,17 @@ func GetJWTClaims(token string, secret string) (jwt.MapClaims, error) {
 	}
 	return claims, nil
 }
+
+// Helper for checking mongodb errors
+// Sends error request body so only an error check is needed
+
+func CheckMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, errCodeNotFound int, errCodeError int) error {
+	if err != nil {
+		if err.Error() == "not found" {
+			SendError(w, http.StatusNotFound, notFound+notFoundMsg, errCodeNotFound)
+		} else {
+			SendError(w, http.StatusInternalServerError, internalServerError, errCodeError)
+		}
+	}
+	return err
+}

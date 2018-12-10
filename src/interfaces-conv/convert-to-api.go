@@ -59,3 +59,41 @@ func ConvertToIValidationsAPI(v interfaces_internal.IValidations) interfaces_api
 		ExperienceID: v.ExperienceID,
 	}
 }
+
+func ConvertToIUserProfileAPI(v interfaces_internal.IUserProfile) interfaces_api.IUserProfileAPI {
+	return interfaces_api.IUserProfileAPI{
+		Interests: v.Interests,
+		Biography: v.Biography,
+		Education: v.Education,
+		Quote: v.Quote,
+		CurrentResidence: v.CurrentResidence,
+		Certifications: v.Certifications,
+	}
+}
+
+func ConvertToIOrganizationProfileAPI(v interfaces_internal.IOrganizationProfile) interfaces_api.IOrganizationProfileAPI {
+	return interfaces_api.IOrganizationProfileAPI{
+		Mission: v.Mission,
+		Quote: v.Quote,
+		Address: ConvertToIAddressAPI(v.Address),
+		AffiliatedOrgs: v.AffiliatedOrgs,
+		Interests: v.Interests,
+	}
+}
+
+func ConvertToIUserSettingsAPI(v interfaces_internal.IUserSettings) interfaces_api.IUserSettingsAPI {
+	return interfaces_api.IUserSettingsAPI{
+		AllowMessagesFromUnknown: v.AllowMessagesFromUnknown,
+		EmailNotifications: v.EmailNotifications,
+		IsFullNameVisible: v.IsFullNameVisible,
+		BlockedUsers: v.BlockedUsers,
+	}
+}
+
+func ConvertToIOrganizationSettingsAPI(v interfaces_internal.IOrganizationSettings) interfaces_api.IOrganizationSettingsAPI {
+	return interfaces_api.IOrganizationSettingsAPI{
+		AllowMessagesFromUnknown: v.AllowMessagesFromUnknown,
+		EmailNotifications: v.EmailNotifications,
+		IsNonprofit: v.IsNonprofit,
+	}
+}

@@ -52,12 +52,6 @@ func SendMail(recipient string, subject string, fromTemplate string, replace int
 	}
 
 	return nil
-	/*
-	if SMTP_TLS {
-		return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), loginAuthSMTP(MAIL_USERNAME, MAIL_PASSWORD), MAIL_SENDER, []string{recipient}, msg)
-	} else {
-		return smtp.SendMail(SMTP_HOST+":"+strconv.Itoa(SMTP_PORT), smtp.PlainAuth("", MAIL_USERNAME, MAIL_PASSWORD, SMTP_HOST), MAIL_SENDER, []string{recipient}, msg)
-	}*/
 }
 
 func getMailer() (*smtp.Client, error) {
@@ -100,18 +94,6 @@ func InitMailer(startup bool) {
 
 	if startup {
 		log.Println("Verified SMTP configuration!")
-		/*go func() { // keeping SMTP connection open forever and ever and ever and ever for some reason (this is probably a bad idea)
-			time.Sleep(time.Minute * 4)
-			err = Mailer.Noop()
-			log.Println("SMTP NOOP failure: " + err.Error()) // may not work with exchange server
-		}()
-
-		go func() { // restarting the SMTP connection cause i feel bad from above :D
-			time.Sleep(time.Minute * 20)
-			err = Mailer.Close()
-
-			InitMailer(false)
-		}()*/
 	}
 }
 

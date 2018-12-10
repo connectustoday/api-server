@@ -284,12 +284,7 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 	account := interfaces_internal.IAccount{}
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
-	if err != nil {
-		if err.Error() == "not found" {
-			SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
-		} else {
-			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-		}
+	if CheckMongoQueryError(w, err, " (Account not found)", 3003, 3002) != nil {
 		return
 	}
 
@@ -315,12 +310,7 @@ func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter
 	var account bson.M
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
-	if err != nil {
-		if err.Error() == "not found" {
-			SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
-		} else {
-			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-		}
+	if CheckMongoQueryError(w, err, " (Account not found)", 3003, 3002) != nil {
 		return
 	}
 
@@ -363,10 +353,10 @@ func GetAccountPostsRoute(w http.ResponseWriter, r *http.Request, p httprouter.P
 
 }
 
-func RequestConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func RequestConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
 
 }
 
-func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
 
 }
