@@ -324,18 +324,15 @@ func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter
 	var b []byte
 	if acc.Type == "User" {
 		d, _ := interfaces_conv.ConvertBSONToIUser(account)
-		b, err = json.Marshal(d.PersonalInfo)
-		if err != nil {
-			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-			return
-		}
+		b, err = json.Marshal(interfaces_conv.ConvertToIUserProfileAPI(d.PersonalInfo))
 	} else if acc.Type == "Organization" {
 		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
-		b, err = json.Marshal(d.OrgInfo)
-		if err != nil {
-			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-			return
-		}
+		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationProfileAPI(d.OrgInfo))
+	}
+
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		return
 	}
 
 	_, err = w.Write([]byte(b))
