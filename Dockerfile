@@ -2,6 +2,8 @@ FROM alpine
 
 MAINTAINER Devin
 
+ENV VIRTUAL_HOST api.connectus.today
+
 ARG PORT
 ENV PORT ${PORT}
 ARG DB_PORT
