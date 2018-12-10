@@ -258,6 +258,11 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 		return
 	}
 
+	if acc.IsEmailVerified {
+		_, _ = w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
+		return
+	}
+
 	acc.IsEmailVerified = true
 
 	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
@@ -270,11 +275,9 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 	_, _ = w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
 }
 
-/*
- * Get account route
- * GET /v1/accounts/:id
- * https://connectustoday.github.io/api-server/api-reference#accounts
- */
+ // Get account route
+ // GET /v1/accounts/:id
+ // https://connectustoday.github.io/api-server/api-reference#accounts
 
 func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
@@ -291,6 +294,8 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 	}
 
 	accountapi := interfaces_conv.ConvertToIAccountAPI(account)
+
+	// TODO REDO BY SWITCHING TO USER/ORGANIZATION SPECIFIC OBJ
 
 	b, err := json.Marshal(accountapi)
 	if err != nil {
@@ -351,5 +356,17 @@ func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter
 }
 
 func GetAccountConnectionsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
+
+func GetAccountPostsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
+
+func RequestConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+
+}
+
+func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }

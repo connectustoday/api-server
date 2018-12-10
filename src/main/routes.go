@@ -44,7 +44,7 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 	router.POST(prefix+"/validations/:user/:id", WithAccountVerify(ReviewExperienceValidationsRoute))
 
 	// Approve validation (from email)
-	router.GET(prefix+"/email_approve/:token", EmailApproveExperienceValidationRoute)
+	router.GET(prefix+"/email-approve/:token", EmailApproveExperienceValidationRoute)
 }
 
 /*
@@ -73,11 +73,9 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 
 	router.POST(prefix+"/register", RegisterRoute)
 
-	/*
-	 * Login API Endpoint
-	 * https://connectustoday.github.io/api-server/api-reference#login
-     * TODO EMAIL LOGIN (RATHER THAN USERNAME)
-     */
+	 // Login API Endpoint
+	 // https://connectustoday.github.io/api-server/api-reference#login
+	 // TODO EMAIL LOGIN (RATHER THAN USERNAME)
 
 	router.POST(prefix+"/login", LoginRoute)
 
@@ -85,9 +83,7 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 
 	router.GET(prefix+"/verify-email/:token", VerifyEmailRequestRoute)
 
-	/*
-	 * Test utility to check if logged in
-	 */
+	// Test utility to check if logged in
 
 	if DEBUG {
 		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account bson.M) {
@@ -115,20 +111,25 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 	 */
 
 	// Fetch an Account's basic information (Global)
-
 	router.GET(prefix+"/:id", GetAccountRoute)
 
 	// Get the profile of a user
-
 	router.GET(prefix + "/:id/profile", GetAccountProfileRoute)
 
 	// Get the connections of a user
-
 	router.GET(prefix + "/:id/connections", GetAccountConnectionsRoute)
 
-	// Get the experiences list of a user
+	// Get the user's posts
+	router.GET(prefix + "/:id/posts", GetAccountPostsRoute)
 
+	// Get the experiences list of a user
 	router.GET(prefix + "/:id/experiences", GetExperiencesRoute)
+
+	// Request connection of user
+	router.POST(prefix + "/:id/request-connection", WithAccountVerify(RequestConnectionRoute))
+
+	// Accept connection of user
+	router.POST(prefix + "/:id/accept-connection", WithAccountVerify(AcceptConnectionRoute))
 
 }
 
@@ -136,4 +137,5 @@ func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
 	router.GET(prefix+"/search", func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	})
+
 }

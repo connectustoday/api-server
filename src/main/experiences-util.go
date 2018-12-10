@@ -162,7 +162,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			}
 
 			exp.EmailJWT = tokenString
-			verifyLink := API_DOMAIN + "/v1/experiences/email_approve/" + exp.EmailJWT
+			verifyLink := API_DOMAIN + "/v1/experiences/email-approve/" + exp.EmailJWT
 
 			err = SendMail(exp.Organization, "Volunteer or Work Experience Validation Request", mail_templates.VALIDATE_EXPERIENCE_WITHOUT_ACCOUNT, struct {
 				VerifyLink template.URL
