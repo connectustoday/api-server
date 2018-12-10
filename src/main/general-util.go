@@ -21,10 +21,10 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/schema"
-	"github.com/pkg/errors"
 	"log"
 	"net/http"
 	"reflect"
