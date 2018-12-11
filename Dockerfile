@@ -3,6 +3,8 @@ FROM alpine
 MAINTAINER Devin
 
 ENV VIRTUAL_HOST api.connectus.today
+ENV LETSENCRYPT_HOST api.connectus.today
+ENV LETSENCRYPT_EMAIL techteam.connectus@gmail.com
 
 ARG PORT
 ENV PORT ${PORT}
