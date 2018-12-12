@@ -138,4 +138,6 @@ func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
 
 	})
 
+	router.GET(prefix + "/profile", WithAccountVerify(GetPersonalAccountProfileRoute))
+
 }
