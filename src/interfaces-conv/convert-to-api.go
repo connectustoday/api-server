@@ -96,8 +96,9 @@ func ConvertToIValidationsAPI(v interfaces_internal.IValidations) interfaces_api
 	}
 }
 
-func ConvertToIUserProfileAPI(v interfaces_internal.IUserProfile) interfaces_api.IUserProfileAPI {
+func ConvertToIUserProfileAPI(v interfaces_internal.IUserProfile, accType string) interfaces_api.IUserProfileAPI {
 	return interfaces_api.IUserProfileAPI{
+		Type:             accType,
 		Interests:        v.Interests,
 		Biography:        v.Biography,
 		Education:        v.Education,
@@ -107,8 +108,9 @@ func ConvertToIUserProfileAPI(v interfaces_internal.IUserProfile) interfaces_api
 	}
 }
 
-func ConvertToIOrganizationProfileAPI(v interfaces_internal.IOrganizationProfile) interfaces_api.IOrganizationProfileAPI {
+func ConvertToIOrganizationProfileAPI(v interfaces_internal.IOrganizationProfile, accType string) interfaces_api.IOrganizationProfileAPI {
 	return interfaces_api.IOrganizationProfileAPI{
+		Type:           accType,
 		Mission:        v.Mission,
 		Quote:          v.Quote,
 		Address:        ConvertToIAddressAPI(v.Address),
@@ -117,8 +119,9 @@ func ConvertToIOrganizationProfileAPI(v interfaces_internal.IOrganizationProfile
 	}
 }
 
-func ConvertToIUserSettingsAPI(v interfaces_internal.IUserSettings) interfaces_api.IUserSettingsAPI {
+func ConvertToIUserSettingsAPI(v interfaces_internal.IUserSettings, accType string) interfaces_api.IUserSettingsAPI {
 	return interfaces_api.IUserSettingsAPI{
+		Type:                     accType,
 		AllowMessagesFromUnknown: v.AllowMessagesFromUnknown,
 		EmailNotifications:       v.EmailNotifications,
 		IsFullNameVisible:        v.IsFullNameVisible,
@@ -126,8 +129,9 @@ func ConvertToIUserSettingsAPI(v interfaces_internal.IUserSettings) interfaces_a
 	}
 }
 
-func ConvertToIOrganizationSettingsAPI(v interfaces_internal.IOrganizationSettings) interfaces_api.IOrganizationSettingsAPI {
+func ConvertToIOrganizationSettingsAPI(v interfaces_internal.IOrganizationSettings, accType string) interfaces_api.IOrganizationSettingsAPI {
 	return interfaces_api.IOrganizationSettingsAPI{
+		Type:                     accType,
 		AllowMessagesFromUnknown: v.AllowMessagesFromUnknown,
 		EmailNotifications:       v.EmailNotifications,
 		IsNonprofit:              v.IsNonprofit,

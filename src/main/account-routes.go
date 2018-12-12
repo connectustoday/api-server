@@ -18,17 +18,15 @@ import (
 func VerifyUniqueUsername(username string) bool {
 	count, err := IAccountCollection.Find(bson.M{"username": username}).Count()
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return false
 	}
 	return count == 0
 }
 
-/*
- * Account registration route
- * POST /v1/auth/register
- * https://connectustoday.github.io/api-server/api-reference#register
- */
+// Account registration route
+// POST /v1/auth/register
+// https://connectustoday.github.io/api-server/api-reference#register
 
 func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
@@ -54,15 +52,13 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
 		if DEBUG {
-			//output, _ := httputil.DumpRequest(r, true)
-			//println(string(output))
 			log.Println(err.Error())
 		}
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3205)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), false) { // Check request for correct fields
-		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
 	if !VerifyUniqueUsername(*req.UserName) { // Check if username is unique
@@ -87,7 +83,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	if *req.Type == "user" {
 
 		if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
-			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 			return
 		}
 
@@ -145,7 +141,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	} else if *req.Type == "organization" {
 
 		if !VerifyFieldsExist(&req, FormOmit([]string{"FirstName", "Birthday", "IsNonProfit", "PreferredName"}), true) { // Check request for correct fields
-			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3206)
+			SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 			return
 		}
 
@@ -275,32 +271,37 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 	_, _ = w.Write([]byte("Account successfully verified! Redirecting you to login page...<script>setTimeout(()=>{window.location.replace('" + SITE_DOMAIN + "/auth/login.php')}, 2000)</script>"))
 }
 
- // Get account route
- // GET /v1/accounts/:id
- // https://connectustoday.github.io/api-server/api-reference#accounts
+// Get account route
+// GET /v1/accounts/:id
+// https://connectustoday.github.io/api-server/api-reference#accounts
 
 func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	account := interfaces_internal.IAccount{}
+	account := bson.M{}
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
-	if CheckMongoQueryError(w, err, " (Account not found)", 3003, 3002) != nil {
+	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
 	}
 
-	acc := interfaces_conv.ConvertToIAccountAPI(account)
+	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
 
-	// TODO REDO BY SWITCHING TO USER/ORGANIZATION SPECIFIC OBJ
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
+		return
+	}
 
 	var b []byte
 	if acc.Type == "User" {
-		b, err := json.Marshal(ConvertToIUser)
-		if err != nil {
-			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-			return
-		}
+		d, _ := interfaces_conv.ConvertBSONToIUser(account)
+		b, err = json.Marshal(interfaces_conv.ConvertToIUserAPI(d))
 	} else if acc.Type == "Organization" {
-
+		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
+		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationAPI(d))
+	}
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
+		return
 	}
 
 	_, err = w.Write([]byte(b))
@@ -310,33 +311,36 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 	}
 }
 
+// Get account profile route
+// GET /v1/accounts/:id/profile
+// https://connectustoday.github.io/api-server/api-reference#accounts
+
 func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 	var account bson.M
 	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
 
-	if CheckMongoQueryError(w, err, " (Account not found)", 3003, 3002) != nil {
+	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
 	}
 
 	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
 
 	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
 		return
 	}
 
 	var b []byte
 	if acc.Type == "User" {
 		d, _ := interfaces_conv.ConvertBSONToIUser(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIUserProfileAPI(d.PersonalInfo))
+		b, err = json.Marshal(interfaces_conv.ConvertToIUserProfileAPI(d.PersonalInfo, d.Type))
 	} else if acc.Type == "Organization" {
 		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationProfileAPI(d.OrgInfo))
+		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationProfileAPI(d.OrgInfo, d.Type))
 	}
-
 	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
 		return
 	}
 

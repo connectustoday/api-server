@@ -77,7 +77,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), false) { // Check request for correct fields
-		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 3103)
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
 

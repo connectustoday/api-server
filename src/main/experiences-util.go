@@ -107,11 +107,11 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 		if DEBUG {
 			log.Println(err)
 		}
-		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4050)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{"Location", "Organization", "Opportunity", "When", "Hours"}), true) { // Check request for correct fields
-		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4004) // TODO proper error code
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050) // TODO proper error code
 		return
 	}
 
@@ -157,7 +157,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			token.Claims = claims
 			tokenString, err := token.SignedString([]byte(APPROVAL_VERIFY_SECRET)) // sign with secret
 			if err != nil {
-				SendError(w, http.StatusInternalServerError, internalServerError, 3100)
+				SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 				return
 			}
 
@@ -363,11 +363,11 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
-		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4001)
+		SendError(w, http.StatusInternalServerError, internalServerError+" when parsing request. Bad input?", 4050)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), true) { // Check request for correct fields
-		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4004) // TODO proper error code
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050) // TODO proper error code
 		return
 	}
 

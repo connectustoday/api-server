@@ -7,4 +7,5 @@ type IUserProfileAPI struct {
 	Quote            string   `json:"quote"`
 	CurrentResidence string   `json:"current_residence"`
 	Certifications   string   `json:"certifications"` // TODO
+	Type             string   `json:"type"`
 }

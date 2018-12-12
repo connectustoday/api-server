@@ -6,4 +6,5 @@ type IOrganizationProfileAPI struct {
 	Address        IAddressAPI `json:"address"`
 	AffiliatedOrgs []string    `json:"affiliated_orgs"`
 	Interests      []string    `json:"interests"`
+	Type           string      `json:"type"`
 }
