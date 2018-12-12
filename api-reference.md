@@ -1,17 +1,12 @@
 # API Reference
 
 The ConnectUS API server uses a REST API for interactions with other applications (`LIST`, `GET`, `POST`, `DELETE`). Clients interface with the API by querying a URL 
-(`https://connectus.today/api/[version]/[function]`) with one of the operations specified.
+(`https://api.connectus.today/[version]/[function]`) with one of the operations specified.
 
 ## API Requirements
 
 There are several requirements for queries against the API.
 * If the query needs user authorization, an the header `x-access-token` must be included with the token.
-
-https://www.npmjs.com/package/oauth2-server
-https://oauth2-server.readthedocs.io/en/latest/misc/migrating-v2-to-v3.html
-https://docs.mongodb.com/manual/tutorial/geospatial-tutorial/
-https://github.com/expressjs/multer
 
 ## Error Handling
 
@@ -25,9 +20,83 @@ error.message = description of error
 
 ### Account
 
-### User
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `username` | `string` | The unique user of the account. |
+| `email` | `string` | Account's email; used for sign-in and notifications. |
+| `avatar` | `string` | URL to the profile picture of the account. |
+| `header` | `string` | URL to the header image of the account. |
+| `created_at` | `string` |Timestamp for when the account was created. |
+| `type` | `string` | The type of the account ("User" or  "Organization"). |
+| `posts_count` | `string` | The number of posts the account has posted. |
+| `liked_count` | `string` | The number of posts the account has liked. |
+| `shared_count` | `string` | The number of posts the account has shared. |
 
-### Organization
+### User (extends Account)
+Inherits the fields of `Account`.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `first_name` | string | The first name of the user. | 
+| `middle_name` | string | The middle name of the user, if applicable. (Otherwise will be blank) |
+| `last_name` | string | The last name of the user. |
+| `birthday` | string | The birthdate of the user (MM/DD/YYYY) |
+| `gender` | string | Male, female, or other. |
+
+### Organization (extends Account)
+Inherits the fields of `Organization`.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `preferred_name` | string | Preferred name of the organization that shows up on their profile. |
+| `is_verified` | bool | If the organization has been verified to exist, and the account belongs to the real organization. |
+| `opportunities` | string array | List of `Opportunity` IDs that the organization has created. |
+
+### UserProfile
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `type` | `string` | The type of the account ("User" or  "Organization"). |
+| `interests` | string array | Tags that the user is interested in. |
+| `biography` | string | Biography of the user. |
+| `education` | undecided | undecided |
+| `quote` | string | User defined quote. |
+| `current_residence` | string | City that the user lives in. |
+| `certifications` | string | undecided |
+
+### OrganizationProfile
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `type` | `string` | The type of the account ("User" or  "Organization"). |
+| `mission` | string | The organization's stated mission. |
+| `quote` | string | The organization's specified quote. |
+| `address` | `Address` | The organization's headquarters location. |
+| `affiliated_orgs` | string array | IDs of other organizations this organization is affiliated with. |
+| `interests` | string array | Tags that the organization is interested in. |
+
+### AccountSettings
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `type` | `string` | The type of the account ("User" or  "Organization"). |
+| `allow_messages_from_unknown` | bool | Whether or not to allow messages from `Account`s that are not connected with this `Account`.
+| `email_notifications` | bool | Whether or not the user allows emails regarding notifications. |
+
+### UserSettings (extends AccountSettings)
+Inherits the fields of `AccountSettings`.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `is_full_name_visible` | bool | Whether or not the user allows others to see its full name. |
+| `blocked_users` | string array | Array of `Account` IDs for blocked users. |
+
+### OrganizationSettings (extends AccountSettings)
+Inherits the fields of `OrganizationSettings`.
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `is_nonprofit` | bool | Whether or not the organization is non-profit. |
 
 ### Experience
 
@@ -85,7 +154,7 @@ Error Codes:
 | 3100 | Internal server error. | 500 |
 | 3101 | Invalid login. | 400 |
 | 3102 | Email not verified. | 400 |
-| 3103 | Bad request. | 400 |
+| 4050 | Bad query format. | 400 |
 
 #### Register
 
@@ -127,7 +196,7 @@ Error Codes:
 | 3203 | Internal server error registering the account. | 500 |
 | 3204 | Internal server error sending the verification email. | 500 |
 | 3205 | There was a problem reading the request. | 500 |
-| 3206 | Bad request. | 500 |
+| 4050 | Bad query format. | 400 |
 
 #### Verify Email
 
@@ -141,7 +210,7 @@ Note: This endpoint does not need to be implemented by your client, since it is 
 
 #### Search for accounts 
 
-`GET /v1/accounts/search`
+`GET /v1/search`
 
 Not implemented
 
@@ -149,13 +218,27 @@ Not implemented
 
 `GET /v1/accounts/:id`
 
-Returns an Account object.
+Returns either a `User` object or `Organization` object (depending on the account type).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
 
 #### Get Account's Profile
 
 `GET /v1/accounts/:id/profile`
 
-Not implemented
+Returns either a `UserProfile` object or `OrganizationProfile` object (depending on the account type).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
 
 #### Get Account's Connections
 
@@ -179,19 +262,12 @@ Error Codes:
 
 | Error Code | Message | HTTP Code |
 |-------------------|---------------|------------------|
-| 3000 | No token provided. | 401 |
-| 3001 | Failed to authenticate token. | 401 |
-| 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
 | 4001 | Internal server error. | 500 |
 | 4002 | User not found, is this the correct account type? | 404 |
 
 #### Get Organization's Opportunities
 
 `GET /v1/accounts/:id/opportunities`
-
-Not implemented
 
 `POST /v1/accounts/:id/request_connection`
 
@@ -209,9 +285,75 @@ Not implemented
 
 `POST /v1/notification/dismiss`
 
+#### Get current account's settings
+
 `GET /v1/settings`
 
+Returns either a `UserSettings` object or `OrganizationSettings` object (depending on the account type).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
+
+#### Get current account's profile
+
 `GET /v1/profile`
+
+Returns either a `UserProfile` object or `OrganizationProfile` object (depending on the account type).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
+
+#### Update current account's settings
+
+`PATCH /v1/settings`
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
+
+#### Update current account's profile
+
+`PATCH /v1/profile`
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
+
+## Get current account's connection requests
 
 `GET /v1/connection-requests`
 
@@ -277,10 +419,11 @@ Error Codes:
 | 4001 | Internal server error. | 500 |
 | 4002 | Organization not found. | 404 |
 | 4003 | Issue sending verification email. | 500 |
+| 4050 | Bad query format. | 400 |
  
 #### Replace (update) an experience
 
-`PUT /v1/experiences/:id`
+`PUT /v1/experiences/resolve/:id`
 
   This query requires authentication.
   This query only applies to Users.
@@ -303,7 +446,7 @@ Extra Note: This will set the `is_verified` field to false.
 
 #### Delete an experience
 
-`DELETE /v1/experiences/:id`
+`DELETE /v1/experiences/resolve/:id`
 
 This query requires authentication.
 
@@ -372,6 +515,7 @@ Error Codes:
 | 4002 | Experience validation request not found. | 404 |
 | 4003 | User not found. | 400 |
 | 4004 | Experience not found in user object. | 400 |
+| 4050 | Bad query format. | 400 |
  
 #### Approve Validation (From email instead of account)
 
