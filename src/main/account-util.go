@@ -288,14 +288,19 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 		return
 	}
 
-	accountapi := interfaces_conv.ConvertToIAccountAPI(account)
+	acc := interfaces_conv.ConvertToIAccountAPI(account)
 
 	// TODO REDO BY SWITCHING TO USER/ORGANIZATION SPECIFIC OBJ
 
-	b, err := json.Marshal(accountapi)
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
-		return
+	var b []byte
+	if acc.Type == "User" {
+		b, err := json.Marshal(ConvertToIUser)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 3002)
+			return
+		}
+	} else if acc.Type == "Organization" {
+
 	}
 
 	_, err = w.Write([]byte(b))
