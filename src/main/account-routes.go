@@ -1,13 +1,11 @@
 package main
 
 import (
-	"encoding/json"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
-	"interfaces-conv"
 	"interfaces-internal"
 	"log"
 	"mail-templates"
@@ -277,38 +275,13 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 
 func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	account := bson.M{}
-	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
+	account, err := GetAccountDBAsBSON(bson.M{"username": p.ByName("id")})
 
 	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
 	}
 
-	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
-
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
-		return
-	}
-
-	var b []byte
-	if acc.Type == "User" {
-		d, _ := interfaces_conv.ConvertBSONToIUser(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIUserAPI(d))
-	} else if acc.Type == "Organization" {
-		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationAPI(d))
-	}
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
-		return
-	}
-
-	_, err = w.Write([]byte(b))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	FetchAccountRouteHelper(account, w)
 }
 
 // Get account profile route
@@ -317,38 +290,13 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 
 func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	var account bson.M
-	err := IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&account)
+	account, err := GetAccountDBAsBSON(bson.M{"username": p.ByName("id")})
 
 	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
 	}
 
-	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
-
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
-		return
-	}
-
-	var b []byte
-	if acc.Type == "User" {
-		d, _ := interfaces_conv.ConvertBSONToIUser(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIUserProfileAPI(d.PersonalInfo, d.Type))
-	} else if acc.Type == "Organization" {
-		d, _ := interfaces_conv.ConvertBSONToIOrganization(account)
-		b, err = json.Marshal(interfaces_conv.ConvertToIOrganizationProfileAPI(d.OrgInfo, d.Type))
-	}
-	if err != nil {
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Problem finding account)", 4001)
-		return
-	}
-
-	_, err = w.Write([]byte(b))
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
+	FetchProfileRouteHelper(account, w)
 }
 
 func GetAccountConnectionsRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
