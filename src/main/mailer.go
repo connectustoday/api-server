@@ -27,7 +27,7 @@ func SendMail(recipient string, subject string, fromTemplate string, replace int
 
 	defer m.Quit()
 
-	msg := []byte("To: " + recipient + "\r\n" +
+	msg := []byte("From: " + MAIL_SENDER +"\r\nTo: " + recipient + "\r\n" +
 		"Subject: " + subject + "\r\n" +
 		"MIME-version: 1.0;\nContent-Type: text/html; charset=\"UTF-8\";\n\n\r\n" +
 		body.String() + "\r\n")
