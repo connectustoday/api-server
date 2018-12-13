@@ -269,7 +269,13 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 		return
 	}
 
+	if acc.VerifyEmailToken != p.ByName("token") {
+		_, _ = w.Write([]byte("Invalid verification link. Perhaps it's expired?"))
+		return
+	}
+
 	acc.IsEmailVerified = true
+	acc.VerifyEmailToken = ""
 
 	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
 	if err != nil {
