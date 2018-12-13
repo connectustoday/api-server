@@ -102,9 +102,6 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 }
 
 func AccountRoutes(prefix string, router *httprouter.Router) {
-	router.GET(prefix, func(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-		_, _ = w.Write([]byte(badRequest))
-	})
 
 	/*
 	 * Global Account Routes
@@ -138,6 +135,10 @@ func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
 
 	})
 
+	router.GET(prefix +"/account", WithAccountVerify(GetPersonalAccountRoute))
+
 	router.GET(prefix + "/profile", WithAccountVerify(GetPersonalAccountProfileRoute))
+
+	router.GET(prefix + "/settings", WithAccountVerify(GetPersonalAccountSettingsRoute))
 
 }

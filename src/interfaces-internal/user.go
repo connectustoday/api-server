@@ -23,22 +23,22 @@ type IUser struct {
 	Posts                []string        `bson:"posts"`
 	Liked                []ICom          `bson:"liked"`
 	Shared               []ICom          `bson:"shared"`
-	Settings             interface{}     `bson:"settings"`
+	Settings             IUserSettings   `bson:"settings"`
 	AdminNote            string          `bson:"admin_note"`
 	Type                 string          `bson:"type"`
 	// IUser specific fields
-	FirstName    string       `bson:"first_name"`
-	MiddleName   string       `bson:"middle_name"`
-	LastName     string       `bson:"last_name"`
-	Birthday     string       `bson:"birthday"`
-	Gender       string       `bson:"gender"`
-	PersonalInfo IUserProfile `bson:"personal_info"`
-	Experiences []IExperience `bson:"experiences"`
+	FirstName    string        `bson:"first_name"`
+	MiddleName   string        `bson:"middle_name"`
+	LastName     string        `bson:"last_name"`
+	Birthday     string        `bson:"birthday"`
+	Gender       string        `bson:"gender"`
+	PersonalInfo IUserProfile  `bson:"personal_info"`
+	Experiences  []IExperience `bson:"experiences"`
 }
 
 func InitIUserIndexes(collection *mgo.Collection) {
 	err := collection.EnsureIndex(mgo.Index{
-		Key: []string{"first_name"},
+		Key:        []string{"first_name"},
 		Background: true,
 	})
 	if err != nil {
