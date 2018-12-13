@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 )
 
 var (
@@ -31,8 +32,10 @@ var (
 	SITE_DOMAIN            string
 	DEBUG                  bool
 
-	PORT        int
-	BCRYPT_COST int
+	PORT                      int
+	BCRYPT_COST               int
+	API_READ_TIMEOUT_SECONDS  int
+	API_WRITE_TIMEOUT_SECONDS int
 
 	// Global ref
 
@@ -89,6 +92,14 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
+	API_READ_TIMEOUT_SECONDS, err = strconv.Atoi(getEnv("API_READ_TIMEOUT_SECONDS", "30"))
+	if err != nil {
+		panic(err)
+	}
+	API_WRITE_TIMEOUT_SECONDS, err = strconv.Atoi(getEnv("API_WRITE_TIMEOUT_SECONDS", "50"))
+	if err != nil {
+		panic(err)
+	}
 }
 
 func main() {
@@ -115,6 +126,7 @@ func main() {
 
 func StartRouter() {
 	log.Println("Starting API router...")
+
 	router = httprouter.New()
 	router.OPTIONS("/*all", func(w http.ResponseWriter, _ *http.Request, params httprouter.Params) {
 		w.WriteHeader(404)
@@ -133,8 +145,15 @@ func StartRouter() {
 	ExperienceRoutes("/v1/experiences", router)
 	OpportunityRoutes("/v1/opportunities", router)
 
-	log.Println("Initialized router on port " + strconv.Itoa(int(PORT)) + ".")
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(int(PORT)), router)) // Start and serve API
+	server := &http.Server{
+		Addr: ":"+strconv.Itoa(int(PORT)),
+		Handler: router,
+		ReadTimeout:  time.Duration(API_READ_TIMEOUT_SECONDS) * time.Second,
+		WriteTimeout: time.Duration(API_WRITE_TIMEOUT_SECONDS) * time.Second,
+	}
+
+	log.Println("Initialized router on port :" + strconv.Itoa(int(PORT)) + ".")
+	log.Fatal(server.ListenAndServe()) // Start and serve API
 }
 
 func ConnectMongoDB() {
