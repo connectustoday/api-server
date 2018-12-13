@@ -55,7 +55,7 @@ func SendMail(recipient string, subject string, fromTemplate string, replace int
 	return nil
 }
 
-func getMailer() (*smtp.Client, error) {
+func getMailer() (*smtp.Client, error) { // TODO set smtp specific timeout and reporting (instead of relying on hard timeout kill)
 	tlsconfig := &tls.Config{
 		InsecureSkipVerify: true,
 		ServerName:         SMTP_HOST,
