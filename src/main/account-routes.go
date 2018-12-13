@@ -111,6 +111,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			},
 			AdminNote: "",
 			Type:      "User",
+			PasswordResetToken: "",
+			VerifyEmailToken: "",
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -168,6 +170,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			},
 			AdminNote: "",
 			Type:      "Organization",
+			PasswordResetToken: "",
+			VerifyEmailToken: "",
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,

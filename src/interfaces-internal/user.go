@@ -26,6 +26,8 @@ type IUser struct {
 	Settings             IUserSettings   `bson:"settings"`
 	AdminNote            string          `bson:"admin_note"`
 	Type                 string          `bson:"type"`
+	PasswordResetToken   string          `bson:"password_reset_token" json:"password_reset_token"`
+	VerifyEmailToken     string          `bson:"verify_email_token" json:"verify_email_token"`
 	// IUser specific fields
 	FirstName    string        `bson:"first_name"`
 	MiddleName   string        `bson:"middle_name"`

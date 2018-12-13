@@ -113,6 +113,8 @@ func main() {
 		sig := <-sigs
 		log.Println("Received signal " + sig.String() + " from host")
 		done <- true
+		time.Sleep(30*time.Second)
+		os.Exit(1)
 	}()
 
 	ConnectMongoDB()

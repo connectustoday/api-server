@@ -31,6 +31,8 @@ type IOrganization struct {
 	Settings             IOrganizationSettings `bson:"settings"`
 	AdminNote            string                `bson:"admin_note"`
 	Type                 string                `bson:"type"`
+	PasswordResetToken   string                `bson:"password_reset_token" json:"password_reset_token"`
+	VerifyEmailToken     string                `bson:"verify_email_token" json:"verify_email_token"`
 	// organization specific fields
 	PreferredName         string               `bson:"preferred_name"`
 	IsVerified            bool                 `bson:"is_verified"`
