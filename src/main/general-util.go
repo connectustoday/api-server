@@ -118,6 +118,22 @@ func GetJWTClaims(token string, secret string) (jwt.MapClaims, error) {
 	return claims, nil
 }
 
+// Helper for creating JWT token
+
+func CreateJWTTokenHelper(secret string, expiry int64, c jwt.MapClaims) (string, error) {
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	// create jwt token for organization verification
+	c["exp"] = expiry
+	token.Claims = c
+	tokenString, err := token.SignedString([]byte(secret)) // sign with secret
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
+
 // Helper for checking mongodb errors
 // Sends error request body so only an error check is needed
 

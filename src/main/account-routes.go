@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
@@ -71,9 +70,16 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 
+	verifyToken, err := createEmailVerifyToken(*req.UserName)
+	if err != nil {
+		log.Printf("Problem creating verification token: %s", err.Error())
+		SendError(w, http.StatusInternalServerError, internalServerError, 3204)
+		return
+	}
+
 	// Send email verification email
-	if err = sendVerificationEmail(*req.UserName, *req.Email); err != nil {
-		log.Printf("Problem sending mail or creating verification token: %s", err.Error())
+	if err = sendVerificationEmail(verifyToken, *req.Email); err != nil {
+		log.Printf("Problem sending mail: %s", err.Error())
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem sending the verification email. Please ask a website administrator for help.)", 3204)
 		return
 	}
@@ -89,7 +95,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			SchemaVersion:        0,
 			UserName:             *req.UserName,
 			Email:                *req.Email,
-			Password:             string(hashedPassword), // TODO verify if this is how it works or [:]
+			Password:             string(hashedPassword),
 			OAuthToken:           "",
 			OAuthService:         "",
 			IsEmailVerified:      false,
@@ -112,7 +118,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			AdminNote: "",
 			Type:      "User",
 			PasswordResetToken: "",
-			VerifyEmailToken: "",
+			VerifyEmailToken: verifyToken,
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -171,7 +177,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			AdminNote: "",
 			Type:      "Organization",
 			PasswordResetToken: "",
-			VerifyEmailToken: "",
+			VerifyEmailToken: verifyToken,
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,
@@ -210,19 +216,21 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 }
 
-func sendVerificationEmail(username string, email string) error {
-	token := jwt.New(jwt.SigningMethodHS256)
+// create jwt token for account verification
 
-	// create jwt token for organization verification
-	claims := make(jwt.MapClaims)
-	claims["username"] = username
-	claims["exp"] = time.Now().Add(time.Second * time.Duration(43200)).Unix() // expires in one week
-	token.Claims = claims
-	tokenString, err := token.SignedString([]byte(REGISTER_VERIFY_SECRET)) // sign with secret
+func createEmailVerifyToken(username string) (string, error) {
+	// expires in one week
+	tok, err := CreateJWTTokenHelper(REGISTER_VERIFY_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
+		"username": username,
+	})
 	if err != nil {
-		return err
+		return "", err
 	}
-	verifyLink := API_DOMAIN + "/v1/auth/verify-email/" + tokenString
+	return tok, nil
+}
+
+func sendVerificationEmail(token string, email string) error {
+	verifyLink := API_DOMAIN + "/v1/auth/verify-email/" + token
 	return SendMail(email, "ConnectUS Account Verification Code", mail_templates.REGISTER_VERIFY, struct {
 		VerifyLink template.URL
 	}{VerifyLink: template.URL(verifyLink)})
