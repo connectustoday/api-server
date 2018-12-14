@@ -304,7 +304,7 @@ Error Codes:
 
 #### Request password reset
 
-`POST /v1/accounts/:id/password-reset`
+`POST /v1/accounts/:id/reset-password`
 
 Requests a password reset for the specified user.
 
