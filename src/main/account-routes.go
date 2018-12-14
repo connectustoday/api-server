@@ -5,6 +5,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"golang.org/x/crypto/bcrypt"
 	"html/template"
+	"interfaces-conv"
 	"interfaces-internal"
 	"log"
 	"mail-templates"
@@ -335,14 +336,21 @@ func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 
 }
 
+// Request password reset for user
+// POST /v1/accounts/:id/password-reset
+// https://connectustoday.github.io/api-server/api-reference#accounts
+
 func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
+
 	type requestForm struct {
 		Email *string `json:"email" schema:"email"`
 	}
+
 	var req requestForm
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
-		SendError(w, http.StatusInternalServerError, internalServerError+" (Bad request.)", 4050)
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), false) { // Check request for correct fields
@@ -350,17 +358,25 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 		return
 	}
 
-	var acc interfaces_internal.IAccount
-	err = IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&acc)
+	var a bson.M
+	err = IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&a)
 	if CheckMongoQueryError(w, err, " (Account not found.)", 4000, 4001) != nil {
 		return
 	}
 
-	if acc.Email != *req.Email { // email verification failed (not same email)
-		WriteOK(w) // fake ok to client
+	acc, err := interfaces_conv.ConvertBSONToIAccount(a)
+
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
 
+	if acc.Email != *req.Email { // email verification failed (not same email)
+		WriteOK(w) // fake ok to client TODO DELAY THIS TO FAKE SENDING AN EMAIL SPEED
+		return
+	}
+
+	// Create jwt token to be used in email
 	tok, err := CreateJWTTokenHelper(PASSWORD_RESET_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
 		"username": acc.UserName,
 	})
@@ -369,6 +385,40 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
 	}
+
+	// Set password reset token and save to DB
+
+	if acc.Type == "User" {
+		user, err := interfaces_conv.ConvertBSONToIUser(a)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+			return
+		}
+		user.PasswordResetToken = tok
+
+		err = IAccountCollection.Update(bson.M{"username": p.ByName("id")}, user)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+			return
+		}
+
+	} else if acc.Type == "Organization" {
+		org, err := interfaces_conv.ConvertBSONToIOrganization(a)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+			return
+		}
+		org.PasswordResetToken = tok
+
+		err = IAccountCollection.Update(bson.M{"username": p.ByName("id")}, org)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+			return
+		}
+
+	}
+
+	// Send password reset email
 
 	verifyLink := SITE_DOMAIN + "/password-reset/" + tok
 	err = SendMail(acc.Email, "ConnectUS Account Password Reset", mail_templates.FORGOT_PASSWORD, struct {

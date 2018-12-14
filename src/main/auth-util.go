@@ -78,7 +78,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	var req requestForm
 	err := DecodeRequest(r, &req)
 	if err != nil { // Check decoding error
-		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem reading the request.)", 3100)
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
 	if !VerifyFieldsExist(&req, FormOmit([]string{}), false) { // Check request for correct fields
@@ -134,5 +134,21 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 // https://connectustoday.github.io/api-server/api-reference#authentication
 
 func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	w.Header().Set("Content-Type", "application/json")
 
+	type requestForm struct {
+		Password string `json:"password" schema:"password"`
+		Token string `json:"token" schema:"token"`
+	}
+
+	var req requestForm
+	err := DecodeRequest(r, &req)
+	if err != nil { // Check decoding error
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
+		return
+	}
+	if !VerifyFieldsExist(&req, FormOmit([]string{}), false) { // Check request for correct fields
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
+		return
+	}
 }

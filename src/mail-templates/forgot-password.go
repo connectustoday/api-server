@@ -30,7 +30,7 @@ const FORGOT_PASSWORD = `
             box-shadow: 0 6px 20px 0 rgba(255, 248, 225, 0.5);
             border-radius: 5px;
             display: inline-block;
-            width: 125px;
+            width: 140px;
             border: none;
         }
         .gradient-45deg-light-blue-teal {
