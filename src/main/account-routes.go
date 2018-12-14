@@ -336,5 +336,52 @@ func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 }
 
 func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	type requestForm struct {
+		Email *string `json:"email" schema:"email"`
+	}
+	var req requestForm
+	err := DecodeRequest(r, &req)
+	if err != nil { // Check decoding error
+		SendError(w, http.StatusInternalServerError, internalServerError+" (Bad request.)", 4050)
+		return
+	}
+	if !VerifyFieldsExist(&req, FormOmit([]string{}), false) { // Check request for correct fields
+		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
+		return
+	}
 
+	var acc interfaces_internal.IAccount
+	err = IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&acc)
+	if CheckMongoQueryError(w, err, " (Account not found.)", 4000, 4001) != nil {
+		return
+	}
+
+	if acc.Email != *req.Email { // email verification failed (not same email)
+		WriteOK(w) // fake ok to client
+		return
+	}
+
+	tok, err := CreateJWTTokenHelper(PASSWORD_RESET_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
+		"username": acc.UserName,
+	})
+
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+		return
+	}
+
+	verifyLink := SITE_DOMAIN + "/password-reset/" + tok
+	err = SendMail(acc.Email, "ConnectUS Account Password Reset", mail_templates.FORGOT_PASSWORD, struct {
+		Site template.URL
+		Account string
+		ResetLink template.URL
+	}{Site: template.URL(SITE_DOMAIN), Account: acc.UserName, ResetLink: template.URL(verifyLink)})
+
+	if err != nil {
+		log.Printf("Problem sending mail: %s", err.Error())
+		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+		return
+	}
+
+	WriteOK(w)
 }

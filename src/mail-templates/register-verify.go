@@ -1,8 +1,6 @@
 package mail_templates
 
-var REGISTER_VERIFY string
-
-func init() {
+const  (
 	REGISTER_VERIFY = `
 <!DOCTYPE html>
 <html>
@@ -63,10 +61,10 @@ func init() {
     <a class="button gradient-45deg-light-blue-teal gradient-shadow" style="color:white; text-decoration:none" href='{{.VerifyLink}}'><strong style="font-family: 'Nunito', sans-serif;">Activate</strong></a>
     <br><br>
 </div>
-</br>
+<br>
 Couldn't render the email? Click <a href="{{.VerifyLink}}">here</a> to verify your account.
 </body>
 </html>
 
 `
-}
+	)

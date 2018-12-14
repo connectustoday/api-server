@@ -97,7 +97,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password)) // 1 second delay to prevent brute force
+	err = bcrypt.CompareHashAndPassword([]byte(account.Password), []byte(*req.Password))
 	if err != nil { // check if password is valid
 		SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
 		return

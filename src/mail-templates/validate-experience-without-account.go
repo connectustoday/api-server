@@ -1,8 +1,6 @@
 package mail_templates
 
-var VALIDATE_EXPERIENCE_WITHOUT_ACCOUNT string
-
-func init() {
+const (
 	VALIDATE_EXPERIENCE_WITHOUT_ACCOUNT = `
 <!DOCTYPE html>
 <html>
@@ -90,9 +88,9 @@ func init() {
     <div style="text-align: center">Thank you!</div>
     <br>
 </div>
-</br>
+<br>
 Couldn't render the email? Click <a href="{{.VerifyLink}}">here</a> to approve the request.
 </body>
 </html>
 `
-}
+)

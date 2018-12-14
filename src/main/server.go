@@ -19,6 +19,7 @@ var (
 	DB_ADDRESS             string
 	DB_NAME                string
 	SECRET                 string
+	PASSWORD_RESET_SECRET  string
 	REGISTER_VERIFY_SECRET string
 	APPROVAL_VERIFY_SECRET string
 	TOKEN_EXPIRY           int64
@@ -63,6 +64,7 @@ func init() {
 	DB_ADDRESS = getEnv("DB_ADDRESS", "localhost")
 	DB_NAME = getEnv("DB_NAME", "api-server")
 	SECRET = getEnv("SECRET", "secret")
+	PASSWORD_RESET_SECRET = getEnv("PASSWORD_RESET_SECRET", "secret")
 	REGISTER_VERIFY_SECRET = getEnv("REGISTER_VERIFY_SECRET", "secret")
 	APPROVAL_VERIFY_SECRET = getEnv("APPROVAL_VERIFY_SECRET", "secret")
 	TOKEN_EXPIRY, err = strconv.ParseInt(getEnv("TOKEN_EXPIRY", "86400"), 0, 64)

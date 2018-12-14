@@ -46,8 +46,6 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 	// Approve validation (from email)
 	router.GET(prefix+"/email-approve/:token", EmailApproveExperienceValidationRoute)
 
-	// Password reset (from email)
-	router.POST(prefix + "/reset-password", EmailResetPasswordRoute)
 }
 
 /*
@@ -83,11 +81,12 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	router.POST(prefix+"/login", LoginRoute)
 
 	// Verify email using jsonwebtoken
-
 	router.GET(prefix+"/verify-email/:token", VerifyEmailRequestRoute)
 
-	// Test utility to check if logged in
+	// Password reset (from email)
+	router.POST(prefix + "/reset-password", EmailResetPasswordRoute)
 
+	// Test utility to check if logged in
 	if DEBUG {
 		router.GET(prefix+"/me", WithAccountVerify(func(writer http.ResponseWriter, request *http.Request, params httprouter.Params, account bson.M) {
 			acc, _ := interfaces_conv.ConvertBSONToIAccount(account)
@@ -131,6 +130,8 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 	// Accept connection of user
 	router.POST(prefix + "/:id/accept-connection", WithAccountVerify(AcceptConnectionRoute))
 
+	// Request password reset for user
+	router.POST(prefix + "/:id/reset-password", RequestPasswordResetRoute)
 }
 
 func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
