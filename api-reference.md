@@ -204,6 +204,31 @@ Error Codes:
 
 Note: This endpoint does not need to be implemented by your client, since it is called directly when user's attempt to verify their email addresses.
 
+#### Reset Password (after receiving email)
+
+`POST /v1/auth/reset-password`
+
+Form Data:
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `password` | string | New password of the account. |
+| `token` | string | The JWT token provided by the email. |
+
+Returns (if successful):
+
+HTTP Code 200 (successful).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 4000 | Internal server error. | 500 |
+| 4001 | Invalid token. | 400 |
+| 4002 | User not found. | 400 |
+| 4050 | Bad query format. | 400 |
+
+
 ---
 
 ### Accounts
@@ -277,6 +302,18 @@ Error Codes:
 
 `POST /v1/accounts/:id/unblock`
 
+#### Request password reset
+
+`POST /v1/accounts/:id/password-reset`
+
+Requests a password reset for the specified user.
+
+Form Data:
+
+| Field | Type | Description |
+|-------|:----:|-------------|
+| `email` | string | Email of the account. |
+
 ### Personal Accounts
 
 `GET /v1/notifications`
@@ -284,6 +321,24 @@ Error Codes:
 `POST /v1/notification/clear`
 
 `POST /v1/notification/dismiss`
+
+#### Get current account object
+
+`GET /v1/account`
+
+Returns either a `User` object or `Organization` object (depending on the account type).
+
+Error Codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 3000 | No token provided. | 401 |
+| 3001 | Failed to authenticate token. | 401 |
+| 3002 | Internal server error when finding account. | 500 |
+| 3003 | Account not found. | 401 |
+| 3004 | Email not verified. | 401 |
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
 
 #### Get current account's settings
 
@@ -519,6 +574,6 @@ Error Codes:
  
 #### Approve Validation (From email instead of account)
 
-`POST /v1/experiences/email_approve/:token`
+`POST /v1/experiences/email-approve/:token`
 
 Note: This endpoint does not need to be implemented by your client, since it is accessed directly by the organization.
