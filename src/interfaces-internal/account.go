@@ -2,6 +2,7 @@ package interfaces_internal
 
 import (
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"log"
 )
 
@@ -11,8 +12,8 @@ type ICom struct {
 }
 
 type IAccount struct {
-	SchemaVersion int `bson:"schema_version" json:"schema_version"`
-	//ID                   bson.ObjectId   `bson:"_id" json:"id"`
+	SchemaVersion        int              `bson:"schema_version" json:"schema_version"`
+	ID                   bson.ObjectId    `bson:"_id" json:"id"`
 	UserName             string           `bson:"username" json:"username"`
 	Email                string           `bson:"email" json:"email"`
 	Password             string           `bson:"password" json:"password"`

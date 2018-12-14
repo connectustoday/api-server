@@ -2,6 +2,7 @@ package interfaces_internal
 
 import (
 	"github.com/globalsign/mgo"
+	"github.com/globalsign/mgo/bson"
 	"log"
 )
 
@@ -12,6 +13,7 @@ type IValidations struct {
 
 type IOrganization struct {
 	SchemaVersion        int                   `bson:"schema_version"`
+	ID                   bson.ObjectId         `bson:"_id" json:"id"`
 	UserName             string                `bson:"username"`
 	Email                string                `bson:"email"`
 	Password             string                `bson:"password"`
