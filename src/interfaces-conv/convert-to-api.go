@@ -74,6 +74,7 @@ func ConvertToIExperienceAPI(experience interfaces_internal.IExperience) interfa
 		Name:         experience.Name,
 		Organization: experience.Organization,
 		Opportunity:  experience.Opportunity,
+		Description:  experience.Description,
 		When:         interfaces_api.When{Begin: experience.When.Begin, End: experience.When.End},
 		IsVerified:   experience.IsVerified,
 		EmailVerify:  experience.EmailVerify,

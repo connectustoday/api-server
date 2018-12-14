@@ -137,8 +137,8 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
-		Password string `json:"password" schema:"password"`
-		Token string `json:"token" schema:"token"`
+		Password *string `json:"password" schema:"password"`
+		Token    *string `json:"token" schema:"token"`
 	}
 
 	var req requestForm
@@ -151,4 +151,42 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
+
+	claims, err := GetJWTClaims(*req.Token, SECRET) // verify token authenticity
+	if err != nil {
+		SendError(w, http.StatusBadRequest, badRequest + " (Invalid token.)", 4001)
+		return
+	}
+
+	var a bson.M
+	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&a)
+	if CheckMongoQueryError(w, err, " (Account not found.)", 4002, 4000) != nil {
+		return
+	}
+
+	acc, err := interfaces_conv.ConvertBSONToIAccount(a)
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, 4000)
+		return
+	}
+
+	if acc.PasswordResetToken != *req.Token {
+		SendError(w, http.StatusBadRequest, badRequest + " (Invalid token.)", 4001)
+		return
+	}
+
+	// Update account info
+	if acc.Type == "User" {
+		user, err := interfaces_conv.ConvertBSONToIUser(a)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
+			return
+		}
+
+		user.AuthKey = GenAuthKey() // invalidate ALL login tokens
+	} else if acc.Type == "Organization" {
+
+	}
+
+	WriteOK(w)
 }

@@ -11,6 +11,7 @@ type IExperienceAPI struct {
 	Name         string      `json:"name"`
 	Organization string      `json:"organization"`
 	Opportunity  string      `json:"opportunity"`
+	Description  string      `json:"description"`
 	When         When        `json:"when"`
 	IsVerified   bool        `json:"is_verified"`
 	EmailVerify  bool        `json:"email_verify"`
