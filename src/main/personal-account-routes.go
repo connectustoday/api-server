@@ -58,3 +58,22 @@ func GetPersonalAccountSettingsRoute(w http.ResponseWriter, _ *http.Request, p h
 		return
 	}
 }
+
+func PatchAccountSettingsRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account bson.M) {
+	w.Header().Set("Content-Type", "application/json")
+
+
+}
+
+func PatchAccountProfileRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account bson.M) {
+	w.Header().Set("Content-Type", "application/json")
+
+	acc, err := interfaces_conv.ConvertBSONToIAccount(account)
+
+	if acc.Type == "User" {
+
+	} else if acc.Type == "Organization" {
+
+	}
+	// TODO convert request to fields to match with profile using reflect/pkg
+}
