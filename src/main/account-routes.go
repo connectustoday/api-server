@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/globalsign/mgo/bson"
 	"github.com/julienschmidt/httprouter"
-	"golang.org/x/crypto/bcrypt"
 	"html/template"
 	"interfaces-conv"
 	"interfaces-internal"
@@ -65,7 +64,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 	}
 
 	// Get hashed bcrypt password
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(*req.Password), BCRYPT_COST)
+	hashedPassword, err := CreateHashedPassword(*req.Password)
 	if err != nil { // check for bcrypt error
 		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
 		return

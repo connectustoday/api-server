@@ -175,6 +175,13 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
+	// Get hashed bcrypt password
+	hashedPassword, err := CreateHashedPassword(*req.Password)
+	if err != nil { // check for bcrypt error
+		SendError(w, http.StatusInternalServerError, internalServerError+" (There was a problem registering the account.)", 3203)
+		return
+	}
+
 	// Update account info
 	if acc.Type == "User" {
 		user, err := interfaces_conv.ConvertBSONToIUser(a)
@@ -184,8 +191,30 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		}
 
 		user.AuthKey = GenAuthKey() // invalidate ALL login tokens
-	} else if acc.Type == "Organization" {
+		user.PasswordResetToken = ""
+		user.Password = string(hashedPassword)
 
+		err = IAccountCollection.Update(bson.M{"username": claims["username"]}, user)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
+			return
+		}
+	} else if acc.Type == "Organization" {
+		org, err := interfaces_conv.ConvertBSONToIOrganization(a)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
+			return
+		}
+
+		org.AuthKey = GenAuthKey() // invalidate ALL login tokens
+		org.PasswordResetToken = ""
+		org.Password = string(hashedPassword)
+
+		err = IAccountCollection.Update(bson.M{"username": claims["username"]}, org)
+		if err != nil {
+			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
+			return
+		}
 	}
 
 	WriteOK(w)

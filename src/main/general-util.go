@@ -26,6 +26,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/schema"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"reflect"
@@ -134,6 +135,9 @@ func CreateJWTTokenHelper(secret string, expiry int64, c jwt.MapClaims) (string,
 	return tokenString, nil
 }
 
+func CreateHashedPassword(password string) ([]byte, error) {
+	return bcrypt.GenerateFromPassword([]byte(password), BCRYPT_COST)
+}
 
 // Helper for checking mongodb errors
 // Sends error request body so only an error check is needed
