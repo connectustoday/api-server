@@ -200,7 +200,7 @@ Error Codes:
 
 #### Verify Email
 
-`POST /v1/auth/verify-email/:token`
+`GET /v1/auth/verify-email/:token`
 
 Note: This endpoint does not need to be implemented by your client, since it is called directly when user's attempt to verify their email addresses.
 
@@ -335,8 +335,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
@@ -353,8 +352,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
@@ -371,8 +369,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
@@ -387,8 +384,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
@@ -403,8 +399,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
@@ -432,8 +427,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | User not found, is this the correct account type? | 404 |
@@ -468,8 +462,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Organization not found. | 404 |
@@ -512,8 +505,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Incorrect account type, user account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Experience not found with supplied ID. | 404 |
@@ -539,8 +531,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Incorrect account type, organization account required. | 400 |
 
 #### Approve or don't approve validation
@@ -563,8 +554,7 @@ Error Codes:
 | 3000 | No token provided. | 401 |
 | 3001 | Failed to authenticate token. | 401 |
 | 3002 | Internal server error when finding account. | 500 |
-| 3003 | Account not found. | 401 |
-| 3004 | Email not verified. | 401 |
+| 3003 | Email not verified. | 401 |
 | 4000 | Incorrect account type, organization account required. | 400 |
 | 4001 | Internal server error. | 500 |
 | 4002 | Experience validation request not found. | 404 |
@@ -574,6 +564,6 @@ Error Codes:
  
 #### Approve Validation (From email instead of account)
 
-`POST /v1/experiences/email-approve/:token`
+`GET /v1/experiences/email-approve/:token`
 
 Note: This endpoint does not need to be implemented by your client, since it is accessed directly by the organization.
