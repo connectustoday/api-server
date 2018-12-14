@@ -45,6 +45,9 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 
 	// Approve validation (from email)
 	router.GET(prefix+"/email-approve/:token", EmailApproveExperienceValidationRoute)
+
+	// Password reset (from email)
+	router.POST(prefix + "/reset-password", EmailResetPasswordRoute)
 }
 
 /*

@@ -119,6 +119,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			Type:      "User",
 			PasswordResetToken: "",
 			VerifyEmailToken: verifyToken,
+			AuthKey: GenAuthKey(),
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -178,6 +179,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			Type:      "Organization",
 			PasswordResetToken: "",
 			VerifyEmailToken: verifyToken,
+			AuthKey: GenAuthKey(),
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,
@@ -330,5 +332,9 @@ func RequestConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter
 }
 
 func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params, account bson.M) {
+
+}
+
+func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
 
 }

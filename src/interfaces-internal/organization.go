@@ -33,6 +33,7 @@ type IOrganization struct {
 	Type                 string                `bson:"type"`
 	PasswordResetToken   string                `bson:"password_reset_token" json:"password_reset_token"`
 	VerifyEmailToken     string                `bson:"verify_email_token" json:"verify_email_token"`
+	AuthKey              string                `bson:"auth_key" json:"auth_key"`
 	// organization specific fields
 	PreferredName         string               `bson:"preferred_name"`
 	IsVerified            bool                 `bson:"is_verified"`

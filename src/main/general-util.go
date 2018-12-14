@@ -24,6 +24,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/globalsign/mgo/bson"
 	"github.com/gorilla/schema"
 	"log"
 	"net/http"
@@ -146,4 +147,11 @@ func CheckMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, 
 		}
 	}
 	return err
+}
+
+// Quick helper to generate AuthKey fields for accounts
+// AuthKey is attached to a token to verify the password has not changed
+
+func GenAuthKey() string {
+	return bson.NewObjectId().Hex()
 }

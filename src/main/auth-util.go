@@ -25,7 +25,7 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 
 		claims, err := GetJWTClaims(token, SECRET) // verify token authenticity
 		if err != nil {
-			SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3002)
+			SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3001)
 			return
 		}
 
@@ -33,7 +33,7 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 		err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&result)
 		if err != nil {
 			if err.Error() == "not found" { // Check if account exists
-				SendError(w, http.StatusNotFound, notFound+" (Account not found)", 3003)
+				SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3001)
 			} else {
 				if DEBUG {
 					println(err)
@@ -49,8 +49,13 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 			return
 		}
 
+		if acc.AuthKey != claims["authkey"] {
+			SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3001)
+			return
+		}
+
 		if !acc.IsEmailVerified { // Check for email verification
-			SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3004)
+			SendError(w, http.StatusUnauthorized, unauthorized+" (Email not verified.)", 3003)
 			return
 		}
 
@@ -107,6 +112,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 
 	claims := make(jwt.MapClaims)
 	claims["username"] = account.UserName
+	claims["authkey"] = account.AuthKey
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(TOKEN_EXPIRY)).Unix()
 	token.Claims = claims
 	tokenString, err := token.SignedString([]byte(SECRET)) // sign with secret
@@ -121,4 +127,12 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 		SendError(w, http.StatusInternalServerError, internalServerError, 3100)
 		return
 	}
+}
+
+// Reset password route (after email)
+// POST /v1/auth/reset-password
+// https://connectustoday.github.io/api-server/api-reference#authentication
+
+func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+
 }

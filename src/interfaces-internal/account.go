@@ -34,6 +34,7 @@ type IAccount struct {
 	Type                 string           `bson:"type" json:"type"`
 	PasswordResetToken   string           `bson:"password_reset_token" json:"password_reset_token"`
 	VerifyEmailToken     string           `bson:"verify_email_token" json:"verify_email_token"`
+	AuthKey              string           `bson:"auth_key" json:"auth_key"`
 }
 
 func InitIAccountIndexes(collection *mgo.Collection) {
