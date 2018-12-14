@@ -108,7 +108,7 @@ Inherits the fields of `OrganizationSettings`.
 | `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site, or the email if it is using email verification. |
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
-| `when` | 2 strings (array of 2) | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
+| `when` | object with begin and end field | When the `Experience` took place (ex. Sept. 2015 - Aug. 2016)
 | `is_verified` | bool | Whether or not this `Experience` has been verified by the `Organization` specified. If no organization is specified, it will not show as verified. |
 | `email_verify` | bool | Whether or not the experience is using email verification instead of account verification for the organization. |
 | `created_at` | number | Timestamp of when the `Experience` was created. |
