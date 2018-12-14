@@ -314,6 +314,14 @@ Form Data:
 |-------|:----:|-------------|
 | `email` | string | Email of the account. |
 
+Error codes:
+
+| Error Code | Message | HTTP Code |
+|-------------------|---------------|------------------|
+| 4000 | Account not found. | 404 |
+| 4001 | Internal server error. | 500 |
+| 4050 | Bad request. | 400 |
+
 ### Personal Accounts
 
 `GET /v1/notifications`
