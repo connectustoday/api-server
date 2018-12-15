@@ -67,6 +67,7 @@ func GetPersonalAccountSettingsRoute(w http.ResponseWriter, _ *http.Request, _ h
 // Change account settings route
 // PATCH /v1/settings
 // https://connectustoday.github.io/api-server/api-reference#accounts
+// Note: it does not work with x-www-form-urlencoded
 
 func PatchAccountSettingsRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params, account bson.M) {
 	w.Header().Set("Content-Type", "application/json")
