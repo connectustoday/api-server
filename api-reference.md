@@ -11,9 +11,9 @@ There are several requirements for queries against the API.
 ## Error Handling
 
 When checking for errors, check if the `error` field in the JSON object exists. If there is an error, the JSON object will not have any other fields. Otherwise, the server will return with code `200` if the query was successful.
-</br>
+<br>
 error.code = error code
-</br>
+<br>
 error.message = description of error
 
 ## Resource Types
@@ -385,6 +385,16 @@ Error Codes:
 
 `PATCH /v1/settings`
 
+This query requires authentication.
+
+Form Data:
+<br>
+Fields from either `OrganizationSettings` or `UserSettings`. Fields can be omitted if not changed.
+
+Returns (if successful):
+
+HTTP Code 200 (successful).
+
 Error Codes:
 
 | Error Code | Message | HTTP Code |
@@ -395,11 +405,20 @@ Error Codes:
 | 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
+| 4050 | Bad query format. | 400 |
 
 #### Update current account's profile
 
 `PATCH /v1/profile`
 
+This query requires authentication.
+
+
+
+Returns (if successful):
+
+HTTP Code 200 (successful).
+
 Error Codes:
 
 | Error Code | Message | HTTP Code |
@@ -410,6 +429,7 @@ Error Codes:
 | 3003 | Email not verified. | 401 |
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
+| 4050 | Bad query format. | 400 |
 
 #### Get current account's connection requests
 
