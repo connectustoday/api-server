@@ -413,6 +413,13 @@ Error Codes:
 
 This query requires authentication.
 
+Form Data:
+<br>
+Fields from either `OrganizationProfile` or `UserProfile`. Fields can be omitted if not changed.
+
+Returns (if successful):
+
+HTTP Code 200 (successful).
 
 
 Returns (if successful):
