@@ -60,8 +60,7 @@ func VerifyFieldsExist(obj interface{}, omitFields map[string]bool, fillEmpty bo
 			if !omitFields[v.Type().Field(i).Name] {
 				return false
 			} else if fillEmpty {
-				v.Field(i).Set(reflect.New(v.Field(i).Type().Elem()))
-				//v.Field(i).Set(reflect.Zero(v.Field(i).Type())) // zero the value if needed to fill empty
+				v.Field(i).Set(reflect.New(v.Field(i).Type().Elem())) // zero the value if needed to fill empty
 			}
 		}
 	}
@@ -92,9 +91,41 @@ func DecodeRequest(r *http.Request, obj interface{}) error {
 	}
 }
 
+// Patch an internal object using a request
+
+func PatchObjectUsingRequest(w http.ResponseWriter, r *http.Request, parsedRef reflect.Value, internalRef reflect.Value) error {
+	original := map[string]interface{}{}
+
+	// parse into request into map to get names of actual fields
+	if strings.EqualFold(r.Header.Get("Content-Type"), "application/x-www-form-urlencoded") || strings.EqualFold(r.Header.Get("Content-Type"), "application/form-data") {
+		for k, v := range r.Form {
+			original[k] = v
+		}
+	} else {
+		err := json.NewDecoder(r.Body).Decode(&original)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Replace fields in profile
+	for k := range original {
+		if k == "type" { // prevent changing the type in API
+			continue
+		}
+		for j := 0; j < parsedRef.NumField(); j++ {
+			parsedField := parsedRef.Type().Field(j)
+			if parsedField.Tag.Get("json") == k {
+				internalRef.FieldByName(parsedField.Name).Set(parsedRef.Field(j))
+			}
+		}
+	}
+	return nil
+}
+
 // Check validity of JWT token
 
-func CheckJWTToken(token string, secret string) (*jwt.Token, error){
+func CheckJWTToken(token string, secret string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) { // Verify token authenticity
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])

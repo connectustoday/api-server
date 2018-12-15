@@ -145,4 +145,8 @@ func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
 
 	router.GET(prefix + "/settings", WithAccountVerify(GetPersonalAccountSettingsRoute))
 
+	router.PATCH(prefix + "/profile", WithAccountVerify(PatchAccountProfileRoute))
+
+	router.PATCH(prefix + "/settings", WithAccountVerify(PatchAccountSettingsRoute))
+
 }

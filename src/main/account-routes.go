@@ -91,8 +91,10 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			return
 		}
 
-		err = IAccountCollection.Insert(&interfaces_internal.IUser{ // Add Default User
+		// Default user
+		err = IAccountCollection.Insert(&interfaces_internal.IUser{
 			SchemaVersion:        0,
+			ID:                   bson.NewObjectId(),
 			UserName:             *req.UserName,
 			Email:                *req.Email,
 			Password:             string(hashedPassword),
@@ -115,11 +117,11 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 				IsFullNameVisible:        true,
 				BlockedUsers:             []string{},
 			},
-			AdminNote: "",
-			Type:      "User",
+			AdminNote:          "",
+			Type:               "User",
 			PasswordResetToken: "",
-			VerifyEmailToken: verifyToken,
-			AuthKey: GenAuthKey(),
+			VerifyEmailToken:   verifyToken,
+			AuthKey:            GenAuthKey(),
 			// user specific fields
 			FirstName:  *req.FirstName,
 			MiddleName: "",
@@ -152,8 +154,10 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 			return
 		}
 
-		err = IAccountCollection.Insert(&interfaces_internal.IOrganization{ // Add Default Organization
+		// Default organization
+		err = IAccountCollection.Insert(&interfaces_internal.IOrganization{
 			SchemaVersion:        0,
+			ID:                   bson.NewObjectId(),
 			UserName:             *req.UserName,
 			Email:                *req.Email,
 			Password:             string(hashedPassword),
@@ -175,11 +179,11 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 				EmailNotifications:       true,
 				IsNonprofit:              *req.IsNonProfit,
 			},
-			AdminNote: "",
-			Type:      "Organization",
+			AdminNote:          "",
+			Type:               "Organization",
 			PasswordResetToken: "",
-			VerifyEmailToken: verifyToken,
-			AuthKey: GenAuthKey(),
+			VerifyEmailToken:   verifyToken,
+			AuthKey:            GenAuthKey(),
 			// organization specific fields
 			PreferredName: *req.PreferredName,
 			IsVerified:    false,
