@@ -126,9 +126,9 @@ Inherits the fields of `OrganizationSettings`.
 | `apt_number` | string |
 | `geojson` | Point |
 
-## Endpoints
+# Endpoints
 
-### Authentication
+## Authentication
 
 #### Login
 
@@ -231,7 +231,7 @@ Error Codes:
 
 ---
 
-### Accounts
+## Accounts
 
 #### Search for accounts 
 
@@ -322,7 +322,7 @@ Error codes:
 | 4001 | Internal server error. | 500 |
 | 4050 | Bad request. | 400 |
 
-### Personal Accounts
+## Personal Accounts
 
 `GET /v1/notifications`
 
@@ -411,13 +411,13 @@ Error Codes:
 | 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 
-## Get current account's connection requests
+#### Get current account's connection requests
 
 `GET /v1/connection-requests`
 
 ---
 
-### Experiences
+## Experiences
 
 #### Get the current authenticated user's experiences
 
