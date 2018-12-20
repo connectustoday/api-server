@@ -9,7 +9,6 @@ import (
 type IUser struct {
 	SchemaVersion        int             `bson:"schema_version"`
 	ID                   bson.ObjectId   `bson:"_id" json:"id"`
-	UserName             string          `bson:"username"`
 	Email                string          `bson:"email"`
 	Password             string          `bson:"password"`
 	OAuthToken           string          `bson:"oauth_token"`

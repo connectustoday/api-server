@@ -14,7 +14,6 @@ type ICom struct {
 type IAccount struct {
 	SchemaVersion        int              `bson:"schema_version" json:"schema_version"`
 	ID                   bson.ObjectId    `bson:"_id" json:"id"`
-	UserName             string           `bson:"username" json:"username"`
 	Email                string           `bson:"email" json:"email"`
 	Password             string           `bson:"password" json:"password"`
 	OAuthToken           string           `bson:"oauth_token" json:"oauth_token"`
