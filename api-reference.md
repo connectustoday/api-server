@@ -22,11 +22,11 @@ error.message = description of error
 
 | Field | Type | Description |
 |-------|:----:|-------------|
-| `username` | `string` | The unique user of the account. |
+| `id` | `string` | The unique ID of the account. |
 | `email` | `string` | Account's email; used for sign-in and notifications. |
 | `avatar` | `string` | URL to the profile picture of the account. |
 | `header` | `string` | URL to the header image of the account. |
-| `created_at` | `string` |Timestamp for when the account was created. |
+| `created_at` | `string` | Timestamp for when the account was created. |
 | `type` | `string` | The type of the account ("User" or  "Organization"). |
 | `posts_count` | `string` | The number of posts the account has posted. |
 | `liked_count` | `string` | The number of posts the account has liked. |
@@ -138,7 +138,7 @@ Form Data:
 
 | Field | Type | Description |
 |-------|:----:|-------------|
-| `username` | string | Username of the account. |
+| `id` | string | Email or ID of the account. |
 | `password` | string | Password of the account. |
 
 Returns (if successful):
@@ -164,7 +164,6 @@ Form Data (for both Users and Organizations):
 
 | Field | Type | Description |
 |-------|:----:|-------------|
-| `username` | string | Username of the account. |
 | `email` | string | Email of the account. |
 | `password` | string | Password of the account. |
 | `type` | string | Type of the account (organization, user) |
@@ -304,7 +303,7 @@ Error Codes:
 
 #### Request password reset
 
-`POST /v1/accounts/:id/reset-password`
+`POST /v1/request-password-reset`
 
 Requests a password reset for the specified user.
 
@@ -318,7 +317,6 @@ Error codes:
 
 | Error Code | Message | HTTP Code |
 |-------------------|---------------|------------------|
-| 4000 | Account not found. | 404 |
 | 4001 | Internal server error. | 500 |
 | 4050 | Bad request. | 400 |
 
@@ -480,7 +478,7 @@ Form Data:
 |-------|:----:|-------------|
 | `location` | `Address` | Location that the event had taken place. |
 | `name` | string | The name of the `Experience`. |
-| `organization` | string | `Organization` username if the experience is being tied to an `Organization` on the site, or email if it is being tied to an email verification. |
+| `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site, or email if it is being tied to an email verification. |
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when.begin` | string | When the `Experience` started (ex. Sept. 2015) |
@@ -517,7 +515,7 @@ Form Data:
 |-------|:----:|-------------|
 | `location` | `Address` | Location that the event had taken place. |
 | `name` | string | The name of the `Experience`. |
-| `organization` | string | `Organization` username if the experience is being tied to an `Organization` on the site. |
+| `organization` | string | `Organization` ID if the experience is being tied to an `Organization` on the site. |
 | `opportunity` | string | `Opportunity` ID if the experience is being tied to a specific `Organization` on the site. |
 | `description` | string | A user-defined description of the experience. Another description might be provided from an `Opportunity` if it is tied to one. |
 | `when.begin` | string | When the `Experience` started (ex. Sept. 2015) |
@@ -556,7 +554,7 @@ Returns an array of experience validations:
 
 | Field | Type | Description |
 |-------|:----:|-------------|
-| `user_id` | string | Username of the user that is requesting theexperience validation. |
+| `user_id` | string | ID or email of the user that is requesting the experience validation. |
 | `experience_id` | string | The id of the `Experience`. |
 
 Error Codes:
