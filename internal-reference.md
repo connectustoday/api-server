@@ -12,7 +12,6 @@ They share the same pool of IDs and similar behaviour.
 |-------|:----:|-------------|
 | `schema_version` | int32 | The schema version of the `Account`. |
 | `id`  | string | The unique ID of the `Account`. |
-| `username` | string | The unique user of the account, can be identified by @ (ex. @bayviewss) |
 | `email` | string | Account's email; used for sign-in and notifications. |
 | `password` | string | The hash for the entity's password. |
 | `oauth_token` | string | API token for OAuth (Google, Facebook sign-in) |
