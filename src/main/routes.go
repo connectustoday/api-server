@@ -74,9 +74,9 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 
 	router.POST(prefix+"/register", RegisterRoute)
 
-	 // Login API Endpoint
-	 // https://connectustoday.github.io/api-server/api-reference#login
-	 // TODO EMAIL LOGIN (RATHER THAN USERNAME)
+	// Login API Endpoint
+	// https://connectustoday.github.io/api-server/api-reference#login
+	// TODO EMAIL LOGIN (RATHER THAN USERNAME)
 
 	router.POST(prefix+"/login", LoginRoute)
 
@@ -84,7 +84,7 @@ func AuthRoutes(prefix string, router *httprouter.Router) {
 	router.GET(prefix+"/verify-email/:token", VerifyEmailRequestRoute)
 
 	// Password reset (from email)
-	router.POST(prefix + "/reset-password", EmailResetPasswordRoute)
+	router.POST(prefix+"/reset-password", EmailResetPasswordRoute)
 
 	// Test utility to check if logged in
 	if DEBUG {
@@ -113,25 +113,22 @@ func AccountRoutes(prefix string, router *httprouter.Router) {
 	router.GET(prefix+"/:id", GetAccountRoute)
 
 	// Get the profile of a user
-	router.GET(prefix + "/:id/profile", GetAccountProfileRoute)
+	router.GET(prefix+"/:id/profile", GetAccountProfileRoute)
 
 	// Get the connections of a user
-	router.GET(prefix + "/:id/connections", GetAccountConnectionsRoute)
+	router.GET(prefix+"/:id/connections", GetAccountConnectionsRoute)
 
 	// Get the user's posts
-	router.GET(prefix + "/:id/posts", GetAccountPostsRoute)
+	router.GET(prefix+"/:id/posts", GetAccountPostsRoute)
 
 	// Get the experiences list of a user
-	router.GET(prefix + "/:id/experiences", GetExperiencesRoute)
+	router.GET(prefix+"/:id/experiences", GetExperiencesRoute)
 
 	// Request connection of user
-	router.POST(prefix + "/:id/request-connection", WithAccountVerify(RequestConnectionRoute))
+	router.POST(prefix+"/:id/request-connection", WithAccountVerify(RequestConnectionRoute))
 
 	// Accept connection of user
-	router.POST(prefix + "/:id/accept-connection", WithAccountVerify(AcceptConnectionRoute))
-
-	// Request password reset for user
-	router.POST(prefix + "/:id/reset-password", RequestPasswordResetRoute)
+	router.POST(prefix+"/:id/accept-connection", WithAccountVerify(AcceptConnectionRoute))
 }
 
 func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
@@ -139,14 +136,16 @@ func PersonalAccountsRoutes(prefix string, router *httprouter.Router) {
 
 	})
 
-	router.GET(prefix +"/account", WithAccountVerify(GetPersonalAccountRoute))
+	router.GET(prefix+"/account", WithAccountVerify(GetPersonalAccountRoute))
 
-	router.GET(prefix + "/profile", WithAccountVerify(GetPersonalAccountProfileRoute))
+	router.GET(prefix+"/profile", WithAccountVerify(GetPersonalAccountProfileRoute))
 
-	router.GET(prefix + "/settings", WithAccountVerify(GetPersonalAccountSettingsRoute))
+	router.GET(prefix+"/settings", WithAccountVerify(GetPersonalAccountSettingsRoute))
 
-	router.PATCH(prefix + "/profile", WithAccountVerify(PatchAccountProfileRoute))
+	router.PATCH(prefix+"/profile", WithAccountVerify(PatchAccountProfileRoute))
 
-	router.PATCH(prefix + "/settings", WithAccountVerify(PatchAccountSettingsRoute))
+	router.PATCH(prefix+"/settings", WithAccountVerify(PatchAccountSettingsRoute))
 
+	// Request password reset for user
+	router.POST(prefix+"/request-password-reset", RequestPasswordResetRoute)
 }

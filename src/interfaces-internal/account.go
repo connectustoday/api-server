@@ -39,7 +39,7 @@ type IAccount struct {
 
 func InitIAccountIndexes(collection *mgo.Collection) {
 	err := collection.EnsureIndex(mgo.Index{
-		Key:        []string{"username", "email", "password", "avatar", "admin_note"},
+		Key:        []string{"email", "password", "avatar", "admin_note"},
 		Background: true,
 	})
 	if err != nil {

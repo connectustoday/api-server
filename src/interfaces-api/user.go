@@ -1,7 +1,7 @@
 package interfaces_api
 
 type IUserAPI struct {
-	UserName    string `json:"username"`
+	ID          string `json:"id"`
 	Email       string `json:"email"`
 	Avatar      string `json:"avatar"`
 	Header      string `json:"header"`

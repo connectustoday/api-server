@@ -190,3 +190,10 @@ func CheckMongoQueryError(w http.ResponseWriter, err error, notFoundMsg string, 
 func GenAuthKey() string {
 	return bson.NewObjectId().Hex()
 }
+
+// Quick helper to get bson.M query for account lookups
+// id can be both email and ID
+
+func GetOneAccountQuery(id string) bson.M {
+	return bson.M{"$or": []bson.M{{"_id": id}, {"email": id}}}
+}

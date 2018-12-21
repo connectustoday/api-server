@@ -1,7 +1,7 @@
 package interfaces_api
 
 type IOrganizationAPI struct {
-	UserName    string `json:"username"`
+	ID          string `json:"id"`
 	Email       string `json:"email"`
 	Avatar      string `json:"avatar"`
 	Header      string `json:"header"`
@@ -11,7 +11,7 @@ type IOrganizationAPI struct {
 	LikedCount  int    `json:"liked_count"`
 	SharedCount int    `json:"shared_count"`
 	// IOrganizationAPI specific fields
-	PreferredName         string               `bson:"preferred_name"`
-	IsVerified            bool                 `bson:"is_verified"`
-	Opportunities         []string             `bson:"opportunities"`
+	PreferredName string   `bson:"preferred_name"`
+	IsVerified    bool     `bson:"is_verified"`
+	Opportunities []string `bson:"opportunities"`
 }

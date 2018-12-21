@@ -12,8 +12,8 @@ import (
 	"time"
 )
 
-func VerifyUniqueUsername(username string) bool {
-	count, err := IAccountCollection.Find(bson.M{"username": username}).Count()
+func VerifyUniqueEmail(email string) bool {
+	count, err := IAccountCollection.Find(bson.M{"email": email}).Count()
 	if err != nil {
 		log.Println(err)
 		return false
@@ -30,7 +30,6 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 	type requestForm struct {
 		// Global account fields
-		UserName *string `json:"username" schema:"username"`
 		Email    *string `json:"email" schema:"email"`
 		Password *string `json:"password" schema:"password"`
 		Type     *string `json:"type" schema:"type"`
@@ -58,7 +57,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
-	if !VerifyUniqueUsername(*req.UserName) { // Check if username is unique
+	if !VerifyUniqueEmail(*req.Email) { // Check if username is unique
 		SendError(w, http.StatusBadRequest, badRequest+" (Username already taken.)", 3201)
 		return
 	}
@@ -70,7 +69,7 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		return
 	}
 
-	verifyToken, err := createEmailVerifyToken(*req.UserName)
+	verifyToken, err := createEmailVerifyToken(*req.Email)
 	if err != nil {
 		log.Printf("Problem creating verification token: %s", err.Error())
 		SendError(w, http.StatusInternalServerError, internalServerError, 3204)
@@ -95,7 +94,6 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		err = IAccountCollection.Insert(&interfaces_internal.IUser{
 			SchemaVersion:        0,
 			ID:                   bson.NewObjectId(),
-			UserName:             *req.UserName,
 			Email:                *req.Email,
 			Password:             string(hashedPassword),
 			OAuthToken:           "",
@@ -158,7 +156,6 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		err = IAccountCollection.Insert(&interfaces_internal.IOrganization{
 			SchemaVersion:        0,
 			ID:                   bson.NewObjectId(),
-			UserName:             *req.UserName,
 			Email:                *req.Email,
 			Password:             string(hashedPassword),
 			OAuthToken:           "",
@@ -343,7 +340,7 @@ func AcceptConnectionRoute(w http.ResponseWriter, r *http.Request, p httprouter.
 // POST /v1/accounts/:id/password-reset
 // https://connectustoday.github.io/api-server/api-reference#accounts
 
-func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
@@ -362,7 +359,7 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 	}
 
 	var a bson.M
-	err = IAccountCollection.Find(bson.M{"username": p.ByName("id")}).One(&a)
+	err = IAccountCollection.Find(GetOneAccountQuery(*req.Email)).One(&a)
 	if CheckMongoQueryError(w, err, " (Account not found.)", 4000, 4001) != nil {
 		return
 	}
@@ -381,7 +378,7 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 
 	// Create jwt token to be used in email
 	tok, err := CreateJWTTokenHelper(PASSWORD_RESET_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
-		"username": acc.UserName,
+		"id": acc.ID,
 	})
 
 	if err != nil {
@@ -399,11 +396,7 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 		}
 		user.PasswordResetToken = tok
 
-		err = IAccountCollection.Update(bson.M{"username": p.ByName("id")}, user)
-		if err != nil {
-			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
-			return
-		}
+		err = IAccountCollection.Update(GetOneAccountQuery(*req.Email), user)
 
 	} else if acc.Type == "Organization" {
 		org, err := interfaces_conv.ConvertBSONToIOrganization(a)
@@ -413,12 +406,12 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 		}
 		org.PasswordResetToken = tok
 
-		err = IAccountCollection.Update(bson.M{"username": p.ByName("id")}, org)
-		if err != nil {
-			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
-			return
-		}
+		err = IAccountCollection.Update(GetOneAccountQuery(acc.Email), org)
+	}
 
+	if err != nil {
+		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
+		return
 	}
 
 	// Send password reset email
@@ -428,7 +421,7 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, p httprou
 		Site template.URL
 		Account string
 		ResetLink template.URL
-	}{Site: template.URL(SITE_DOMAIN), Account: acc.UserName, ResetLink: template.URL(verifyLink)})
+	}{Site: template.URL(SITE_DOMAIN), Account: acc.Email, ResetLink: template.URL(verifyLink)})
 
 	if err != nil {
 		log.Printf("Problem sending mail: %s", err.Error())

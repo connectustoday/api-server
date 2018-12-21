@@ -30,7 +30,7 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 		}
 
 		var result bson.M // Get account
-		err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&result)
+		err = IAccountCollection.FindId(claims["id"]).One(&result)
 		if err != nil {
 			if err.Error() == "not found" { // Check if account exists
 				SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3001)
@@ -71,7 +71,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
 
 	type requestForm struct {
-		Username *string `json:"username" schema:"username"`
+		ID *string `json:"id" schema:"id"`
 		Password *string `json:"password" schema:"password"`
 	}
 
@@ -87,7 +87,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	}
 
 	var account interfaces_internal.IAccount
-	err = IAccountCollection.Find(bson.M{"username": *req.Username}).One(&account) // find user in database
+	err = IAccountCollection.Find(GetOneAccountQuery(*req.ID)).One(&account) // find user in database
 	if err != nil {
 		if err.Error() == "not found" {
 			SendError(w, http.StatusBadRequest, "Invalid login.", 3101)
@@ -111,7 +111,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := make(jwt.MapClaims)
-	claims["username"] = account.UserName
+	claims["id"] = account.ID
 	claims["authkey"] = account.AuthKey
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(TOKEN_EXPIRY)).Unix()
 	token.Claims = claims
@@ -159,7 +159,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 	}
 
 	var a bson.M
-	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&a)
+	err = IAccountCollection.FindId(claims["_id"]).One(&a)
 	if CheckMongoQueryError(w, err, " (Account not found.)", 4002, 4000) != nil {
 		return
 	}
@@ -194,7 +194,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		user.PasswordResetToken = ""
 		user.Password = string(hashedPassword)
 
-		err = IAccountCollection.Update(bson.M{"username": claims["username"]}, user)
+		err = IAccountCollection.Update(bson.M{"_id": claims["id"]}, user)
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
 			return
@@ -210,7 +210,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		org.PasswordResetToken = ""
 		org.Password = string(hashedPassword)
 
-		err = IAccountCollection.Update(bson.M{"username": claims["username"]}, org)
+		err = IAccountCollection.Update(bson.M{"_id": claims["id"]}, org)
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
 			return

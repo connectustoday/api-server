@@ -7,7 +7,7 @@ import (
 
 func ConvertToIAccountAPI(acc interfaces_internal.IAccount) interfaces_api.IAccountAPI {
 	return interfaces_api.IAccountAPI{
-		UserName:    acc.UserName,
+		ID:          acc.ID.Hex(),
 		Email:       acc.Email,
 		Avatar:      acc.Avatar,
 		Header:      acc.Header,
@@ -21,7 +21,7 @@ func ConvertToIAccountAPI(acc interfaces_internal.IAccount) interfaces_api.IAcco
 
 func ConvertToIUserAPI(acc interfaces_internal.IUser) interfaces_api.IUserAPI {
 	return interfaces_api.IUserAPI{
-		UserName:    acc.UserName,
+		ID:          acc.ID.Hex(),
 		Email:       acc.Email,
 		Avatar:      acc.Avatar,
 		Header:      acc.Header,
@@ -40,7 +40,7 @@ func ConvertToIUserAPI(acc interfaces_internal.IUser) interfaces_api.IUserAPI {
 
 func ConvertToIOrganizationAPI(acc interfaces_internal.IOrganization) interfaces_api.IOrganizationAPI {
 	return interfaces_api.IOrganizationAPI{
-		UserName:      acc.UserName,
+		ID:            acc.ID.Hex(),
 		Email:         acc.Email,
 		Avatar:        acc.Avatar,
 		Header:        acc.Header,
