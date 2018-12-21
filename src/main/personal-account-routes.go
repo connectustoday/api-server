@@ -109,7 +109,7 @@ func PatchAccountSettingsRoute(w http.ResponseWriter, r *http.Request, _ httprou
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 		// Patch object
-		err = PatchObjectUsingRequest(w, r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&user.Settings).Elem())
+		err = PatchObjectUsingRequest(r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&user.Settings).Elem())
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 			return
@@ -136,7 +136,7 @@ func PatchAccountSettingsRoute(w http.ResponseWriter, r *http.Request, _ httprou
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 		// Patch object
-		err = PatchObjectUsingRequest(w, r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&org.Settings).Elem())
+		err = PatchObjectUsingRequest(r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&org.Settings).Elem())
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 			return
@@ -145,7 +145,7 @@ func PatchAccountSettingsRoute(w http.ResponseWriter, r *http.Request, _ httprou
 	}
 
 	// Save updated profile to DB
-	err = IAccountCollection.Update(bson.M{"username": acc.UserName}, save)
+	err = IAccountCollection.Update(bson.M{"_id": acc.ID}, save)
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
@@ -197,7 +197,7 @@ func PatchAccountProfileRoute(w http.ResponseWriter, r *http.Request, _ httprout
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 		// Patch object
-		err = PatchObjectUsingRequest(w, r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&user.PersonalInfo).Elem())
+		err = PatchObjectUsingRequest(r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&user.PersonalInfo).Elem())
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 			return
@@ -224,7 +224,7 @@ func PatchAccountProfileRoute(w http.ResponseWriter, r *http.Request, _ httprout
 		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
 		// Patch object
-		err = PatchObjectUsingRequest(w, r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&org.OrgInfo).Elem())
+		err = PatchObjectUsingRequest(r, reflect.ValueOf(&profile).Elem(), reflect.ValueOf(&org.OrgInfo).Elem())
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 			return
@@ -233,7 +233,7 @@ func PatchAccountProfileRoute(w http.ResponseWriter, r *http.Request, _ httprout
 	}
 
 	// Save updated profile to DB
-	err = IAccountCollection.Update(bson.M{"username": acc.UserName}, save)
+	err = IAccountCollection.Update(bson.M{"_id": acc.ID}, save)
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return

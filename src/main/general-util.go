@@ -93,7 +93,7 @@ func DecodeRequest(r *http.Request, obj interface{}) error {
 
 // Patch an internal object using a request
 
-func PatchObjectUsingRequest(w http.ResponseWriter, r *http.Request, parsedRef reflect.Value, internalRef reflect.Value) error {
+func PatchObjectUsingRequest(r *http.Request, parsedRef reflect.Value, internalRef reflect.Value) error {
 	original := map[string]interface{}{}
 
 	// parse into request into map to get names of actual fields
