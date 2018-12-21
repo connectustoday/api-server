@@ -569,10 +569,12 @@ Error Codes:
 
 #### Approve or don't approve validation
 
-`POST /v1/experiences/validations/:user/:id`
+`POST /v1/experiences/validations/:userid/:id`
 
 This query requires authentication.<br/>
 This query only applies to Organizations.
+
+`userid` is the ID of the user, NOT the email.
 
 Form Data:
 
