@@ -41,7 +41,7 @@ func ExperienceRoutes(prefix string, router *httprouter.Router) {
 
 	// Approve or don't approve validation (for organization)
 	// approve = boolean on whether or not to approved the validation
-	router.POST(prefix+"/validations/:user/:id", WithAccountVerify(ReviewExperienceValidationsRoute))
+	router.POST(prefix+"/validations/:userid/:id", WithAccountVerify(ReviewExperienceValidationsRoute))
 
 	// Approve validation (from email)
 	router.GET(prefix+"/email-approve/:token", EmailApproveExperienceValidationRoute)

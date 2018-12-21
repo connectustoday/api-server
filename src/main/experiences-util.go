@@ -42,7 +42,7 @@ func GetExperiencesRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Pa
 	var user interfaces_internal.IUser
 
 	// Find and get user object
-	err := IAccountCollection.Find(bson.M{"username": p.ByName("id"), "type": "User"}).One(&user)
+	err := IAccountCollection.Find(bson.M{"$or": GetOneAccountOr(p.ByName("id")), "type": "User"}).One(&user)
 	if CheckMongoQueryError(w, err, "  (User not found! Is this the correct account type?)", 4002, 4001) != nil {
 		return
 	}
@@ -151,7 +151,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 			// create jwt token for organization verification
 			claims := make(jwt.MapClaims)
-			claims["username"] = user.UserName
+			claims["id"] = user.ID.Hex()
 			claims["ms"] = time.Now().Unix()
 			claims["exp"] = time.Now().Add(time.Second * time.Duration(604800)).Unix() // expires in one week
 			token.Claims = claims
@@ -168,7 +168,6 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 				VerifyLink template.URL
 				Website    template.URL
 				Email      string
-				UserName   string
 				FullName   string
 				ExpName    string
 				ExpHours   string
@@ -178,7 +177,6 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			}{template.URL(verifyLink),
 				template.URL(SITE_DOMAIN),
 				user.Email,
-				user.UserName,
 				user.FirstName + " " + user.MiddleName + " " + user.LastName,
 				exp.Name,
 				strconv.Itoa(int(exp.Hours)),
@@ -201,17 +199,17 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 			// TODO DUPLICATE HEADERS SENT WHEN SAVING FAILURE
 
 			var org interfaces_internal.IOrganization
-			err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
+			err := IAccountCollection.Find(bson.M{"$or": GetOneAccountOr(exp.Organization), "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
 			if CheckMongoQueryError(w, err, " (Organization not found.)", 4002, 4001) != nil {
 				return
 			}
 
 			org.ExperienceValidations = append(org.ExperienceValidations, interfaces_internal.IValidations{
-				UserID:       user.UserName,
+				UserID:       user.ID.Hex(),
 				ExperienceID: exp.ID.Hex(), // TODO BSON OBJECT ID
 			}) // add validation entry to organization
 
-			err = IAccountCollection.Update(bson.M{"username": exp.Organization, "type": "Organization"}, org) // save to db
+			err = IAccountCollection.Update(bson.M{"$or": GetOneAccountOr(exp.Organization), "type": "Organization"}, org) // save to db
 			if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 				return
 			}
@@ -220,7 +218,7 @@ func CreateExperienceRoute(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 	user.Experiences = append(user.Experiences, exp) // add to user's experiences array
 	// finish adding experience to database
-	err = IAccountCollection.Update(bson.M{"username": user.UserName}, user)
+	err = IAccountCollection.Update(GetOneAccountQuery(user.ID.Hex()), user)
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
@@ -269,7 +267,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 
 		var org interfaces_internal.IOrganization
 		found := true
-		err := IAccountCollection.Find(bson.M{"username": exp.Organization, "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
+		err := IAccountCollection.Find(bson.M{"$or": GetOneAccountOr(exp.Organization), "type": "Organization"}).One(&org) // TODO CASE INSENSITIVE LOOKUPS
 
 		if err != nil {
 			if err.Error() == "not found" {
@@ -287,7 +285,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 
 			// remove all entries with the same id and user (duplicates as well)
 			for _, v := range org.ExperienceValidations {
-				if v.UserID == user.UserName && v.ExperienceID == exp.ID.Hex() {
+				if v.UserID == user.ID.Hex() && v.ExperienceID == exp.ID.Hex() {
 					found = true
 					org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...) // remove from slice
 					i--
@@ -296,7 +294,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 			}
 
 			if found { // if it exists
-				err := IAccountCollection.Update(bson.M{"username": exp.Organization, "type": "Organization"}, org)
+				err := IAccountCollection.Update(bson.M{"$or": GetOneAccountOr(exp.Organization), "type": "Organization"}, org)
 				if err != nil {
 					SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 					return
@@ -308,7 +306,7 @@ func DeleteExperienceRoute(w http.ResponseWriter, _ *http.Request, p httprouter.
 
 	// Save user object
 	user.Experiences = append(user.Experiences[:expIndex], user.Experiences[expIndex+1:]...)
-	err = IAccountCollection.Update(bson.M{"username": user.UserName}, user)
+	err = IAccountCollection.Update(GetOneAccountQuery(user.ID.Hex()), user)
 	if err != nil {
 		SendError(w, http.StatusInternalServerError, internalServerError, 4001)
 		return
@@ -382,7 +380,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 
 	// Remove the experience validation request from the organization object
 	for i := 0; i < len(org.ExperienceValidations); i++ {
-		if org.ExperienceValidations[i].UserID == p.ByName("user") && org.ExperienceValidations[i].ExperienceID == p.ByName("id") {
+		if org.ExperienceValidations[i].UserID == p.ByName("userid") && org.ExperienceValidations[i].ExperienceID == p.ByName("id") {
 			found = true
 			org.ExperienceValidations = append(org.ExperienceValidations[:i], org.ExperienceValidations[i+1:]...)
 			i--
@@ -396,14 +394,14 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 	}
 
 	// Save organization to db
-	err = IAccountCollection.Update(bson.M{"username": org.UserName}, org)
+	err = IAccountCollection.Update(bson.M{"_id": org.ID}, org)
 	if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 		return
 	}
 
 	// Update user experience object with approval
 	var user interfaces_internal.IUser
-	err = IAccountCollection.Find(bson.M{"username": p.ByName("user"), "type": "User"}).One(&user)
+	err = IAccountCollection.Find(bson.M{"_id": bson.ObjectIdHex(p.ByName("userid")), "type": "User"}).One(&user)
 	if CheckMongoQueryError(w, err, badRequest+" (User not found.)", 4003, 4001) != nil {
 		return
 	}
@@ -428,7 +426,7 @@ func ReviewExperienceValidationsRoute(w http.ResponseWriter, r *http.Request, p 
 		return
 	}
 
-	err = IAccountCollection.Update(bson.M{"username": p.ByName("user"), "type": "User"}, user)
+	err = IAccountCollection.Update(bson.M{"_id": p.ByName("userid"), "type": "User"}, user)
 	if CheckMongoQueryError(w, err, internalServerError, 4001, 4001) != nil {
 		return
 	}
@@ -452,7 +450,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 	}
 
 	var user interfaces_internal.IUser
-	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&user)
+	err = IAccountCollection.Find(bson.M{"_id": bson.ObjectIdHex(claims["id"].(string))}).One(&user)
 	if err != nil {
 		if err.Error() == "not found" {
 			w.WriteHeader(404)
@@ -482,7 +480,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 		return
 	}
 
-	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, user)
+	err = IAccountCollection.Update(bson.M{"_id": bson.ObjectIdHex(claims["username"].(string))}, user)
 
 	if err != nil {
 		w.WriteHeader(500)

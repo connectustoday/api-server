@@ -30,7 +30,7 @@ func WithAccountVerify(next accountPassRoute) httprouter.Handle {
 		}
 
 		var result bson.M // Get account
-		err = IAccountCollection.FindId(claims["id"]).One(&result)
+		err = IAccountCollection.FindId(bson.ObjectIdHex(claims["id"].(string))).One(&result)
 		if err != nil {
 			if err.Error() == "not found" { // Check if account exists
 				SendError(w, http.StatusInternalServerError, "Failed to authenticate token.", 3001)
@@ -111,7 +111,7 @@ func LoginRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	token := jwt.New(jwt.SigningMethodHS256)
 
 	claims := make(jwt.MapClaims)
-	claims["id"] = account.ID
+	claims["id"] = account.ID.Hex()
 	claims["authkey"] = account.AuthKey
 	claims["exp"] = time.Now().Add(time.Second * time.Duration(TOKEN_EXPIRY)).Unix()
 	token.Claims = claims
@@ -159,7 +159,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 	}
 
 	var a bson.M
-	err = IAccountCollection.FindId(claims["_id"]).One(&a)
+	err = IAccountCollection.FindId(bson.ObjectIdHex(claims["id"].(string))).One(&a)
 	if CheckMongoQueryError(w, err, " (Account not found.)", 4002, 4000) != nil {
 		return
 	}
@@ -194,7 +194,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		user.PasswordResetToken = ""
 		user.Password = string(hashedPassword)
 
-		err = IAccountCollection.Update(bson.M{"_id": claims["id"]}, user)
+		err = IAccountCollection.Update(bson.M{"_id": bson.ObjectIdHex(claims["id"].(string))}, user)
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
 			return
@@ -210,7 +210,7 @@ func EmailResetPasswordRoute(w http.ResponseWriter, r *http.Request, _ httproute
 		org.PasswordResetToken = ""
 		org.Password = string(hashedPassword)
 
-		err = IAccountCollection.Update(bson.M{"_id": claims["id"]}, org)
+		err = IAccountCollection.Update(bson.M{"_id": bson.ObjectIdHex(claims["id"].(string))}, org)
 		if err != nil {
 			SendError(w, http.StatusInternalServerError, internalServerError, 4000)
 			return

@@ -378,7 +378,7 @@ func RequestPasswordResetRoute(w http.ResponseWriter, r *http.Request, _ httprou
 
 	// Create jwt token to be used in email
 	tok, err := CreateJWTTokenHelper(PASSWORD_RESET_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
-		"id": acc.ID,
+		"id": acc.ID.Hex(),
 	})
 
 	if err != nil {

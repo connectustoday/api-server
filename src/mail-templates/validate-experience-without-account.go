@@ -64,8 +64,6 @@ const (
     <br>
     <strong>Email:</strong> {{.Email}}
     <br>
-    <strong>Username:</strong> {{.UserName}}
-    <br>
     <strong>Full Name:</strong> {{.FullName}}
     <br>
     <strong>Name of Experience:</strong> {{.ExpName}}
