@@ -57,8 +57,8 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 		SendError(w, http.StatusBadRequest, badRequest+" (Bad request.)", 4050)
 		return
 	}
-	if !VerifyUniqueEmail(*req.Email) { // Check if username is unique
-		SendError(w, http.StatusBadRequest, badRequest+" (Username already taken.)", 3201)
+	if !VerifyUniqueEmail(*req.Email) { // Check if email is unique
+		SendError(w, http.StatusBadRequest, badRequest+" (Email already taken.)", 3201)
 		return
 	}
 
@@ -221,10 +221,10 @@ func RegisterRoute(w http.ResponseWriter, r *http.Request, _ httprouter.Params) 
 
 // create jwt token for account verification
 
-func createEmailVerifyToken(username string) (string, error) {
+func createEmailVerifyToken(email string) (string, error) {
 	// expires in one week
 	tok, err := CreateJWTTokenHelper(REGISTER_VERIFY_SECRET, time.Now().Add(time.Second * time.Duration(43200)).Unix(), map[string]interface{}{
-		"username": username,
+		"email": email,
 	})
 	if err != nil {
 		return "", err
@@ -254,7 +254,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 
 	var acc interfaces_internal.IAccount
 
-	err = IAccountCollection.Find(bson.M{"username": claims["username"]}).One(&acc)
+	err = IAccountCollection.Find(bson.M{"email": claims["email"]}).One(&acc)
 
 	if err != nil {
 		if err.Error() == "not found" {
@@ -280,7 +280,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 	acc.IsEmailVerified = true
 	acc.VerifyEmailToken = ""
 
-	err = IAccountCollection.Update(bson.M{"username": claims["username"]}, acc)
+	err = IAccountCollection.Update(bson.M{"email": claims["email"]}, acc)
 	if err != nil {
 		w.WriteHeader(500)
 		_, _ = w.Write([]byte("Internal server error."))
@@ -296,7 +296,7 @@ func VerifyEmailRequestRoute(w http.ResponseWriter, _ *http.Request, p httproute
 
 func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	account, err := GetAccountDBAsBSON(bson.M{"username": p.ByName("id")})
+	account, err := GetAccountDBAsBSON(GetOneAccountQuery(p.ByName("id")))
 
 	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
@@ -311,7 +311,7 @@ func GetAccountRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params
 
 func GetAccountProfileRoute(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	w.Header().Set("Content-Type", "application/json")
-	account, err := GetAccountDBAsBSON(bson.M{"username": p.ByName("id")})
+	account, err := GetAccountDBAsBSON(GetOneAccountQuery(p.ByName("id")))
 
 	if CheckMongoQueryError(w, err, " (Account not found)", 4000, 4001) != nil {
 		return
