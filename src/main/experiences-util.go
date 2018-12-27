@@ -16,7 +16,7 @@ import (
 	"time"
 )
 
-// Get experiences of personal user (username found from token)
+// Get experiences of personal user (id found from token)
 // GET /v1/experiences
 // https://connectustoday.github.io/api-server/api-reference#experiences
 
@@ -480,7 +480,7 @@ func EmailApproveExperienceValidationRoute(w http.ResponseWriter, _ *http.Reques
 		return
 	}
 
-	err = IAccountCollection.Update(bson.M{"_id": bson.ObjectIdHex(claims["username"].(string))}, user)
+	err = IAccountCollection.Update(bson.M{"_id": bson.ObjectIdHex(claims["id"].(string))}, user)
 
 	if err != nil {
 		w.WriteHeader(500)
