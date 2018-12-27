@@ -195,11 +195,15 @@ func GenAuthKey() string {
 // id can be both email and ID
 
 func GetOneAccountQuery(id string) bson.M {
+
 	return bson.M{"$or": GetOneAccountOr(id)}
 }
 
 func GetOneAccountOr(id string) []bson.M {
-	return []bson.M{{"_id": bson.ObjectIdHex(id)}, {"email": ParseEncodedEmail(id)}}
+	if strings.Contains(id, "%40") || strings.Contains(id, "@") || !bson.IsObjectIdHex(id) {
+		return []bson.M{{"email": ParseEncodedEmail(id)}}
+	}
+	return []bson.M{{"_id": bson.ObjectIdHex(id)}}
 }
 
 func ParseEncodedEmail(email string) string {
